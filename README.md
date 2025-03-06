@@ -1,3 +1,3 @@
 # NovaBot
 ---
-### COMING ON MARCH 15th, 2025.
+### COMING ON MARCH 6TH, 2025.

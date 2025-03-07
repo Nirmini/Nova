@@ -18,7 +18,7 @@ fnm install 22
 node -v 
 npm -v 
 
-$repoPath = "$HOME\NovaBot"
+$repoPath = "%UserProfile%\Downloads\NovaBot"
 
 if (-not (Test-Path -Path $repoPath)) {
     git clone https://github.com/Nirmini/NovaBot.git $repoPath

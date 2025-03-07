@@ -1,3 +1,6 @@
 # NovaBot
+### Written by @thatWest7014
 ---
-### COMING ON MARCH 6TH, 2025.
+### Nova is an open-source bot for managing communities spread across multiple platforms in one place.
+---
+### For a guide on setting up Nova, see `SETUP.md`.

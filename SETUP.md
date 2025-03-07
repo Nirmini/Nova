@@ -3,7 +3,7 @@
 ## Prerequisits
 - Node.js 22.0.0 or later
 - NPM 10.0.0 or later
-- Visual Studio Code (Other IDEs may be used but VSC is recomended.)
+- [Visual Studio Code](https://code.visualstudio.com/Download) (Other IDEs may be used but VSC is recomended.)
 ---
 # 1. Downloading & Installing Nova
 ### There's 3 main ways to install Nova's source code. All three of the following will have instructiutons below.

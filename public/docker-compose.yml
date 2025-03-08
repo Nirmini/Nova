@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  nova-discordbot:
+    build: .
+    env_file:
+      - .env
+    restart: always

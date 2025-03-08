@@ -1,0 +1,38 @@
+{
+    "Names":{
+        "Bot":"Nova",
+        "Name":"NovaBot",
+        "Dev":"Nirmini Development",
+        "Maint":"Frost",
+        "GitHub":"https://example.com",
+        "Statuspage":"https://nirminidevteam.statuspage.io",
+        "Version":"../package.json"
+    },
+    "RGBcolours":{
+        "Main": "93, 50, 130",
+        "Alt": "95, 65, 124",
+        "Dark": "25, 11, 39",
+        "Faded": "56, 49, 65",
+        "Red": "230, 59, 44",
+        "Green": "44, 230, 53",
+        "Yellow": "240, 188, 46",
+        "Blue": "44, 127, 230"
+    },
+    "HSBColours":{
+        "Main": "272, 62, 51",
+        "Alt": "271, 48, 49",
+        "Dark": "270, 72, 15",
+        "Faded": "266, 25, 25",
+        "Red": "5, 81, 90",
+        "Green": "123, 81, 90",
+        "Yellow": "44, 81, 94",
+        "Blue": "213, 81, 90"
+    },
+    "Embedclours":{
+        "Main": "272, 62, 51",
+        "Red": "5, 81, 90",
+        "Green": "123, 81, 90",
+        "Yellow": "44, 81, 94",
+        "Blue": "213, 81, 90"
+    }
+}

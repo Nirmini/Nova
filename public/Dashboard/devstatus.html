@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shard Status</title>
+    
+    <!-- Dark Theme Styling -->
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Topbar */
+        .topbar {
+            background-color: #1e1e1e;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-bottom: 2px solid #333;
+        }
+
+        /* Main Content */
+        .container {
+            flex-grow: 1;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Shard Status Grid */
+        .shard-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            justify-items: center;
+            margin-top: 20px;
+        }
+
+        .shard {
+            width: 150px;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        /* Status Colors */
+        .online { background-color: #27ae60; }        /* Green */
+        .reconnecting { background-color: #f1c40f; } /* Yellow */
+        .offline { background-color: #e74c3c; }       /* Red */
+        .unknown { background-color: #7f8c8d; }       /* Gray */
+
+        /* Footer */
+        .footer {
+            background-color: #1e1e1e;
+            text-align: center;
+            padding: 10px;
+            font-size: 0.9em;
+            border-top: 2px solid #333;
+        }
+    </style>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9gDFgOzAnDDusE-Cq2E7KzFcX4d9sXKg",
+            authDomain: "nova-statusmngr.firebaseapp.com",
+            databaseURL: "https://nova-statusmngr-default-rtdb.firebaseio.com",
+            projectId: "nova-statusmngr",
+            storageBucket: "nova-statusmngr.firebasestorage.app",
+            messagingSenderId: "763554552610",
+            appId: "1:763554552610:web:fe8e7669c7f658128ca37b",
+            measurementId: "G-03GNBDKP5S"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Function to update shard status UI
+        function updateShardUI(shardData) {
+            const shardContainer = document.getElementById('shardContainer');
+            shardContainer.innerHTML = ''; // Clear old content
+
+            for (let i = 0; i < 100; i++) {
+                const status = shardData[i] ? shardData[i].status : "no_data";
+
+                // Determine background color
+                let bgColor;
+                switch (status) {
+                    case "online":
+                        bgColor = "green";
+                        break;
+                    case "reconnecting":
+                        bgColor = "yellow";
+                        break;
+                    case "offline":
+                    case "error":
+                        bgColor = "red";
+                        break;
+                    default:
+                        bgColor = "gray"; // No data
+                }
+
+                // Create shard status div
+                const shardDiv = document.createElement("div");
+                shardDiv.style.backgroundColor = bgColor;
+                shardDiv.style.padding = "10px";
+                shardDiv.style.margin = "5px";
+                shardDiv.style.borderRadius = "5px";
+                shardDiv.style.textAlign = "center";
+                shardDiv.style.color = "white";
+                shardDiv.style.fontWeight = "bold";
+
+                // Create shard title
+                const shardTitle = document.createElement("h2");
+                shardTitle.innerText = `Shard ${i}`;
+
+                // Append elements
+                shardDiv.appendChild(shardTitle);
+                shardContainer.appendChild(shardDiv);
+            }
+        }
+
+        // Listen for updates from Firebase
+        const statusRef = ref(db, "devshards");
+        onValue(statusRef, (snapshot) => {
+            if (snapshot.exists()) {
+                updateShardUI(snapshot.val());
+            } else {
+                console.warn("No dev shard status data available.");
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <!-- Topbar -->
+    <div class="topbar">Nova: Status Viewer</div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Shard Status Overview</h1>
+        <div class="shard-container" id="shardContainer"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        &copy; West7014 2025 | All rights reserved.
+    </div>
+</body>
+</html>

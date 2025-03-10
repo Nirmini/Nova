@@ -1,5 +1,5 @@
 # USE THIS TO INSTALL ALL OF NOVA'S DEPENDENCIES AND CLONE THE SOURCE GITHUB REPO CODE
-# TO UPDATE NOVA RUN "Remove-Item -Recurse -Force $HOME\NovaBotSource" THEN CONTINUE FROM LINE 15.
+# TO UPDATE NOVA RUN "Remove-Item -Recurse -Force %UserProfile%\Downloads\NovaBot" THEN CONTINUE FROM LINE 15.
 
 $gitInstalled = Get-Command git -ErrorAction SilentlyContinue
 if (-not $gitInstalled) {

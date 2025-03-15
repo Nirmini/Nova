@@ -9,7 +9,7 @@
 ### There are 3 main ways to install Nova's source code. All three of the following will have instructions below.
 - Using the pre-made installers in `./install-tools`
 - Installing the code in a zip package
-- Cloning the repo over SSH (It is not recommended unless you know what you're doing.)
+- Cloning the repo over SSH (Not recommended unless you know what you're doing.)
 
 ## Using Nova with a premade installer
 ### To use one of these simple copy the file into Powershell or Bash based on the OS you're using. Once the script is run, it will copy the files and install the packages, and that's it for this version.

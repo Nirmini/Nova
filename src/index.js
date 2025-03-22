@@ -1,12 +1,12 @@
 const { Client, IntentsBitField, ActivityType, Collection, MessageFlags, WebhookClient } = require('discord.js');
 const client = require('../core/global/Client');
-require('../core/global/statuspage');
-require('../core/global/statusmngr');
+require('../core/global/statuspage'); // To be removed from index.js
+require('../core/global/statusmngr'); // To be removed from index.js
 require('../src/autoresponses');
 require('../src/modules');
-const { qhguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds');
-const {blacklistedusers, bannedusers} = require("../servicedata/bannedusers");
-const {getData, setData, updateData, removeData } = require('./firebaseAdmin');
+const { qhguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds'); // To be updated
+const {blacklistedusers, bannedusers} = require("../servicedata/bannedusers"); // To be added
+const {getData, setData, updateData, removeData } = require('./firebaseAdmin'); // To be added
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
@@ -21,7 +21,7 @@ async function waitForShardsReady() {
 
     let allShardsReady = false;
     let attempt = 0;
-    const maxAttempts = 30; // Avoid infinite loops
+    const maxAttempts = 30; // Lets not cook the server with inf attmepts per shard.
 
     while (!allShardsReady && attempt < maxAttempts) {
         try {
@@ -52,7 +52,7 @@ async function waitForShardsReady() {
 const birthdayModule = require('../core/modules/birthday');
 birthdayModule.initializeCron(client);
 
-// Main bot ready event
+// Status Integrations
 client.once('ready', async () => {
     console.log(`Shard ${client.shard.ids[0]} is ready!`);
     
@@ -184,7 +184,7 @@ client.on('guildCreate', async (guild) => {
                 "GroupName": guild.name, // Default to Guild Name
                 "NirminiID": encodedID,
                 "RBXBinds": {
-                    "1-1": "<RoleIdHere>",
+                    "1-1": "<RoleIdHere>", // Remove Eventually
                     "2-2": "<RoleIdHere>"
                 },
                 "colours": {
@@ -198,12 +198,12 @@ client.on('guildCreate', async (guild) => {
                     "00001"
                 ],
                 "rbxgroup": "<GID>",
-                "substat": "L0/L1/L2"
+                "substat": "L0" // Default to L0 aka Free
             };
 
             // Store the config in Firebase
-            await setData(`/${guild.id}/config`, newGuildConfig);
-            console.log(`New guild config created for ${guild.name} (${guild.id}) with NirminiID ${newNirminiID}.`);
+            await setData(`/guildsettings/${guild.id}/config`, newGuildConfig);
+            console.log(`New guild config created for ${guild.name} (${guild.id}) with NirminiID of ${newNirminiID}.`);
         } else {
             console.log(`Config already exists for ${guild.name}, skipping creation.`);
         }
@@ -214,13 +214,13 @@ client.on('guildCreate', async (guild) => {
 
 // Create a rate limit map
 const rateLimitMap = new Map();
-const COMMAND_LIMIT = 4; // Maximum commands per minute
-const TIME_WINDOW = 10 * 1000; // 10 seconds in milliseconds
+const COMMAND_LIMIT = 4;
+const TIME_WINDOW = 10 * 1000;
 
 // Client Event Execution Handler
 client.on('interactionCreate', async (interaction) => {
     try {
-        /// Command Executor
+        // Main Command dummy check
         if (interaction.isCommand()) {
             const command = client.commands.get(interaction.commandName);
 

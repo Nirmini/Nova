@@ -4,7 +4,7 @@ const cron = require('node-cron');
 const BirthdayManager = require('../core/modules/birthday');
 
 /**
- * Loads and initializes all modules from the ../core/modules directory.
+ * Loads and initializes all modules from the ../core/modules directory. Hopefully.
  */
 class ModuleManager {
     constructor() {
@@ -23,7 +23,7 @@ class ModuleManager {
             return;
         }
 
-        const moduleFiles = fs.readdirSync(modulesPath).filter(file => file.endsWith('.js'));
+        const moduleFiles = fs.readdirSync(modulesPath).filter(file => file.endsWith('.js')); // TODO: Add Support for .npf files
 
         for (const file of moduleFiles) {
             const modulePath = path.join(modulesPath, file);

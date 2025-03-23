@@ -1,48 +1,58 @@
+//Core Deps
 const { Client, IntentsBitField, ActivityType, Collection, MessageFlags, WebhookClient } = require('discord.js');
 const client = require('../core/global/Client');
+const fs = require('fs');
+const path = require('path');
+const axios = require('axios');
+require('dotenv').config();
+
+//Op Modules
 require('../core/global/statuspage');
 require('../core/global/statusmngr');
 require('../src/autoresponses');
 require('../src/modules');
-const { qhguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds');
+require('../core/modules/NirminiAtlas/jsfiletree');
+require('../core/modules/NirminiAtlas/botintegration');
+
+//QoL Modules
+const NovaStatusMsgs = require('./statusmsgs');
+const { ndguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds');
 const {blacklistedusers, bannedusers} = require("../servicedata/bannedusers");
 const {getData, setData, updateData, removeData } = require('./firebaseAdmin');
-const fs = require('fs');
-const path = require('path');
-const axios = require('axios');
-const { env } = require('process');
-require('dotenv').config();
-const webhookURL = '<Your Log Webhook URL>';
+
+//Debugging
+const webhookURL = 'YOUR_LOG_WEBHOOK_URL'
 const webhookClient= new WebhookClient({ url: webhookURL});
 
-// Function to wait until all shards are ready
+
 async function waitForShardsReady() {
     console.log("Waiting for all shards to be ready...");
 
     let allShardsReady = false;
     let attempt = 0;
-    const maxAttempts = 30; // Avoid infinite loops
+    const maxAttempts = 50; // Increased attempts to handle slower initialization
+    const delay = 5000; // 5 seconds between checks
 
     while (!allShardsReady && attempt < maxAttempts) {
         try {
             const results = await client.shard.broadcastEval(c => Boolean(c.readyAt));
-            console.log(`Shard readiness check: ${results}`);
+            console.log(`Shard ready check: ${results}`);
 
             allShardsReady = results.length === client.shard.count && results.every(ready => ready);
 
             if (!allShardsReady) {
                 console.log(`Attempt ${attempt + 1}: Waiting for all shards to be ready...`);
-                await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds before retrying
+                await new Promise(resolve => setTimeout(resolve, delay));
                 attempt++;
             }
         } catch (error) {
-            console.error("Error while checking shard readiness:", error);
+            console.error("Error with shard readiness state: ", error);
         }
     }
 
     if (!allShardsReady) {
-        console.error("Some shards failed to become ready within the allowed time.");
-        process.exit(1); // Stop the bot if shards fail
+        console.error("Shards failed to become ready within the set time.");
+        process.exit(1);
     }
 
     console.log("✅ All shards are ready!");
@@ -59,6 +69,34 @@ client.once('ready', async () => {
     if (process.send) {
         process.send({ type: 'shardReady', shardId: client.shard.ids[0] }); // Notify manager
     }
+
+    // Set initial status
+    const setRandomStatus = () => {
+        const randomStatus = NovaStatusMsgs[Math.floor(Math.random() * NovaStatusMsgs.length)];
+        if (randomStatus) {
+            const message = typeof randomStatus.msg === 'function' ? randomStatus.msg() : randomStatus.msg; // Handle dynamic messages
+            if (message && message.trim() !== "") {
+                client.user.setPresence({
+                    activities: [{
+                        name: message,
+                        type: randomStatus.type === 1 ? ActivityType.Listening :
+                              randomStatus.type === 2 ? ActivityType.Watching :
+                              randomStatus.type === 3 ? ActivityType.Playing :
+                              ActivityType.Streaming,
+                        url: randomStatus.type === 4 ? 'https://www.twitch.tv/notwest7014' : undefined
+                    }],
+                    status: 'online'
+                });
+            } else {
+                console.error('Invalid or empty status message:', randomStatus);
+            }
+        }
+    };
+
+    setTimeout(() => {
+        setRandomStatus(); // Set initial status after 15 seconds
+        setInterval(setRandomStatus, 5 * 60 * 1000); // Change status every 5 minutes
+    }, 15 * 1000);
 });
 
 // Shard events
@@ -80,7 +118,7 @@ waitForShardsReady().then(() => {
     
     client.user.setPresence({
         activities: [{
-            name: `/info on ${client.shard.ids[0]}`,
+            name: `Starting..`,
             type: ActivityType.Streaming,
             url: 'https://www.twitch.tv/notwest7014'
         }],
@@ -151,17 +189,17 @@ try {
 }
 
 client.on('guildCreate', async (guild) => {
-    console.log(`Joined new guild: ${guild.name} (${guild.id})`);
+    console.log(`Joined new guild: ${guild.name} (@${guild.id})`);
 
     try {
         // Check if the guild already has a config in Firebase
-        const existingConfig = await getData(`/${guild.id}/config`);
+        const existingConfig = await getData(`guildsettings/${guild.id}/config`);
 
         if (!existingConfig) {
             console.log(`No config found for ${guild.name}. Creating a new one...`);
 
             // Get the current highest NirminiID from Firebase
-            const allGuilds = await getData(`/`);
+            const allGuilds = await getData(`/guildsettings/`);
             let highestID = 0;
 
             if (allGuilds) {
@@ -193,16 +231,13 @@ client.on('guildCreate', async (guild) => {
                 "commandconfigs": {
                     "verifiedrole": "<VerifiedRoleId>"
                 },
-                "disabledcommands": [
-                    "00000",
-                    "00001"
-                ],
+                "disabledcommands": [], // Initialize as an empty array/null
                 "rbxgroup": "<GID>",
-                "substat": "L0/L1/L2"
+                "substat": "L0" //Default to Lvl 0 aka free
             };
 
             // Store the config in Firebase
-            await setData(`/${guild.id}/config`, newGuildConfig);
+            await setData(`guildsettings/${guild.id}/config`, newGuildConfig);
             console.log(`New guild config created for ${guild.name} (${guild.id}) with NirminiID ${newNirminiID}.`);
         } else {
             console.log(`Config already exists for ${guild.name}, skipping creation.`);
@@ -282,7 +317,7 @@ client.on('interactionCreate', async (interaction) => {
             const isPremiumCommand = command.filePath?.includes('/premium/') ?? false;
             if (isPremiumCommand) {
                 const guildID = interaction.guild?.id;
-                if (!guildID || (!qhguilds.includes(guildID) && !premiumguilds.includes(guildID) && !partneredguilds.includes(guildID))) {
+                if (!guildID || (!ndguilds.includes(guildID) && !premiumguilds.includes(guildID) && !partneredguilds.includes(guildID))) {
                     await interaction.reply({
                         content: 'Failed to execute this command. This command is limited to Nirmini Partnered Guilds only.',
                         flags: MessageFlags.Ephemeral,
@@ -390,17 +425,39 @@ client.on('interactionCreate', async (interaction) => {
         }
     }
 });
+
+const WebhookMsg = `
+███╗   ██╗ ██████╗ ██╗   ██╗ █████╗   ██████╗  ██████╗ ████████╗  ███╗██████╗ ███████╗██╗   ██╗███╗
+████╗  ██║██╔═══██╗██║   ██║██╔══██╗  ██╔══██╗██╔═══██╗╚══██╔══╝  ██╔╝██╔══██╗██╔════╝██║   ██║╚██║
+██╔██╗ ██║██║   ██║██║   ██║███████║  ██████╔╝██║   ██║   ██║     ██║ ██║  ██║█████╗  ██║   ██║ ██║
+██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║  ██╔══██╗██║   ██║   ██║     ██║ ██║  ██║██╔══╝  ╚██╗ ██╔╝ ██║
+██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║  ██████╔╝╚██████╔╝   ██║     ███╗██████╔╝███████╗ ╚████╔╝ ███║
+╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝  ╚═════╝  ╚═════╝    ╚═╝     ╚══╝╚═════╝ ╚══════╝  ╚═══╝  ╚══╝
+                                                                                          
+                                                                                          
+█████████████████████████████████████████████████████████████████████████████████████████╗
+╚════════════════════════════════════════════════════════════════════════════════════════╝
+                                                                                          
+                                                                                                                                         
+ ██╗ ██████╗██╗     ██╗    ██╗███████╗███████╗████████╗███████╗ ██████╗  ██╗██╗  ██╗
+██╔╝██╔════╝╚██╗    ██║    ██║██╔════╝██╔════╝╚══██╔══╝╚════██║██╔═████╗███║██║  ██║
+██║ ██║      ██║    ██║ █╗ ██║█████╗  ███████╗   ██║       ██╔╝██║██╔██║╚██║███████║
+██║ ██║      ██║    ██║███╗██║██╔══╝  ╚════██║   ██║      ██╔╝ ████╔╝██║ ██║╚════██║
+╚██╗╚██████╗██╔╝    ╚███╔███╔╝███████╗███████║   ██║      ██║  ╚██████╔╝ ██║     ██║
+ ╚═╝ ╚═════╝╚═╝      ╚══╝╚══╝ ╚══════╝╚══════╝   ╚═╝      ╚═╝   ╚═════╝  ╚═╝     ╚═╝`;
+
+
 client.login(process.env.DISCORD_TOKEN);
 console.log(`
 ███████████████████████████████████████████████████████████████████████████████████████████████╗
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 
-███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗  ██████╗ ████████╗    ██╗   ██╗██████╗ ██████╗   ███╗ ██████╗ ███████╗███╗
-████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██╔═══██╗╚══██╔══╝    ██║   ██║╚════██╗╚════██╗  ██╔╝██╔═══██╗██╔════╝╚██║
-██╔██╗ ██║██║   ██║██║   ██║███████║    ██████╔╝██║   ██║   ██║       ██║   ██║ █████╔╝ █████╔╝  ██║ ██║   ██║███████╗ ██║
-██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║    ██╔══██╗██║   ██║   ██║       ╚██╗ ██╔╝██╔═══╝  ╚═══██╗  ██║ ██║   ██║╚════██║ ██║
-██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║    ██████╔╝╚██████╔╝   ██║        ╚████╔╝ ███████╗██████╔╝  ███╗╚██████╔╝███████║███║
-╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝         ╚═══╝  ╚══════╝╚═════╝   ╚══╝ ╚═════╝ ╚══════╝╚══╝
+███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗  ██████╗ ████████╗    ██╗   ██╗██████╗ ██████╗   ███╗██████╗ ███████╗██╗   ██╗███╗
+████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██╔═══██╗╚══██╔══╝    ██║   ██║╚════██╗╚════██╗  ██╔╝██╔══██╗██╔════╝██║   ██║╚██║
+██╔██╗ ██║██║   ██║██║   ██║███████║    ██████╔╝██║   ██║   ██║       ██║   ██║ █████╔╝ █████╔╝  ██║ ██║  ██║█████╗  ██║   ██║ ██║
+██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║    ██╔══██╗██║   ██║   ██║       ╚██╗ ██╔╝██╔═══╝  ╚═══██╗  ██║ ██║  ██║██╔══╝  ╚██╗ ██╔╝ ██║
+██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║    ██████╔╝╚██████╔╝   ██║        ╚████╔╝ ███████╗██████╔╝  ███╗██████╔╝███████╗ ╚████╔╝ ███║
+╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝         ╚═══╝  ╚══════╝╚═════╝   ╚══╝╚═════╝ ╚══════╝  ╚═══╝  ╚══╝
                                                                                                 
                                                                                                 
                                                                                                 
@@ -435,5 +492,4 @@ console.log(`
 ███████████████████████████████████████████████████████████████████████████████████████████████╗
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-webhookClient.send(`Starting Nova!`);
-                                                                                          
+webhookClient.send(`\`\`\`\n${WebhookMsg}\n\`\`\``);

@@ -4,7 +4,7 @@ const serviceAccount = require('../keys/status-serviceAccountKey.json');
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-        databaseURL: "<https://nova-statusmngr-default-rtdb.firebaseio.com or your status RTDB URL>"
+        databaseURL: "<YOUR_STATUS_FIREBASE_RTDB_URL>"
     });
 }
 

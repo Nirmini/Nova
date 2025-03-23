@@ -3,7 +3,7 @@ const path = require('path');
 require('dotenv').config();
 const { getData, setData, updateData, removeData } = require('./statusrtdb');
 
-const webhookURL = '<Your_Sahrding_Logs_Webhook_Here>';
+const webhookURL = 'YOUR_DEBUG_WEBHOOK_URL_HERE';
 const webhookClient = new WebhookClient({ url: webhookURL });
 const express = require('express');
 const app = express();
@@ -27,7 +27,7 @@ async function updateShardStatus(shardId, status, ping = null, guilds = null) {
 
         await updateData(`/devshards/${shardId}`, updateObj);
         console.log(`[Shard Monitor]: Updated shard ${shardId}:`, updateObj);
-        webhookClient.send(`[DEV] Shard ${shardId} updated: ${JSON.stringify(updateObj)}`);
+        webhookClient.send(`[DEVB] Shard ${shardId} updated: ${JSON.stringify(updateObj)}`);
     } catch (error) {
         console.error(`[Shard Monitor]: Error updating shard ${shardId} status:`, error);
     }
@@ -35,7 +35,7 @@ async function updateShardStatus(shardId, status, ping = null, guilds = null) {
 
 manager.on('shardCreate', (shard) => {
     console.log(`Launched shard ${shard.id}`);
-    webhookClient.send(`[DEV] Shard Monitor: Launched shard ${shard.id}`);
+    webhookClient.send(`[DEVB] Shard Monitor: Launched shard ${shard.id}`);
 
     shard.on('message', async (message) => {
         if (message.type === 'COMMAND_ACTIVE') {
@@ -48,11 +48,11 @@ manager.on('shardCreate', (shard) => {
             readyShards.add(message.shardId);
             await updateShardStatus(message.shardId, 'online');
 
-            // If all shards are ready, start index.js
+            // Check readiness only when all shards are ready
             if (readyShards.size === manager.totalShards) {
                 console.log('[Shard Monitor]: All shards are ready! Starting index.js...');
-                webhookClient.send('[DEV] Shard Monitor: All shards ready. Executing index.js.');
-                startIndex();
+                webhookClient.send('[DEVB] Shard Monitor: All shards ready. Executing index.js.');
+                startIndexOnce();
             }
         } else if (message.type === 'shardDisconnect') {
             await updateShardStatus(message.shardId, 'offline');
@@ -68,10 +68,11 @@ manager.on('shardCreate', (shard) => {
         readyShards.add(shard.id);
         await updateShardStatus(shard.id, 'online');
 
+        // Check readiness only when all shards are ready
         if (readyShards.size === manager.totalShards) {
             console.log('[Shard Monitor]: All shards are ready! Starting index.js...');
-            webhookClient.send('[DEV] Shard Monitor: All shards ready. Executing index.js.');
-            startIndex();
+            webhookClient.send('[DEVB] Shard Monitor: All shards ready. Executing index.js.');
+            startIndexOnce();
         }
     });
 
@@ -96,6 +97,25 @@ manager.on('shardCreate', (shard) => {
     });
 });
 
+// Ensure index.js is only started once
+let indexStarted = false;
+async function startIndexOnce() {
+    if (indexStarted) return; // Prevent multiple executions
+    indexStarted = true;
+
+    console.log('[Shard Monitor]: Executing index.js now that all shards are ready.');
+    const { exec } = require('child_process');
+    exec('node src/index.js', (err, stdout, stderr) => {
+        if (err) {
+            console.error(`[Shard Monitor]: Error executing index.js:`, err);
+            webhookClient.send(`[[DEVB] Shard Monitor]: Error executing index.js: ${err}`);
+            return;
+        }
+        console.log(`[Shard Monitor]: index.js output:\n${stdout}`);
+        if (stderr) console.error(`[Shard Monitor]: index.js errors:\n${stderr}`);
+    });
+}
+
 async function restartShards() {
     webhookClient.send("[[DEV] Shard Monitor]: Checking if shards are ready for a restart.");
     console.log('[Shard Monitor]: Checking if shards are ready for a restart.');
@@ -106,10 +126,10 @@ async function restartShards() {
     }
 
     console.log('[Shard Monitor]: No active commands. Restarting shards...');
-    webhookClient.send("[[DEV] Shard Monitor]: No active commands. Restarting shards...");
+    webhookClient.send("[[DEVB] Shard Monitor]: No active commands. Restarting shards...");
     await manager.respawnAll();
     console.log('[Shard Monitor]: All shards restarted successfully.');
-    webhookClient.send("[[DEV] Shard Monitor]: All shards restarted successfully.");
+    webhookClient.send("[[DEVB] Shard Monitor]: All shards restarted successfully.");
 }
 
 async function startIndex() {
@@ -118,7 +138,7 @@ async function startIndex() {
     exec('node src/index.js', (err, stdout, stderr) => {
         if (err) {
             console.error(`[Shard Monitor]: Error executing index.js:`, err);
-            webhookClient.send(`[[DEV] Shard Monitor]: Error executing index.js: ${err}`);
+            webhookClient.send(`[[DEVB] Shard Monitor]: Error executing index.js: ${err}`);
             return;
         }
         console.log(`[Shard Monitor]: index.js output:\n${stdout}`);
@@ -126,11 +146,11 @@ async function startIndex() {
     });
 }
 
-async function waitForAllShardsReady(shards) {
-    return new Promise((resolve) => {
-        let readyShards = new Set();
+async function waitForAllShardsReady() {
+    console.log('[Shard Monitor]: Waiting for all shards to be ready...');
+    let readyShards = new Set();
 
-        // Listen for 'ready' events from all shards
+    return new Promise((resolve) => {
         manager.on('shardCreate', (shard) => {
             shard.once('ready', () => {
                 readyShards.add(shard.id);
@@ -146,15 +166,15 @@ async function waitForAllShardsReady(shards) {
     });
 }
 
-manager.spawn().then(async (shards) => {
+manager.spawn({ timeout: -1 }).then(async (shards) => {
     console.log('[Shard Monitor]: All shards launched. Waiting for readiness...');
-    webhookClient.send("[[DEV] Shard Monitor]: All shards launched. Waiting for readiness...");
+    webhookClient.send("[[DEVB] Shard Monitor]: All shards launched. Waiting for readiness...");
 
     // Wait for all shards to be ready before continuing
-    await waitForAllShardsReady(shards);
+    await waitForAllShardsReady();
 
     console.log('[Shard Monitor]: All shards are now ready.');
-    webhookClient.send("[[DEV] Shard Monitor]: All shards are now ready.");
+    webhookClient.send("[[DEVB] Shard Monitor]: All shards are now ready.");
 
     // Initialize shard statuses in Firebase
     await setData('/devshards', {}); // Clears old shard data
@@ -164,9 +184,8 @@ manager.spawn().then(async (shards) => {
     setInterval(restartShards, RESHARD_INTERVAL);
 }).catch(error => {
     console.error('[Shard Monitor]: Error while launching shards:', error);
-    webhookClient.send(`[[DEV] Shard Monitor]: Error while launching shards: ${error}`);
+    webhookClient.send(`[[DEVB] Shard Monitor]: Error while launching shards: ${error}`);
 });
-
 
 app.get('/devshards', async (req, res) => {
     try {

@@ -9,19 +9,19 @@
 ### There are 3 main ways to install Nova's source code. All three of the following will have instructions below.
 - Using the pre-made installers in `./install-tools`
 - Installing the code in a zip package
-- Cloning the repo over SSH (It is not recommended unless you know what you're doing.)
+- Cloning the repo over SSH (Not recommended unless you know what you're doing.)
 
 ## Using Nova with a premade installer
 ### To use one of these simple copy the file into Powershell or Bash based on the OS you're using. Once the script is run, it will copy the files and install the packages, and that's it for this version.
 
 ## Using a download/zip.
-### First off, confirm you have Node.js 22 or later installed on your system by running `node -v` in a powershell terminal.
+### Firstly, confirm you have Node.js 22 or later installed on your system by running `node -v` in a powershell or bash terminal.
 
-### Secondly, if you haven't unzipped the folder, then do so now. It's recomended to unzip it into your Downloads folder.
+### Secondly, download the zip folder into your "Downloads" folder and unzip it. It's recommended to use the name NovaBot or the unpacked folder.
 
-### Thirdly, in a powershell terminal run `cd %UserProfile%\Downloads\NovaBot` once the folder is unzipped. (*If the name of the unzipped folder is different, then change `NovaBot` to the correct name.*)
+### Thirdly, once the folder is unzipped, use one of the following commands based on your OS. Windows(Powershell): `cd %UserProfile%\Downloads\NovaBot` Linux(Bash): `cd ~/Downloads/NovaBot` *(If the name of the unzipped folder is different, then change `NovaBot` to the folder name.)*
 
-### Fourthly, install all of Nova's dependancies by running these in the powershell terminal from above. `npm i`(i is short for install. This installs the packages listed in the `package.json` file.) then if needed run `npm audit fix`.
+### Fourthly, install all of Nova's dependencies by running the following commands in your terminal from before. `npm i` installs all of the packages the bot runs on. If you need to then run `npm audit fix` afterwards to resolve security issues in the package versions.
 
 ## Using SSH
 ### If you're using SSH, you probably know what you're doing. If not, go ask ChatGPT or use one of the above methods.
@@ -51,5 +51,5 @@
 ## Running the actual bot
 ### To start the bot simply run `npm start`. This will first publish all the commands in the `commands` folder. Then it will start sharding the bot and start it.
 ---
-##### Last updated: `8/3/25`
+##### Last updated: `7/3/25`
 ###### Written by `@thatWest7014`

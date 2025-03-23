@@ -1,0 +1,21 @@
+{
+    "GroupName": "Nirmini Development Community",
+    "NirminiID": "1",
+    "RBXBinds": {
+        "1-1": "<RoleIdHere>",
+        "2-2": "<RoleIdHere>"
+    },
+    "colours": {
+        "custom": false
+    },
+    "commandconfigs": {
+        "verifiedrole": "<VerifiedRoleId>"
+    },
+    "disabledcommands": [
+        
+    ],
+    "rbxgroup": "<GID>",
+    "substat": "L0",
+    "Appeals": "FALSE||SubmissionCooldownDays",
+    "actionlog": false
+}

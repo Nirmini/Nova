@@ -1,0 +1,16 @@
+{
+    "useremotedb": true,
+    "usegitlabflags": false,
+    "modules": {
+        "statuspageupdates" : true,
+        "statuspagecore" : true,
+        "spotify" : true,
+        "vexrobotics": true,
+        "github" : true,
+        "gitlab" : true,
+        "youtube" : true,
+        "roblox" : true,
+        "atlas": true,
+        "minecraft": true
+    }
+}

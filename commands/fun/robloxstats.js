@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
+const noblox = require('noblox.js');
 
 const novaRobloxEmojiId = '1335069604032282655'; // Nova Info emoji
 
@@ -37,6 +38,22 @@ module.exports = {
             const userInfoResponse = await axios.get(`https://users.roblox.com/v1/users/${userId}`);
             const joinDate = new Date(userInfoResponse.data.created).toDateString();
 
+            // Fetch user description from Roblox OpenCloud API
+            let description = userInfoResponse.data.description || 'No description available.';
+            if (description.length > 90) {
+                description = `${description.slice(0, 257)}...`;
+            }
+
+            // Fetch additional data using noblox.js
+            const profileInfo = await noblox.getPlayerInfo(userId);
+
+            const age = profileInfo.age || 'N/A';
+            const friendCount = profileInfo.friendCount || 0;
+            const followerCount = profileInfo.followerCount || 0;
+            const followingCount = profileInfo.followingCount || 0;
+            const oldNames = profileInfo.oldNames.length > 0 ? profileInfo.oldNames.join(', ') : 'None';
+            const isBanned = profileInfo.isBanned ? 'Yes' : 'No';
+
             // Fetch avatar using Roblox Thumbnail API
             const avatarResponse = await axios.get(`https://thumbnails.roblox.com/v1/users/avatar`, {
                 params: {
@@ -57,9 +74,23 @@ module.exports = {
             const embed = new EmbedBuilder()
                 .setTitle(`<:Roblox:${novaRobloxEmojiId}>  Roblox User Stats`)
                 .setDescription(`**Username:** ${accountName}\n**Display Name:** ${displayName}\n**Join Date:** ${joinDate}`)
+                .addFields(
+                    { name: 'Description', value: `${description}`, inline: false},
+                    { name: 'Account Age (days)', value: `${age}`, inline: true },
+                    { name: 'Friends', value: `${friendCount}`, inline: true },
+                    { name: 'Banned?', value: `${isBanned}`, inline: true},
+                    { name: 'Followers', value: `${followerCount}`, inline: true },
+                    { name: 'Following', value: `${followingCount}`, inline: true },
+                )
                 .setColor('Blue')
                 .setImage(avatarUrl)
                 .setTimestamp();
+
+                if (oldNames != 'None') {
+                    embed.addFields(
+                        { name: 'Previous Names', value: `${oldNames}`, inline: false }
+                    )
+                }
 
             await interaction.reply({ embeds: [embed] });
 

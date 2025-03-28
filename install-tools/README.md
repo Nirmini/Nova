@@ -4,5 +4,5 @@
 ### To keep this process safe changes to these scripts will only be made when needed and an announcement will be made.
 ---
 ## Installation Tools:
-- [`WINDOWS/Powershell`](./setuputil.ps1)
-- [`LINUX/Bash`](./setuputil.sh)
+- [`WINDOWS/Powershell`](https://github.com/Nirmini/NovaBot/blob/main/install-tools/setuputil.ps1)
+- [`LINUX/Bash`](https://github.com/Nirmini/NovaBot/blob/main/install-tools/setuputil.sh)

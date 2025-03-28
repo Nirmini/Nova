@@ -1,48 +1,56 @@
+//Core Deps
 const { Client, IntentsBitField, ActivityType, Collection, MessageFlags, WebhookClient } = require('discord.js');
 const client = require('../core/global/Client');
-require('../core/global/statuspage'); // To be removed from index.js
-require('../core/global/statusmngr'); // To be removed from index.js
-require('../src/autoresponses');
-require('../src/modules');
-const { qhguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds'); // To be updated
-const {blacklistedusers, bannedusers} = require("../servicedata/bannedusers"); // To be added
-const {getData, setData, updateData, removeData } = require('./firebaseAdmin'); // To be added
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const { env } = require('process');
 require('dotenv').config();
-const webhookURL = '<Your Log Webhook URL>';
+
+//Op Modules
+require('../core/global/statuspage');
+require('../core/global/statusmngr');
+require('../src/autoresponses');
+require('../src/modules');
+
+//QoL Modules
+const NovaStatusMsgs = require('./statusmsgs');
+const { ndguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds');
+const {blacklistedusers, bannedusers} = require("../servicedata/bannedusers");
+const {getData, setData, updateData, removeData } = require('./firebaseAdmin');
+
+//Debugging
+const webhookURL = 'YOUR_START_LOGS_WEBHOOK'
 const webhookClient= new WebhookClient({ url: webhookURL});
 
-// Function to wait until all shards are ready
+
 async function waitForShardsReady() {
     console.log("Waiting for all shards to be ready...");
 
     let allShardsReady = false;
     let attempt = 0;
-    const maxAttempts = 30; // Lets not cook the server with inf attmepts per shard.
+    const maxAttempts = 50; // Increased attempts to handle slower initialization
+    const delay = 5000; // 5 seconds between checks
 
     while (!allShardsReady && attempt < maxAttempts) {
         try {
             const results = await client.shard.broadcastEval(c => Boolean(c.readyAt));
-            console.log(`Shard readiness check: ${results}`);
+            console.log(`Shard ready check: ${results}`);
 
             allShardsReady = results.length === client.shard.count && results.every(ready => ready);
 
             if (!allShardsReady) {
                 console.log(`Attempt ${attempt + 1}: Waiting for all shards to be ready...`);
-                await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds before retrying
+                await new Promise(resolve => setTimeout(resolve, delay));
                 attempt++;
             }
         } catch (error) {
-            console.error("Error while checking shard readiness:", error);
+            console.error("Error with shard readiness state: ", error);
         }
     }
 
     if (!allShardsReady) {
-        console.error("Some shards failed to become ready within the allowed time.");
-        process.exit(1); // Stop the bot if shards fail
+        console.error("Shards failed to become ready within the set time.");
+        process.exit(1);
     }
 
     console.log("✅ All shards are ready!");
@@ -52,13 +60,41 @@ async function waitForShardsReady() {
 const birthdayModule = require('../core/modules/birthday');
 birthdayModule.initializeCron(client);
 
-// Status Integrations
+// Main bot ready event
 client.once('ready', async () => {
     console.log(`Shard ${client.shard.ids[0]} is ready!`);
     
     if (process.send) {
         process.send({ type: 'shardReady', shardId: client.shard.ids[0] }); // Notify manager
     }
+
+    // Set initial status
+    const setRandomStatus = () => {
+        const randomStatus = NovaStatusMsgs[Math.floor(Math.random() * NovaStatusMsgs.length)];
+        if (randomStatus) {
+            const message = typeof randomStatus.msg === 'function' ? randomStatus.msg() : randomStatus.msg; // Handle dynamic messages
+            if (message && message.trim() !== "") {
+                client.user.setPresence({
+                    activities: [{
+                        name: message,
+                        type: randomStatus.type === 1 ? ActivityType.Listening :
+                              randomStatus.type === 2 ? ActivityType.Watching :
+                              randomStatus.type === 3 ? ActivityType.Playing :
+                              ActivityType.Streaming,
+                        url: randomStatus.type === 4 ? 'https://www.twitch.tv/notwest7014' : undefined
+                    }],
+                    status: 'online'
+                });
+            } else {
+                console.error('Invalid or empty status message:', randomStatus);
+            }
+        }
+    };
+
+    setTimeout(() => {
+        setRandomStatus(); // Set initial status after 15 seconds
+        setInterval(setRandomStatus, 5 * 60 * 1000); // Change status every 5 minutes
+    }, 15 * 1000);
 });
 
 // Shard events
@@ -80,7 +116,7 @@ waitForShardsReady().then(() => {
     
     client.user.setPresence({
         activities: [{
-            name: `/info on ${client.shard.ids[0]}`,
+            name: `Starting..`,
             type: ActivityType.Streaming,
             url: 'https://www.twitch.tv/notwest7014'
         }],
@@ -155,13 +191,13 @@ client.on('guildCreate', async (guild) => {
 
     try {
         // Check if the guild already has a config in Firebase
-        const existingConfig = await getData(`/${guild.id}/config`);
+        const existingConfig = await getData(`guildsettings/${guild.id}/config`);
 
         if (!existingConfig) {
             console.log(`No config found for ${guild.name}. Creating a new one...`);
 
             // Get the current highest NirminiID from Firebase
-            const allGuilds = await getData(`/`);
+            const allGuilds = await getData(`/guildsettings/`);
             let highestID = 0;
 
             if (allGuilds) {
@@ -184,7 +220,7 @@ client.on('guildCreate', async (guild) => {
                 "GroupName": guild.name, // Default to Guild Name
                 "NirminiID": encodedID,
                 "RBXBinds": {
-                    "1-1": "<RoleIdHere>", // Remove Eventually
+                    "1-1": "<RoleIdHere>",
                     "2-2": "<RoleIdHere>"
                 },
                 "colours": {
@@ -193,17 +229,14 @@ client.on('guildCreate', async (guild) => {
                 "commandconfigs": {
                     "verifiedrole": "<VerifiedRoleId>"
                 },
-                "disabledcommands": [
-                    "00000",
-                    "00001"
-                ],
+                "disabledcommands": [], // Initialize as an empty array
                 "rbxgroup": "<GID>",
-                "substat": "L0" // Default to L0 aka Free
+                "substat": "L0/L1/L2"
             };
 
             // Store the config in Firebase
-            await setData(`/guildsettings/${guild.id}/config`, newGuildConfig);
-            console.log(`New guild config created for ${guild.name} (${guild.id}) with NirminiID of ${newNirminiID}.`);
+            await setData(`guildsettings/${guild.id}/config`, newGuildConfig);
+            console.log(`New guild config created for ${guild.name} (${guild.id}) with NirminiID ${newNirminiID}.`);
         } else {
             console.log(`Config already exists for ${guild.name}, skipping creation.`);
         }
@@ -214,13 +247,25 @@ client.on('guildCreate', async (guild) => {
 
 // Create a rate limit map
 const rateLimitMap = new Map();
-const COMMAND_LIMIT = 4;
-const TIME_WINDOW = 10 * 1000;
+const COMMAND_LIMIT = 4; // Maximum commands per minute
+const TIME_WINDOW = 10 * 1000; // 10 seconds in milliseconds
 
 // Client Event Execution Handler
 client.on('interactionCreate', async (interaction) => {
     try {
-        // Main Command dummy check
+        // Log the interaction type and IDs for debugging
+        console.log(`Interaction Type: ${interaction.type}`);
+        if (interaction.isCommand()) {
+            console.log(`Command Name: ${interaction.commandName}`);
+        } else if (interaction.isModalSubmit()) {
+            console.log(`Modal Custom ID: ${interaction.customId}`);
+        } else if (interaction.isButton()) {
+            console.log(`Button Custom ID: ${interaction.customId}`);
+        } else if (interaction.isStringSelectMenu()) {
+            console.log(`Select Menu Custom ID: ${interaction.customId}`);
+        }
+
+        // Handle Slash Commands
         if (interaction.isCommand()) {
             const command = client.commands.get(interaction.commandName);
 
@@ -229,84 +274,55 @@ client.on('interactionCreate', async (interaction) => {
                     content: 'Command not found!',
                     flags: MessageFlags.Ephemeral,
                 });
+                console.warn(`Command not found: ${interaction.commandName}`);
                 return;
             }
-
-            // Check if the user is blacklisted or banned
-            const { blacklistedusers, bannedusers } = require('../servicedata/bannedusers');
-            const userID = interaction.user.id;
-
-            if (blacklistedusers.includes(userID)) {
-                await interaction.reply({
-                    content: 'You are blacklisted and cannot use Nova.',
-                    flags: MessageFlags.Ephemeral,
-                });
-                console.log(`Blacklisted user ${interaction.user.username}@${userID} attempted to run a command.`);
-                return;
-            }
-
-            if (bannedusers.includes(userID)) {
-                await interaction.reply({
-                    content: 'You are banned from using Nova.',
-                    flags: MessageFlags.Ephemeral,
-                });
-                console.log(`Banned user ${interaction.user.username}@${userID} attempted to run a command.`);
-                return;
-            }
-
-            // Rate-limit handling
-            const now = Date.now();
-            if (!rateLimitMap.has(userID)) {
-                rateLimitMap.set(userID, []);
-            }
-
-            const timestamps = rateLimitMap.get(userID);
-
-            // Remove timestamps older than the time window
-            while (timestamps.length > 0 && timestamps[0] < now - TIME_WINDOW) {
-                timestamps.shift();
-            }
-
-            if (timestamps.length >= COMMAND_LIMIT) {
-                await interaction.reply({
-                    content: `Slow down <@${interaction.user.id}>! You're sending commands too quickly.`,
-                    flags: MessageFlags.Ephemeral,
-                });
-                return;
-            }
-
-            // Record this command's timestamp
-            timestamps.push(now);
-
-            // Premium command check
-            const isPremiumCommand = command.filePath?.includes('/premium/') ?? false;
-            if (isPremiumCommand) {
-                const guildID = interaction.guild?.id;
-                if (!guildID || (!qhguilds.includes(guildID) && !premiumguilds.includes(guildID) && !partneredguilds.includes(guildID))) {
-                    await interaction.reply({
-                        content: 'Failed to execute this command. This command is limited to Nirmini Partnered Guilds only.',
-                        flags: MessageFlags.Ephemeral,
-                    });
-                    return;
-                }
-            }
-
-            // Log the command usage
-            const username = interaction.user.username;
-            const commandName = interaction.commandName;
-            const args = interaction.options.data
-                .map((option) => `${option.name}: ${option.value}`)
-                .join(', ');
-            console.log(`${username}@${userID} Ran /${commandName}${args ? ` ${args}` : ''}`);
 
             try {
-                await command.execute(interaction); // Execute the command
+                await command.execute(interaction);
             } catch (error) {
                 console.error(`Error executing command ${interaction.commandName}:`, error);
                 await interaction.reply({
                     content: 'There was an error executing this command!',
                     flags: MessageFlags.Ephemeral,
                 });
+            }
+        }
+
+        // Handle Modal Submissions (Dynamic Handling)
+        else if (interaction.isModalSubmit()) {
+            // Dynamically find the command based on the modal's customId
+            const modalHandlerCommand = client.commands.find(cmd => cmd.modalHandler && interaction.customId.startsWith(cmd.data.name));
+            if (modalHandlerCommand?.modalHandler) {
+                try {
+                    await modalHandlerCommand.modalHandler(interaction);
+                } catch (error) {
+                    console.error(`Error handling modal interaction for ${modalHandlerCommand.data.name}:`, error);
+                    await interaction.reply({
+                        content: 'There was an error while processing the modal!',
+                        ephemeral: true,
+                    });
+                }
+            } else {
+                console.warn(`Unhandled modal interaction: ${interaction.customId}`);
+            }
+        }
+
+        // Handle Button Interactions
+        else if (interaction.isButton()) {
+            const buttonHandlerCommand = client.commands.find(cmd => cmd.buttonHandler && interaction.customId.startsWith(cmd.data.name));
+            if (buttonHandlerCommand?.buttonHandler) {
+                try {
+                    await buttonHandlerCommand.buttonHandler(interaction);
+                } catch (error) {
+                    console.error(`Error handling button interaction for ${buttonHandlerCommand.data.name}:`, error);
+                    await interaction.reply({
+                        content: 'There was an error processing this button interaction!',
+                        flags: MessageFlags.Ephemeral,
+                    });
+                }
+            } else {
+                console.warn(`Unhandled button interaction: ${interaction.customId}`);
             }
         }
 
@@ -318,12 +334,12 @@ client.on('interactionCreate', async (interaction) => {
                     content: 'Context menu command not found!',
                     flags: MessageFlags.Ephemeral,
                 });
+                console.warn(`Context menu command not found: ${interaction.commandName}`);
                 return;
             }
 
             try {
-                await ctxtCommand.execute(interaction); // Execute the context menu command
-                console.log(`${interaction.user.username}@${interaction.user.id} executed context menu command: ${interaction.commandName}`);
+                await ctxtCommand.execute(interaction);
             } catch (error) {
                 console.error(`Error executing context menu command ${interaction.commandName}:`, error);
                 await interaction.reply({
@@ -333,51 +349,21 @@ client.on('interactionCreate', async (interaction) => {
             }
         }
 
-        // Handle modal submissions
-        else if (interaction.isModalSubmit()) {
-            const modalHandlerCommand = client.commands.get(interaction.customId);
-            if (modalHandlerCommand?.modalHandler) {
-                try {
-                    await modalHandlerCommand.modalHandler(interaction);
-                } catch (error) {
-                    console.error('Error handling modal interaction:', error);
-                    await interaction.reply({
-                        content: 'There was an error processing this modal!',
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
-            }
-        }
-
-        // Handle button interactions
-        else if (interaction.isButton()) {
-            const buttonHandlerCommand = client.commands.get(interaction.customId);
-            if (buttonHandlerCommand?.buttonHandler) {
-                try {
-                    await buttonHandlerCommand.buttonHandler(interaction);
-                } catch (error) {
-                    console.error('Error handling button interaction:', error);
-                    await interaction.reply({
-                        content: 'There was an error processing this button interaction!',
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
-            }
-        }
-
-        // Handle dropdown menu (Select Menu) interactions
+        // Handle Dropdown Menu (Select Menu) Interactions
         else if (interaction.isStringSelectMenu()) {
-            const selectMenuCommand = client.commands.get(interaction.customId);
+            const selectMenuCommand = client.commands.find(cmd => cmd.selectMenuHandler && interaction.customId.startsWith(cmd.data.name));
             if (selectMenuCommand?.selectMenuHandler) {
                 try {
                     await selectMenuCommand.selectMenuHandler(interaction);
                 } catch (error) {
-                    console.error('Error handling select menu interaction:', error);
+                    console.error(`Error handling select menu interaction for ${selectMenuCommand.data.name}:`, error);
                     await interaction.reply({
                         content: 'There was an error processing this select menu!',
                         flags: MessageFlags.Ephemeral,
                     });
                 }
+            } else {
+                console.warn(`Unhandled select menu interaction: ${interaction.customId}`);
             }
         }
     } catch (error) {
@@ -390,17 +376,18 @@ client.on('interactionCreate', async (interaction) => {
         }
     }
 });
+
 client.login(process.env.DISCORD_TOKEN);
 console.log(`
 ███████████████████████████████████████████████████████████████████████████████████████████████╗
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 
-███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗  ██████╗ ████████╗    ██╗   ██╗██████╗ ██████╗   ███╗ ██████╗ ███████╗███╗
-████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██╔═══██╗╚══██╔══╝    ██║   ██║╚════██╗╚════██╗  ██╔╝██╔═══██╗██╔════╝╚██║
-██╔██╗ ██║██║   ██║██║   ██║███████║    ██████╔╝██║   ██║   ██║       ██║   ██║ █████╔╝ █████╔╝  ██║ ██║   ██║███████╗ ██║
-██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║    ██╔══██╗██║   ██║   ██║       ╚██╗ ██╔╝██╔═══╝  ╚═══██╗  ██║ ██║   ██║╚════██║ ██║
-██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║    ██████╔╝╚██████╔╝   ██║        ╚████╔╝ ███████╗██████╔╝  ███╗╚██████╔╝███████║███║
-╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝         ╚═══╝  ╚══════╝╚═════╝   ╚══╝ ╚═════╝ ╚══════╝╚══╝
+███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗  ██████╗ ████████╗    ██╗   ██╗██████╗ ██████╗   ███╗██████╗ ███████╗██╗   ██╗███╗
+████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██╔═══██╗╚══██╔══╝    ██║   ██║╚════██╗╚════██╗  ██╔╝██╔══██╗██╔════╝██║   ██║╚██║
+██╔██╗ ██║██║   ██║██║   ██║███████║    ██████╔╝██║   ██║   ██║       ██║   ██║ █████╔╝ █████╔╝  ██║ ██║  ██║█████╗  ██║   ██║ ██║
+██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║    ██╔══██╗██║   ██║   ██║       ╚██╗ ██╔╝██╔═══╝  ╚═══██╗  ██║ ██║  ██║██╔══╝  ╚██╗ ██╔╝ ██║
+██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║    ██████╔╝╚██████╔╝   ██║        ╚████╔╝ ███████╗██████╔╝  ███╗██████╔╝███████╗ ╚████╔╝ ███║
+╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝         ╚═══╝  ╚══════╝╚═════╝   ╚══╝╚═════╝ ╚══════╝  ╚═══╝  ╚══╝
                                                                                                 
                                                                                                 
                                                                                                 
@@ -416,14 +403,7 @@ console.log(`
 ██║ █╗ ██║██████╔╝██║   ██║      ██║   █████╗  ██╔██╗ ██║    ██║██╔██╗ ██║         ██║███████╗  
 ██║███╗██║██╔══██╗██║   ██║      ██║   ██╔══╝  ██║╚██╗██║    ██║██║╚██╗██║    ██   ██║╚════██║  
 ╚███╔███╔╝██║  ██║██║   ██║      ██║   ███████╗██║ ╚████║    ██║██║ ╚████║    ╚█████╔╝███████║  
- ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═══╝    ╚═╝╚═╝  ╚═══╝     ╚════╝ ╚══════╝  
-                                                                                                
-██████╗ ██╗   ██╗    ██╗    ██╗███████╗███████╗████████╗███████╗ ██████╗  ██╗██╗  ██╗           
-██╔══██╗╚██╗ ██╔╝    ██║    ██║██╔════╝██╔════╝╚══██╔══╝╚════██║██╔═████╗███║██║  ██║           
-██████╔╝ ╚████╔╝     ██║ █╗ ██║█████╗  ███████╗   ██║       ██╔╝██║██╔██║╚██║███████║           
-██╔══██╗  ╚██╔╝      ██║███╗██║██╔══╝  ╚════██║   ██║      ██╔╝ ████╔╝██║ ██║╚════██║           
-██████╔╝   ██║       ╚███╔███╔╝███████╗███████║   ██║      ██║  ╚██████╔╝ ██║     ██║           
-╚═════╝    ╚═╝        ╚══╝╚══╝ ╚══════╝╚══════╝   ╚═╝      ╚═╝   ╚═════╝  ╚═╝     ╚═╝           
+ ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═══╝    ╚═╝╚═╝  ╚═══╝     ╚════╝ ╚══════╝       
 
  ██╗ ██████╗██╗     ██╗    ██╗███████╗███████╗████████╗███████╗ ██████╗  ██╗██╗  ██╗     ██████╗  ██████╗ ██████╗ ███████╗ 
 ██╔╝██╔════╝╚██╗    ██║    ██║██╔════╝██╔════╝╚══██╔══╝╚════██║██╔═████╗███║██║  ██║     ╚════██╗██╔═████╗╚════██╗██╔════╝ 
@@ -436,4 +416,3 @@ console.log(`
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
 webhookClient.send(`Starting Nova!`);
-                                                                                          

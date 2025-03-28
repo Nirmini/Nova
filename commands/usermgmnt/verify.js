@@ -11,118 +11,156 @@ module.exports = {
         .setDescription('Verify your Roblox account to get the verified role.'),
 
     async execute(interaction) {
-        const modal = new ModalBuilder()
-            .setCustomId('robloxVerifyModal')
-            .setTitle('Roblox Verification');
+        try {
+            console.log(`${interaction.user.username}@${interaction.user.id} Ran /verify`);
 
-        const robloxUsernameInput = new TextInputBuilder()
-            .setCustomId('robloxUsername')
-            .setLabel('Enter your Roblox Username')
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true);
+            const modal = new ModalBuilder()
+                .setCustomId('verifyModal')
+                .setTitle('Roblox Verification');
 
-        const actionRow = new ActionRowBuilder().addComponents(robloxUsernameInput);
-        modal.addComponents(actionRow);
+            const robloxUsernameInput = new TextInputBuilder()
+                .setCustomId('robloxUsername')
+                .setLabel('Enter your Roblox Username')
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true);
 
-        await interaction.showModal(modal);
+            const actionRow = new ActionRowBuilder().addComponents(robloxUsernameInput);
+            modal.addComponents(actionRow);
+
+            await interaction.showModal(modal);
+        } catch (error) {
+            console.error('Error in /verify execute:', error);
+            await interaction.reply({
+                content: 'Something went wrong while starting the verification process. Please try again later.',
+                flags: MessageFlags.Ephemeral,
+            });
+        }
     },
 
     async modalHandler(interaction) {
-        if (interaction.type === InteractionType.ModalSubmit && interaction.customId === 'robloxVerifyModal') {
-            const robloxUsername = interaction.fields.getTextInputValue('robloxUsername');
-            const verificationCode = Math.floor(100000000000000 + Math.random() * 900000000000000);
+        if (interaction.type === InteractionType.ModalSubmit && interaction.customId === 'verifyModal') {
+            try {
+                console.log(`${interaction.user.username}@${interaction.user.id} Submitted Roblox Username`);
 
-            await interaction.reply({
-                content: `Please update your Roblox "About Me" section with the following code: \`${verificationCode}\`.\nAfter updating, click **Verify** below.`,
-                flags: MessageFlags.Ephemeral,
-                components: [
-                    {
-                        type: 1,
-                        components: [
-                            {
-                                type: 2,
-                                label: "Verify",
-                                style: 1,
-                                custom_id: `verifyCode-${robloxUsername}-${verificationCode}`,
-                            }
-                        ]
-                    }
-                ]
-            });
+                // Acknowledge the modal submission immediately
+                await interaction.deferReply({ ephemeral: true });
+
+                const robloxUsername = interaction.fields.getTextInputValue('robloxUsername');
+                const verificationCode = Math.floor(100000000000000 + Math.random() * 900000000000000);
+
+                console.log(`Generated verification code for ${robloxUsername}: ${verificationCode}`);
+
+                // Send the verification instructions
+                await interaction.editReply({
+                    content: `Please update your Roblox "About Me" section with the following code: \`${verificationCode}\`.\nAfter updating, click **Verify** below.`,
+                    components: [
+                        {
+                            type: 1,
+                            components: [
+                                {
+                                    type: 2,
+                                    label: "Verify",
+                                    style: 1,
+                                    custom_id: `verifyCode-${robloxUsername}-${verificationCode}`,
+                                }
+                            ]
+                        }
+                    ]
+                });
+            } catch (error) {
+                console.error('Error in /verify modalHandler:', error);
+                await interaction.editReply({
+                    content: 'Something went wrong while processing your verification request. Please try again later.',
+                });
+            }
         }
     },
 
     async buttonHandler(interaction) {
         if (interaction.customId.startsWith('verifyCode')) {
-            const [_, robloxUsername, verificationCode] = interaction.customId.split('-');
-
             try {
+                console.log(`${interaction.user.username}@${interaction.user.id} Clicked Verify Button`);
+
+                await interaction.deferReply({ ephemeral: true });
+
+                const [_, robloxUsername, verificationCode] = interaction.customId.split('-');
                 const userId = await noblox.getIdFromUsername(robloxUsername);
                 const profileInfo = await noblox.getPlayerInfo(userId);
 
+                console.log(`Fetched Roblox user data for ${robloxUsername}:`, profileInfo);
+
                 if (profileInfo.blurb.includes(verificationCode)) {
-                    const verifiedRole = interaction.guild.roles.cache.find(role => 
-                        role.name.toLowerCase().includes('employee')
-                    );
+                    const guildId = interaction.guild.id;
 
+                    // Check for verified role in the guild
+                    let verifiedRoleId = await getData(`/guildsettings/${guildId}/config/verifiedroleid`);
+                    let verifiedRole;
+
+                    if (verifiedRoleId) {
+                        verifiedRole = interaction.guild.roles.cache.get(verifiedRoleId);
+                    }
+
+                    // If no verified role exists, create one
                     if (!verifiedRole) {
-                        return interaction.reply({
-                            content: `Could not find a role containing "Employee" in this server. Please contact an admin.`,
-                            flags: MessageFlags.Ephemeral
+                        console.log('Creating new Verified role...');
+                        verifiedRole = await interaction.guild.roles.create({
+                            name: 'Verified',
+                            hoist: true,
+                            color: null,
+                            reason: 'Automatically created Verified role for user verification.',
                         });
+
+                        // Save the new role ID to the database
+                        await setData(`/guildsettings/${guildId}/config/verifiedroleid`, verifiedRole.id);
                     }
 
-                    // Store user verification in Firebase
-                    const userPath = `linkedusers/${interaction.user.id}/${userId}`;
-                    await setData(`${userPath}/username`, robloxUsername);
+                    // Assign the verified role to the user
+                    await interaction.member.roles.add(verifiedRole);
 
-                    // Track role changes
-                    const hadRole = interaction.member.roles.cache.has(verifiedRole.id);
-                    if (!hadRole) {
-                        await interaction.member.roles.add(verifiedRole);
-                    }
+                    // Save user data to Firebase
+                    const userData = {
+                        UserID: interaction.user.id,
+                        Username: interaction.user.username,
+                        Email: null, // To be handled by OAuth2
+                        TimeZ: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        RobloxID: userId,
+                        RobloxUName: robloxUsername,
+                        RobloxName: profileInfo.displayName,
+                        Birthday: {
+                            date: null, // Optional, can be added later
+                            UIDping: interaction.user.id,
+                        },
+                    };
 
-                    // Fetch user avatars
-                    const discordAvatar = interaction.user.displayAvatarURL({ extension: 'png', size: 256 });
-                    const robloxAvatar = await noblox.getPlayerThumbnail([userId], 420, 'png', false);
-                    const robloxAvatarURL = robloxAvatar[0]?.imageUrl || "https://via.placeholder.com/420";
+                    console.log(`Saving user data for ${interaction.user.username}@${interaction.user.id}:`, userData);
+                    await setData(`/userdata/${interaction.user.id}`, userData);
 
-                    // Generate verification embed
+                    // Send success embed
                     const embed = new EmbedBuilder()
                         .setTitle('Verification Successful')
                         .setColor(0x00FF00)
                         .setDescription(`You have been successfully verified as **${robloxUsername}**.`)
                         .addFields(
-                            { name: 'Added Role', value: hadRole ? 'Already had role' : verifiedRole.name, inline: true },
-                            { name: 'Removed Role', value: hadRole ? 'None' : 'N/A', inline: true }
+                            { name: 'Assigned Role', value: `<@&${verifiedRole.id}>`, inline: true },
+                            { name: 'Roblox Display Name', value: profileInfo.displayName, inline: true }
                         )
                         .setTimestamp();
 
-                    // Generate verification image
-                    const verificationImage = await createVerificationImage(discordAvatar, robloxAvatarURL);
-
-                    // Send response with embed and verification image
-                    await interaction.reply({
-                        embeds: [embed],
-                        files: [{ attachment: verificationImage, name: 'link_verification.png' }],
-                        flags: MessageFlags.Ephemeral
-                    });
-
+                    return interaction.editReply({ embeds: [embed] });
                 } else {
-                    await interaction.reply({
+                    console.warn(`Verification failed for ${robloxUsername}: Code not found in blurb.`);
+                    await interaction.editReply({
                         content: `Verification failed! The code was not found in your "About Me" section. Please update it correctly.`,
-                        flags: MessageFlags.Ephemeral
                     });
                 }
             } catch (error) {
-                console.error(error);
-                await interaction.reply({
+                console.error('Error in /verify buttonHandler:', error);
+                await interaction.editReply({
                     content: `There was an error verifying your Roblox account. Please try again.`,
-                    flags: MessageFlags.Ephemeral
                 });
             }
         }
-    }
+    },
 };
 
 /**

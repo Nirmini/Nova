@@ -1,17 +1,19 @@
 {
   "name": "nova",
-  "version": "23.0.0",
-  "homepage": "https://QuantumHorizonDevGroup.github.io/multi",
+  "version": "23.2.0",
+  "homepage": "https://thatwest7014.pages.dev/Nirmini/Nova",
   "author": {
-    "name": "Frost",
-    "email": "west701497@gmail.com"
+    "name": "thatWest7014",
+    "email": "west701497@gmail.com",
+    "url": "https://github.com/thatWest7014"
   },
   "private": true,
   "main": "src/index.js",
   "scripts": {
     "start": "node --no-warnings src/deploy-cmds && node --no-warnings src/shard-monitor",
-    "test": "node --no-warnings src/modules",
-    "tbench": "node --no-warnings testbench.js"
+    "test": "node -e \"const fs = require('fs'); const requiredFiles = ['src/index.js', 'src/firebaseAdmin.js', 'localdb.json', 'settings.json']; const missingFiles = requiredFiles.filter(file => !fs.existsSync(file)); if (missingFiles.length > 0) { console.error('Missing files:', missingFiles.join(', ')); process.exit(1); } else { console.log('All required files are present.'); process.exit(0); }\"",
+    "tbench": "node --no-warnings testbench.js",
+    "guilded": "node --no-warnings src/guilded"
   },
   "keywords": [
     "discord",
@@ -38,7 +40,7 @@
     "canvas": "^3.1.0",
     "cheerio": "^1.0.0",
     "cloudflare": "^3.5.0",
-    "discord.js": "^14.17.3",
+    "discord.js": "^14.18.0",
     "dotenv": "^16.4.5",
     "eris": "^0.18.0",
     "express": "^4.21.2",

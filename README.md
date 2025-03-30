@@ -1,3 +1,4 @@
+![Nova logo next to NovaBot with Nirmini Development below](https://raw.githubusercontent.com/Nirmini/NovaBot/refs/heads/main/Icos/NovaBot-GitHubSocialPreview.png)
 # NovaBot
 ### Written by @thatWest7014
 ---

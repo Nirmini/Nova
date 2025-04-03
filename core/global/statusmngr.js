@@ -1,8 +1,9 @@
+const { ChannelType, WebhookClient, MessageFlags } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const { WebhookClient, MessageFlags } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
+const client = require('./Client.js'); 
 
 const settingsPath = path.join(__dirname, '../../settings.json');
 let settings = {};
@@ -19,7 +20,7 @@ const STATUSPAGE_API_KEY = process.env.STATUSPAGEAPIKEY;
 const STATUSPAGE_PAGE_ID = process.env.PAGEID;
 const NOVADROPDOWN_ID = process.env.NOVADROPDOWN_ID;
 const STATUSPAGE_API = `https://api.statuspage.io/v1/pages/${STATUSPAGE_PAGE_ID}/incidents`;
-const webhookURL = 'YOUR_STATUS_LOGS_WEBHOOK_URL';
+const webhookURL = 'YOUR_STATUS_UPDATES_WEBHOOK_URL';
 const webhookClient = new WebhookClient({ url: webhookURL });
 
 const lockFilePath = path.join(__dirname, 'incidentLock.json');
@@ -66,6 +67,8 @@ if (ModuleEnabled) {
             });
 
             const incidents = response.data;
+
+            // Get IDs of resolved incidents
             const resolvedIncidentIds = incidents
                 .filter(incident => incident.status === 'resolved')
                 .map(incident => incident.id);
@@ -112,7 +115,7 @@ if (ModuleEnabled) {
         }
     }
 
-    async function sendDiscordWebhook(incident) {
+    async function sendDiscordWebhook(incident, client) {
         const statusEmojis = {
             investigating: '<:Investigating:1343438333145124966>',
             identified: '<:Identified:1343438330435731457>',
@@ -125,10 +128,10 @@ if (ModuleEnabled) {
             monitoring: 0x6ABD74,
             resolved: 0x6ABDB1
         };
-
+    
         const statusEmoji = statusEmojis[incident.status] || '<:NovaRed:1322771825087873147>';
         const embedTitle = `${statusEmoji} ${incident.name} - ${incident.status.charAt(0).toUpperCase() + incident.status.slice(1)}`;
-
+    
         const updateFields = incident.incident_updates.map(update => {
             let updateBody = update.body || 'Error';
             if (updateBody.length > 260) {
@@ -139,7 +142,7 @@ if (ModuleEnabled) {
                 value: `**<t:${Math.floor(new Date(update.created_at).getTime() / 1000)}:R>** - ${updateBody}`
             };
         });
-
+    
         const embed = {
             title: embedTitle,
             color: embedColours[incident.status] || 0xE74C3C,
@@ -147,48 +150,97 @@ if (ModuleEnabled) {
                 ...updateFields,
                 { name: '**Status**', value: `**${incident.status.charAt(0).toUpperCase() + incident.status.slice(1)}**` }
             ],
-            footer: { text: 'ATLAS: Nova Status Reporting Module' },
+            footer: { text: 'Nova: Status Notifications' },
             timestamp: new Date(incident.created_at).toISOString(),
         };
-
+    
         try {
-            await webhookClient.send({ embeds: [embed] });
+            // Send the embed to the webhook
+            const webhookMessage = await webhookClient.send({ embeds: [embed] });
             console.log('Sent new webhook message.');
+    
+            // Fetch the guild and channel using the bot client
+            const guildId = '1281856503447425188'; // Replace with your guild ID
+            const channelId = '1343391393229312052'; // Replace with your channel ID
+            const guild = await client.guilds.fetch(guildId); // Use the bot's client instance
+            const channel = await guild.channels.fetch(channelId); // Use the bot's client instance
+    
+            // Check if the channel is an announcement channel
+            if (!channel || channel.type !== ChannelType.GuildAnnouncement) {
+                console.error('The specified channel is not a valid announcement channel.');
+                return;
+            }
+    
+            // Fetch the message sent by the webhook
+            const fetchedMessages = await channel.messages.fetch({ limit: 10 }); // Fetch recent messages
+            const webhookSentMessage = fetchedMessages.find(msg => msg.author.id === webhookClient.id);
+    
+            if (webhookSentMessage) {
+                // Publish the message in the announcement channel
+                await webhookSentMessage.crosspost();
+                console.log('Published the message to the announcement channel.');
+            } else {
+                console.error('Could not find the webhook message to publish.');
+            }
         } catch (error) {
-            console.error('Error sending webhook:', error.response?.data || error.message);
+            console.error('Error sending or publishing webhook:', error.response?.data || error.message);
         }
     }
 
     async function updateStatusEmbed() {
-        const latestIncident = await fetchLatestIncident();
-        if (!latestIncident) {
-            console.log('No new updates.');
-            return;
+        try {
+            const response = await axios.get(STATUSPAGE_API, {
+                headers: {
+                    'Authorization': `OAuth ${STATUSPAGE_API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const incidents = response.data;
+
+            // Get the current timestamp
+            const now = Date.now();
+
+            // Filter incidents related to the specified component group and exclude resolved incidents
+            const filteredIncidents = incidents.filter(incident =>
+                incident.components.some(component => component.group_id === NOVADROPDOWN_ID) &&
+                incident.status !== 'resolved' && // Exclude resolved incidents
+                new Date(incident.updated_at).getTime() > now - 24 * 60 * 60 * 1000 // Only process incidents updated in the last 24 hours
+            );
+
+            if (!filteredIncidents.length) {
+                console.log('No new updates.');
+                return;
+            }
+
+            let lockModified = false;
+
+            // Process each incident
+            for (const incident of filteredIncidents) {
+                const incidentId = incident.id;
+                const latestUpdateId = incident.incident_updates[0]?.id;
+
+                // Check if the incident has already been processed
+                if (lock[incidentId] === latestUpdateId) {
+                    console.log(`Incident ${incidentId} already processed for the latest update.`);
+                    continue; // Skip this incident
+                }
+
+                // Send a webhook for the latest incident update
+                await sendDiscordWebhook(incident, client);
+
+                // Update the lock file with the latest update ID
+                lock[incidentId] = latestUpdateId;
+                lockModified = true;
+            }
+
+            // Save the lock file if it was modified
+            if (lockModified) {
+                saveLockFile();
+            }
+        } catch (error) {
+            console.error('Error updating status embed:', error.response?.data || error.message);
         }
-
-        const incidentId = latestIncident.id;
-        const latestUpdateId = latestIncident.incident_updates[0]?.id;
-
-        // Check if the incident is closed
-        if (latestIncident.status === 'resolved') {
-            console.log(`Incident ${incidentId} is resolved. Clearing lock file.`);
-            delete lock[incidentId]; // Remove the resolved incident from the lock
-            saveLockFile(); // Save the updated lock file
-            return;
-        }
-
-        // Check if the incident has already been processed
-        if (lock[incidentId] === latestUpdateId) {
-            console.log('Incident already processed for the latest update.');
-            return;
-        }
-
-        // Send a webhook for the latest incident update
-        await sendDiscordWebhook(latestIncident);
-
-        // Update the lock file with the latest update ID
-        lock[incidentId] = latestUpdateId;
-        saveLockFile();
     }
 
     cleanUpResolvedIncidents();

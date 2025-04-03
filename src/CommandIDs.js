@@ -41,7 +41,7 @@ const commands = [
     { id: "640130", name: "/setup", category: "core", subcommands: { 1: "roles", 2: "channels" } },
     { id: "080832", name: "/sponser", category: "core", subcommands: null },
     { id: "025486", name: "/status", category: "core", subcommands: null },
-    { id: "143969", name: "/updates", category: "core", subcommands: null },
+    { id: "141310", name: "/subscribe", category: "core", subcommands: {1: "updates", 2: "status"} },
     { id: "255223", name: "/wiki", category: "core", subcommands: null },
     { id: "648610", name: "/commands", category: "core", subcommands: { 1: "list", 2: "toggle" } },
     { id: "042585", name: "/eval", category: "event", subcommands: null },

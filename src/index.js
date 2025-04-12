@@ -6,6 +6,9 @@ const path = require('path');
 const axios = require('axios');
 require('dotenv').config();
 
+//Info
+const pkg = require('../package.json')
+
 //Op Modules
 require('../core/global/statuspage');
 require('../core/global/statusmngr');

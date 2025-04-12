@@ -1,16 +1,31 @@
 {
     "useremotedb": true,
     "usegitlabflags": false,
+    "allowremoteconfig": true,
+    "debugmode": false,
     "modules": {
-        "statuspageupdates" : true,
-        "statuspagecore" : true,
-        "spotify" : true,
+        "statuspageupdates": true,
+        "statuspagecore": true,
+        "spotify": true,
         "vexrobotics": true,
-        "github" : true,
-        "gitlab" : true,
-        "youtube" : true,
-        "roblox" : true,
+        "github": true,
+        "gitlab": true,
+        "youtube": true,
+        "roblox": true,
         "atlas": true,
         "minecraft": true
+    },
+    "apis": {
+        "roblox": true,
+        "github": true,
+        "gitlab": true,
+        "youtube": true,
+        "spotify": true,
+        "vexrobotics": true,
+        "minecraft": true
+    },
+    "msgwebhooks": {
+        "sharding": true,
+        "startmsg": true
     }
 }

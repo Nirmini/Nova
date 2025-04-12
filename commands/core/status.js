@@ -3,6 +3,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
+const { getData } = require('../../src/firebaseAdmin');
 require('dotenv').config();
 
 // Load package.json for Nova version
@@ -20,7 +21,6 @@ const parseColour = (key) => {
   const rgb = embedColours[key].split(',').map(num => Number(num.trim()));
   return rgb.length === 3 && rgb.every(n => !isNaN(n) && n >= 0 && n <= 255) ? rgb : [255, 255, 255]; // Validate range
 };
-
 
 const rgbToHexInt = ([r, g, b]) => (r << 16) | (g << 8) | b; // Correct function
 
@@ -75,12 +75,26 @@ module.exports = {
         const botUser = interaction.client.user;
         const guild = interaction.guild;
 
+        // Fetch guild-specific data from Firebase
+        let guildConfig;
+        try {
+            guildConfig = await getData(`guildsettings/${guild.id}/config`);
+        } catch (error) {
+            console.error('Error fetching guild config:', error);
+            guildConfig = null;
+        }
+
+        const disabledCommands = guildConfig?.disabledcommands || [];
+        const disabledCommandsList = disabledCommands.length > 0
+            ? disabledCommands.map(id => `- ${id}`).join('\n')
+            : 'None';
+
         const embed = new EmbedBuilder()
             .setTitle('**Nirmini Nova Info**')
             .setDescription(
                 'This bot is provided by the Novabot Team @ Nirmini Development. ' +
                 'If you have any questions or concerns, please contact us at our ' +
-                '[website](https://example.com) or [support server](https://example.com).'
+                '[website](https://thatwest7014.pages.dev/Nova) or [support server](https://discord.gg/9Y7aZejzUH).'
             )
             .addFields(
                 {
@@ -120,7 +134,8 @@ Date: ${gitCommit.date}
                 {
                     name: '**Guild Stats**',
                     value: `\`\`\`yaml
-Disabled Commands: [[Not Implemented Yet]]
+Disabled Commands:
+${disabledCommandsList}
 Members: ${guild.memberCount}
 Roles: ${guild.roles.cache.size}
 \`\`\``,
@@ -128,10 +143,10 @@ Roles: ${guild.roles.cache.size}
                 {
                     name: '**Group Stats**',
                     value: `\`\`\`yaml
-ROBLOX Group ID: [[Not Implemented]]
-Nova Group ID: [[Not Implemented]]
-ROBLOX Group Name: [[Not Implemented]]
-Nova Group Name: Not [[Implemented]]
+ROBLOX Group ID: ${guildConfig?.rbxgroup || 'Not Implemented'}
+Nova Group ID: ${guildConfig?.NirminiID || 'Not Implemented'}
+ROBLOX Group Name: ${guildConfig?.rbxgroupname || 'Not Implemented'}
+Nova Group Name: ${guildConfig?.GroupName || 'Not Implemented'}
 \`\`\``,
                 }
             )

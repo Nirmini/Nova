@@ -1,4 +1,11 @@
 # Nova Setup Guide
+
+> [!NOTE] 
+> Nova is primarily designed to run in Windows Powershell, Azure VM, and Ubuntu instances. Running the bot outside of these environments may lead to unexpected results.
+
+> [!IMPORTANT]
+> To deploy changes to slash commands or context menu commands you must run `npm start` or `node src/deploy-cmds` outside the running bot process.
+
 ---
 ## Prerequisits
 - [Node.js](https://nodejs.org/en/download) 22.0.0 or later

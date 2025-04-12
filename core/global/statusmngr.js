@@ -156,12 +156,16 @@ if (ModuleEnabled) {
     
         try {
             // Send the embed to the webhook
-            const webhookMessage = await webhookClient.send({ embeds: [embed] });
+            const webhookMessage = await webhookClient.send({
+                username: 'Nova://StatusUpdates',
+                avatarURL: 'https://i.imgur.com/32dvTiW.png',
+                embeds: [embed],
+                });
             console.log('Sent new webhook message.');
     
             // Fetch the guild and channel using the bot client
-            const guildId = '1281856503447425188'; // Replace with your guild ID
-            const channelId = '1343391393229312052'; // Replace with your channel ID
+            const guildId = '1225142849922928661'; // Replace with your guild ID
+            const channelId = '1360019791322284232'; // Replace with your channel ID
             const guild = await client.guilds.fetch(guildId); // Use the bot's client instance
             const channel = await guild.channels.fetch(channelId); // Use the bot's client instance
     

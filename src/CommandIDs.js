@@ -15,6 +15,8 @@ const commands = [
     { id: "978116", name: "?version", category: "altcommands", subcommands: null },
     { id: "936749", name: "?warn", category: "altcommands", subcommands: null },
     { id: "947326", name: "?birthday", category: "altcommands", subcommands: null },
+    { id: "284795", name: "$debugstats", category: "admin", subcommands: null },
+    { id: "264795", name: "$remoteconfig", category: "admin", subcommands: null },
     { id: "482716", name: "/embed", category: "admin", subcommands: null },
     { id: "735921", name: "/format", category: "admin", subcommands: null },
     { id: "947382", name: "/join", category: "admin", subcommands: null },

@@ -1,10 +1,10 @@
 const { SlashCommandBuilder, PermissionsBitField, MessageFlags, ChannelType } = require('discord.js');
 
-const updatesSourceGuildId = '1281856503447425188'; // Source guild ID for updates
-const updatesSourceChannelId = '1290048384949813380'; // Source announcement channel ID for updates
+const updatesSourceGuildId = '1225142849922928661'; // Source guild ID for updates
+const updatesSourceChannelId = '1360019129821827276'; // Source announcement channel ID for updates
 
-const statusSourceGuildId = '1281856503447425188'; // Source guild ID for status updates
-const statusSourceChannelId = '1343391393229312052'; // Source announcement channel ID for status updates
+const statusSourceGuildId = '1225142849922928661'; // Source guild ID for status updates
+const statusSourceChannelId = '1360019791322284232'; // Source announcement channel ID for status updates
 
 module.exports = {
     id: '2141310', // Unique 6-digit command ID

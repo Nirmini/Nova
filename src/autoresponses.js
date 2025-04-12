@@ -84,7 +84,6 @@ client.on('messageCreate', async (message) => {
     if (!guildResponsesForMessage) return;
 
     const triggers = {
-        secops: ['how secops', 'how qhsd', 'how security'],
         dev: ['how developer', 'how dev', 'how qhdt'],
         director: ['how director', 'how directorate'],
         manager: ['how manager', 'how corporate', 'how corp'],

@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const axios = require('axios');
-require('dotenv').config();
-const noblox = require('noblox.js');
+const RobloxAPI = require('../../core/APIs/Roblox'); // Import the internal Roblox.js API
+const noblox = require('noblox.js'); // Use noblox.js for unsupported features
 
 const novaRobloxEmojiId = '1335069604032282655'; // Nova Info emoji
 
@@ -20,82 +19,96 @@ module.exports = {
         const username = interaction.options.getString('username');
 
         try {
-            // Fetch user ID from username
-            const userResponse = await axios.post('https://users.roblox.com/v1/usernames/users', {
-                usernames: [username],
-                excludeBannedUsers: false
-            }, { headers: { 'Content-Type': 'application/json' } });
-
-            if (!userResponse.data.data.length) {
+            // Fetch user ID from username using Roblox.js API
+            const userId = await RobloxAPI.UserName2ID(username);
+            if (!userId) {
                 return interaction.reply({ content: '❌ User not found!', flags: MessageFlags.Ephemeral });
             }
 
-            const userId = userResponse.data.data[0].id;
-            const displayName = userResponse.data.data[0].displayName;
-            const accountName = userResponse.data.data[0].name;
-
-            // Fetch additional user info
-            const userInfoResponse = await axios.get(`https://users.roblox.com/v1/users/${userId}`);
-            const joinDate = new Date(userInfoResponse.data.created).toDateString();
-
-            // Fetch user description from Roblox OpenCloud API
-            let description = userInfoResponse.data.description || 'No description available.';
-            if (description.length > 90) {
-                description = `${description.slice(0, 257)}...`;
+            // Fetch general user info using Roblox.js API
+            const generalInfo = await RobloxAPI.GetGeneral(userId);
+            if (!generalInfo) {
+                return interaction.reply({ content: '❌ Failed to fetch user info!', flags: MessageFlags.Ephemeral });
             }
+
+            let { username: accountName, displayName, description, avatarUrl, joinDate } = generalInfo;
 
             // Fetch additional data using noblox.js
             const profileInfo = await noblox.getPlayerInfo(userId);
-
             const age = profileInfo.age || 'N/A';
             const friendCount = profileInfo.friendCount || 0;
             const followerCount = profileInfo.followerCount || 0;
             const followingCount = profileInfo.followingCount || 0;
-            const oldNames = profileInfo.oldNames.length > 0 ? profileInfo.oldNames.join(', ') : 'None';
+
+            // Safely handle oldNames
+            const oldNames = Array.isArray(profileInfo.oldNames) && profileInfo.oldNames.length > 0
+                ? profileInfo.oldNames.join(', ')
+                : 'None';
+
+            // Safely handle isBanned
             const isBanned = profileInfo.isBanned ? 'Yes' : 'No';
+            let accountNameWithStatus = accountName;
+            if (isBanned === 'Yes') {
+                accountNameWithStatus += ' **[BANNED]**';
+            }
 
-            // Fetch avatar using Roblox Thumbnail API
-            const avatarResponse = await axios.get(`https://thumbnails.roblox.com/v1/users/avatar`, {
-                params: {
-                    userIds: userId,
-                    size: "420x420",
-                    format: "Png",
-                    isCircular: false
-                }
-            });
+            // Append "☑" if the user is verified
+            if (profileInfo.isVerified) {
+                accountNameWithStatus += ' ☑';
+                displayName += ' ☑';
+            }
 
-            // Extract avatar URL
-            let avatarUrl = 'https://tr.rbxcdn.com/default-avatar.png'; // Default if not found
-            if (avatarResponse.data && avatarResponse.data.data.length > 0) {
-                avatarUrl = avatarResponse.data.data[0].imageUrl;
+            if (description.length > 110) {
+                description = description.slice(0, 107) + '...'; // Truncate long descriptions
+            }
+
+            // Fetch avatar details using Roblox Avatar API
+            const avatarDetailsResponse = await RobloxAPI.GetAvtrItms(userId);
+
+            // Check for specific keywords in the description or avatar assets
+            let footerText = '';
+            if (
+                description.toLowerCase().includes('furry') || // Check for "furry" in the description
+                avatarDetailsResponse.some(asset =>
+                    asset.name.toLowerCase().includes('fursuit') || // Check for "fursuit" in the avatar assets
+                    asset.name.toLowerCase().includes('kemono') || // Check for "kemono" in the avatar assets
+                    asset.name.toLowerCase().includes('tail') // Check for "tail" in the avatar assets
+                )
+            ) {
+                footerText = '\"UWU\" - West7014';
             }
 
             // Build the embed
             const embed = new EmbedBuilder()
-                .setTitle(`<:Roblox:${novaRobloxEmojiId}>  Roblox User Stats`)
-                .setDescription(`**Username:** ${accountName}\n**Display Name:** ${displayName}\n**Join Date:** ${joinDate}`)
+                .setTitle(`<:Roblox:${novaRobloxEmojiId}> Roblox User Stats`)
+                .setURL(`https://www.roblox.com/users/${userId}/profile`)
+                .setDescription(`**Username:** ${accountNameWithStatus}\n**Display Name:** ${displayName}`)
                 .addFields(
-                    { name: 'Description', value: `${description}`, inline: false},
+                    { name: 'Description', value: `${description}`, inline: false },
                     { name: 'Account Age (days)', value: `${age}`, inline: true },
                     { name: 'Friends', value: `${friendCount}`, inline: true },
-                    { name: 'Banned?', value: `${isBanned}`, inline: true},
                     { name: 'Followers', value: `${followerCount}`, inline: true },
                     { name: 'Following', value: `${followingCount}`, inline: true },
                 )
                 .setColor('Blue')
                 .setImage(avatarUrl)
-                .setTimestamp();
+                .setTimestamp(new Date(joinDate));
 
-                if (oldNames != 'None') {
-                    embed.addFields(
-                        { name: 'Previous Names', value: `${oldNames}`, inline: false }
-                    )
-                }
+            if (footerText) {
+                embed.setFooter({ text: footerText }); // Add the footer if the condition is met
+            }
+
+            if (oldNames !== 'None') {
+                embed.addFields(
+                    { name: 'Previous Names', value: `${oldNames}`, inline: false }
+                );
+            }
 
             await interaction.reply({ embeds: [embed] });
 
         } catch (error) {
-            console.error('Roblox API error:', error.response?.data || error.message);
+            const err = error.response?.data || error.message || error;
+            console.error('Roblox API error:', err);
             await interaction.reply({ content: '❌ Failed to fetch Roblox user info.', flags: MessageFlags.Ephemeral });
         }
     }

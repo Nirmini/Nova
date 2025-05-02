@@ -5,6 +5,7 @@ const fs = require('fs');
 const { execSync } = require('child_process');
 const { getData } = require('../../src/firebaseAdmin');
 require('dotenv').config();
+const {GetGroupNameFromID} = require('../../core/APIs/Roblox')
 
 // Load package.json for Nova version
 const packagePath = path.join(__dirname, '../../package.json');
@@ -89,6 +90,8 @@ module.exports = {
             ? disabledCommands.map(id => `- ${id}`).join('\n')
             : 'None';
 
+        const groupName = guildConfig?.rbxgroup ? await GetGroupNameFromID(guildConfig.rbxgroup) : 'Not Found';
+
         const embed = new EmbedBuilder()
             .setTitle('**Nirmini Nova Info**')
             .setDescription(
@@ -143,14 +146,14 @@ Roles: ${guild.roles.cache.size}
                 {
                     name: '**Group Stats**',
                     value: `\`\`\`yaml
-ROBLOX Group ID: ${guildConfig?.rbxgroup || 'Not Implemented'}
-Nova Group ID: ${guildConfig?.NirminiID || 'Not Implemented'}
-ROBLOX Group Name: ${guildConfig?.rbxgroupname || 'Not Implemented'}
-Nova Group Name: ${guildConfig?.GroupName || 'Not Implemented'}
+ROBLOX Group ID: ${guildConfig?.rbxgroup || 'None Found'}
+Nova Group ID: ${guildConfig?.NirminiID || 'An Error Occured'}
+ROBLOX Group Name: ${groupName || 'Not Found'}
+Nova Group Name: ${guildConfig?.GroupName || 'None Found'}
 \`\`\``,
                 }
             )
-            .setFooter({ text: 'Nova Statuses :3' })
+            .setFooter({ text: 'NovaBot Statuses' })
             .setTimestamp()
             .setColor(embedColors.Main); // Uses the parsed color from EmbedColours
 

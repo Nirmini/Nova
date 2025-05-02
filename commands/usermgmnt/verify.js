@@ -8,7 +8,7 @@ module.exports = {
     id: '9688368', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('verify')
-        .setDescription('Verify your Roblox account to get the verified role.'),
+        .setDescription('Verify your Roblox account with Nova'),
 
     async execute(interaction) {
         try {

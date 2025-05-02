@@ -4,9 +4,9 @@ module.exports = {
     id: '2876459', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('credits')
-        .setDescription('Multi Credits.'),
+        .setDescription('NovaBot Credits.'),
     async execute(interaction) {
-        const NirminiDevLogo = new AttachmentBuilder('./Icos/NirminiDevelopment.png');
+        const NirminiDevLogo = new AttachmentBuilder('./Icos/Nirmini/NirminiDevelopment-Banner.png');
         const NovaLogo = new AttachmentBuilder('./Icos/NirminiDevelopment.png');
         const creditsEmbed = new EmbedBuilder()
             .setColor(0x0099ff)
@@ -16,7 +16,7 @@ module.exports = {
             .addFields(
                 { name: '**TECHNICAL STAFF**', value: 'West7014 - Lead Developer and Project Manager' },
                 { name: '**ARTISTIC STAFF**', value: 'West7014 - Graphic Designer' },
-                { name: '**SUPPORTING DEVELOPERS**', value: '.aaron227 - Internal Bug Testing & QA Support Staff\nZacharyeb17 - Former Internal Bug Testing' },
+                { name: '**SUPPORTING DEVELOPERS**', value: '.aaron227 - Former Internal Bug Testing & QA Support Staff\nZacharyeb17 - Former Internal Bug Testing' },
                 { name: '**INSPIRATION**', 
 value: `
 - Dyno by Flexlabs
@@ -27,8 +27,8 @@ value: `
 ` }
             )
             .setTimestamp()
-            .setImage('attachment://NirminiDevelopment.png')
-            .setFooter({ text: '\"Creativity Unbound.\"' });
+            .setImage('attachment://NirminiDevelopment-Banner.png')
+            .setFooter({ text: '\"Unbound Potential.\"' });
 
         await interaction.reply({ embeds: [creditsEmbed], files: [NirminiDevLogo] });
     },

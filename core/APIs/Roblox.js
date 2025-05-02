@@ -166,6 +166,69 @@ async function GetGeneral(userId) {
     }
 }
 
+/**
+ * Fetches the rank of a user in a specific group.
+ * @param {number} userId - The Roblox User ID.
+ * @param {number} groupId - The Roblox Group ID.
+ * @returns {Promise<number>} - The rank of the user in the group (1-255).
+ */
+async function GetUserRankingRP(userId, groupId) {
+    try {
+        const response = await axios.get(`https://groups.roblox.com/v1/users/${userId}/groups/roles`);
+        const group = response.data.data.find(g => g.group.id === groupId);
+        return group ? group.role.rank : 0; // Return rank or 0 if not found
+    } catch (error) {
+        console.error(`Error fetching rank for UserID ${userId} in GroupID ${groupId}:`, error.response?.data || error.message);
+        return 0; // Return 0 if an error occurs
+    }
+}
+
+/**
+ * Checks if a user is a member of a specific group.
+ * @param {number} userId - The Roblox User ID.
+ * @param {number} groupId - The Roblox Group ID.
+ * @returns {Promise<boolean>} - True if the user is in the group, false otherwise.
+ */
+async function IsUserGroup(userId, groupId) {
+    try {
+        const response = await axios.get(`https://groups.roblox.com/v1/users/${userId}/groups/roles`);
+        return response.data.data.some(g => g.group.id === groupId);
+    } catch (error) {
+        console.error(`Error checking group membership for UserID ${userId} in GroupID ${groupId}:`, error.response?.data || error.message);
+        return false; // Return false if an error occurs
+    }
+}
+
+/**
+ * Fetches the name of a group from its ID.
+ * @param {number} groupId - The Roblox Group ID.
+ * @returns {Promise<string>} - The name of the group.
+ */
+async function GetGroupNameFromID(groupId) {
+    try {
+        const response = await axios.get(`https://groups.roblox.com/v1/groups/${groupId}`);
+        return response.data.name;
+    } catch (error) {
+        console.error(`Error fetching group name for GroupID ${groupId}:`, error.response?.data || error.message);
+        return null;
+    }
+}
+
+/**
+ * Fetches the username of a user from their ID.
+ * @param {number} userId - The Roblox User ID.
+ * @returns {Promise<string>} - The username of the user.
+ */
+async function GetUserNameFromID(userId) {
+    try {
+        const response = await axios.get(`https://users.roblox.com/v1/users/${userId}`);
+        return response.data.name;
+    } catch (error) {
+        console.error(`Error fetching username for UserID ${userId}:`, error.response?.data || error.message);
+        return null;
+    }
+}
+
 module.exports = {
     UserID2Name,
     UserName2ID,
@@ -174,4 +237,8 @@ module.exports = {
     GetBadges,
     GetAvtrItms,
     GetGeneral,
+    GetUserRankingRP,
+    IsUserGroup,
+    GetGroupNameFromID,
+    GetUserNameFromID,
 };

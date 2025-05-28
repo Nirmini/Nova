@@ -4,6 +4,25 @@ const { getData, setData } = require('../../src/firebaseAdmin');
 const { createCanvas, loadImage } = require('canvas');
 const path = require('path');
 
+/*
+sudo bash -c 'cat > /etc/systemd/system/novalyte.service' <<EOF
+[Unit]
+Description=Nova Lyte Discord Bot
+After=network.target
+
+[Service]
+Type=simple
+User=azureuser
+WorkingDirectory=/home/azureuser/NovaLyte
+ExecStart=/home/azureuser/novalyte-starter.sh
+Restart=always
+RestartSec-5
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
+EOF
+*/
 module.exports = {
     id: '9688368', // Unique 6-digit command ID
     data: new SlashCommandBuilder()

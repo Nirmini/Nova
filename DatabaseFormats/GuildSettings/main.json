@@ -1,10 +1,11 @@
 {
-    "GroupName": "Nirmini Development Community",
+    "GroupName": "Nirmini Development",
     "NirminiID": "1",
-    "RBXBinds": {
-        "1-1": "<RoleIdHere>",
-        "2-2": "<RoleIdHere>"
-    },
+    "RBXBinds": [
+        "bindid,min,max,roleid,group:groupid",
+        "bindid,min,max,roleid,badge:badgeid",
+        "bindid,min,max,roleid,pass:gamepassid"
+    ],
     "colours": {
         "custom": false
     },
@@ -12,15 +13,13 @@
         "verifiedrole": "<VerifiedRoleId>"
     },
     "disabledcommands": [
-        "00000",
-        "00001"
+
     ],
-    "rbxgroup": "<GID>",
-    "substat": "L0/L1/L2",
-    "Appeals": "FALSE||SubmissionCooldownDays",
-    "rbxbinds": {
-        "1-1": "<RoleIdHere>",
-        "2-2": "<RoleIdHere>"
-    },
-    "actionlog": false
+    "rbxgroup": null,
+    "substat": 0,
+    "Appeals": "FALSE(BOOL)||SubmissionCooldownDays(INT)",
+    "actionlog": false,
+    "cases": [
+        {"type":1, "id":0, "timestamp":"SmthUnixEncoded","authorID":"600...","targetID":"600...","reas":"example reason","isappealable":true,"appealed?":false}
+    ]
 }

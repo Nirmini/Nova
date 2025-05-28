@@ -55,11 +55,11 @@ module.exports = {
           });
         }
 
-        // Check if there are already 7 ranks in the guild
+        // Check if there are > 25 ranks in the guild
         const currentRankCount = Object.keys(currentRanks).length;
-        if (currentRankCount >= 7) {
+        if (currentRankCount > 25) { //increased ranks cap so users can use the feature
           return interaction.reply({
-            content: `You can only have up to 7 ranks in the guild. Please remove one before adding a new rank.`,
+            content: `You can only have up to 25 ranks in the guild. Please remove one before adding a new rank.`,
             flags: MessageFlags.Ephemeral,
           });
         }

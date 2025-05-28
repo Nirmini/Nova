@@ -1,14 +1,42 @@
 const admin = require('firebase-admin');
+const fs = require('fs');
+const path = require('path');
 const serviceAccount = require('../keys/serviceAccountKey.json');
+const settings = require('../settings.json');
+const mutex = require('../core/APIs/Mutex'); // Import the shared mutex
 
-if (!admin.apps.length) {
-    admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        databaseURL: "<Your Firebase RTDB URL>"
-    });
+let db;
+
+// Initialize Firebase only if useremotedb is true
+if (settings.useremotedb) {
+    if (!admin.apps.length) {
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            databaseURL: "https://multi-guildcloud-default-rtdb.firebaseio.com"
+        });
+    }
+    db = admin.database();
 }
 
-const db = admin.database();
+// Path to the local database file
+const localDbPath = path.join(__dirname, '../localdb.json');
+
+/**
+ * Reads the local database file and parses it into an object.
+ * @returns {object} - The parsed local database.
+ */
+function readLocalDb() {
+    const data = fs.readFileSync(localDbPath, 'utf-8');
+    return JSON.parse(data);
+}
+
+/**
+ * Writes the given object to the local database file.
+ * @param {object} data - The data to write to the local database.
+ */
+function writeLocalDb(data) {
+    fs.writeFileSync(localDbPath, JSON.stringify(data, null, 2), 'utf-8');
+}
 
 /**
  * Checks if a string is Base64 encoded.
@@ -32,24 +60,41 @@ function isBase64(str) {
  * @returns {Promise<any>} - The decoded data at the specified path.
  */
 async function getData(path) {
+    console.warn("/src/firebaseAdmin is Deprecated, use /core/APIS/RTDB_connecter instead.");
+    await mutex.lock(); // Acquire the mutex
     try {
-        const snapshot = await db.ref(path).once('value');
-        const value = snapshot.val();
+        if (settings.useremotedb) {
+            const snapshot = await db.ref(path).once('value');
+            const value = snapshot.val();
 
-        if (value === null) {
-            console.warn(`Warning: No data found at path "${path}"`);
-            return null;
+            if (value === null) {
+                console.warn(`Warning: No data found at path "${path}"`);
+                return null;
+            }
+
+            // Decode only if the value is a valid Base64 string
+            if (typeof value === 'string' && isBase64(value)) {
+                return Buffer.from(value, 'base64').toString('utf-8');
+            }
+
+            return value; // Return numbers and other types as-is
+        } else {
+            const localDb = readLocalDb();
+            const keys = path.split('/');
+            let value = localDb;
+
+            for (const key of keys) {
+                value = value[key];
+                if (value === undefined) {
+                    console.warn(`Warning: No data found at path "${path}"`);
+                    return null;
+                }
+            }
+
+            return value;
         }
-
-        // Decode only if the value is a valid Base64 string
-        if (typeof value === 'string' && isBase64(value)) {
-            return Buffer.from(value, 'base64').toString('utf-8');
-        }
-
-        return value; // Return numbers and other types as-is
-    } catch (error) {
-        console.error(`Error getting data from path "${path}":`, error.message);
-        throw error;
+    } finally {
+        mutex.unlock(); // Release the mutex
     }
 }
 
@@ -61,15 +106,31 @@ async function getData(path) {
  * @returns {Promise<void>}
  */
 async function setData(path, data) {
+    console.warn("/src/firebaseAdmin is Deprecated, use /core/APIS/RTDB_connecter instead.");
+    await mutex.lock(); // Acquire the mutex
     try {
-        const processedData = (typeof data === 'string') 
-            ? Buffer.from(data, 'utf-8').toString('base64') 
-            : data; // Keep numbers and other types as-is
+        if (settings.useremotedb) {
+            const processedData = (typeof data === 'string') 
+                ? Buffer.from(data, 'utf-8').toString('base64') 
+                : data; // Keep numbers and other types as-is
 
-        await db.ref(path).set(processedData);
-    } catch (error) {
-        console.error(`Error setting data at path "${path}":`, error.message);
-        throw error;
+            await db.ref(path).set(processedData);
+        } else {
+            const localDb = readLocalDb();
+            const keys = path.split('/');
+            let current = localDb;
+
+            for (let i = 0; i < keys.length - 1; i++) {
+                const key = keys[i];
+                if (!current[key]) current[key] = {};
+                current = current[key];
+            }
+
+            current[keys[keys.length - 1]] = data;
+            writeLocalDb(localDb);
+        }
+    } finally {
+        mutex.unlock(); // Release the mutex
     }
 }
 
@@ -81,17 +142,34 @@ async function setData(path, data) {
  * @returns {Promise<void>}
  */
 async function updateData(path, updates) {
+    console.warn("/src/firebaseAdmin is Deprecated, use /core/APIS/RTDB_connecter instead.");
+    await mutex.lock(); // Acquire the mutex
     try {
-        const processedUpdates = {};
-        for (const key in updates) {
-            processedUpdates[key] = (typeof updates[key] === 'string') 
-                ? Buffer.from(updates[key], 'utf-8').toString('base64') 
-                : updates[key]; // Keep numbers and other types as-is
+        if (settings.useremotedb) {
+            const processedUpdates = {};
+            for (const key in updates) {
+                processedUpdates[key] = (typeof updates[key] === 'string') 
+                    ? Buffer.from(updates[key], 'utf-8').toString('base64') 
+                    : updates[key]; // Keep numbers and other types as-is
+            }
+            await db.ref(path).update(processedUpdates);
+        } else {
+            const localDb = readLocalDb();
+            const keys = path.split('/');
+            let current = localDb;
+
+            for (let i = 0; i < keys.length - 1; i++) {
+                const key = keys[i];
+                if (!current[key]) current[key] = {};
+                current = current[key];
+            }
+
+            const lastKey = keys[keys.length - 1];
+            current[lastKey] = { ...current[lastKey], ...updates };
+            writeLocalDb(localDb);
         }
-        await db.ref(path).update(processedUpdates);
-    } catch (error) {
-        console.error(`Error updating data at path "${path}":`, error.message);
-        throw error;
+    } finally {
+        mutex.unlock(); // Release the mutex
     }
 }
 
@@ -101,11 +179,27 @@ async function updateData(path, updates) {
  * @returns {Promise<void>}
  */
 async function removeData(path) {
+    console.warn("/src/firebaseAdmin is Deprecated, use /core/APIS/RTDB_connecter instead.");
+    await mutex.lock(); // Acquire the mutex
     try {
-        await db.ref(path).remove();
-    } catch (error) {
-        console.error(`Error removing data at path "${path}":`, error.message);
-        throw error;
+        if (settings.useremotedb) {
+            await db.ref(path).remove();
+        } else {
+            const localDb = readLocalDb();
+            const keys = path.split('/');
+            let current = localDb;
+
+            for (let i = 0; i < keys.length - 1; i++) {
+                const key = keys[i];
+                if (!current[key]) return; // Path doesn't exist
+                current = current[key];
+            }
+
+            delete current[keys[keys.length - 1]];
+            writeLocalDb(localDb);
+        }
+    } finally {
+        mutex.unlock(); // Release the mutex
     }
 }
 

@@ -31,9 +31,9 @@ module.exports = {
 
         const roleData = pinnedRoles[role.id] || [];
         
-        // Check if the role already has 7 pinned users
-        if (roleData.length >= 7) {
-            return interaction.reply({ content: `This role already has 7 pinned users. Please unpin a user first.`, flags: MessageFlags.Ephemeral });
+        // Check if the role already has at least 30 pinned users
+        if (roleData.length >= 30) { //Increased from 7 to 30 to allow for users to utilize the feature more than once.
+            return interaction.reply({ content: `This role already has 30 pinned users. Please unpin a user first.`, flags: MessageFlags.Ephemeral });
         }
 
         // Check if the user already has this pinned role

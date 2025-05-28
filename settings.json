@@ -3,8 +3,25 @@
     "usegitlabflags": false,
     "allowremoteconfig": true,
     "debugmode": false,
+    "allowremoteshellexec": true,
+    "slashcommandsenabled": true,
+    "extendedlogs": true,
+    "operator": {
+        "username": "west7014",
+        "userId": "600464355917692952"
+    },
+    "watchdogcfg":{
+        "enabled":true,
+        "alertdisabled":true,
+        "lv":5,
+        "modules":{
+            "network":true,
+            "performance":true,
+            "operations":true
+        }
+    },
     "modules": {
-        "statuspageupdates": true,
+        "statuspageupdates": false,
         "statuspagecore": true,
         "spotify": true,
         "vexrobotics": true,
@@ -27,5 +44,12 @@
     "msgwebhooks": {
         "sharding": true,
         "startmsg": true
+    },
+    "overrideallowedcommands": false,
+    "slashcmdwhitelist": [
+        "SLASH_COMMAND_ID_HERE"
+    ],
+    "NovaAPI-Config":{
+        "APIPATH":"https://thatwest7014.pages.dev/API/Nova"
     }
 }

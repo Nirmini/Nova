@@ -1,10 +1,11 @@
 //Core Deps
-const { Client, IntentsBitField, ActivityType, Collection, MessageFlags, WebhookClient } = require('discord.js');
+const { Client, IntentsBitField, ActivityType, Collection, MessageFlags, WebhookClient, EmbedBuilder } = require('discord.js');
 const client = require('../core/global/Client');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 require('dotenv').config();
+const settings = require('../settings.json')
 
 //Info
 const pkg = require('../package.json')
@@ -22,7 +23,7 @@ const {blacklistedusers, bannedusers} = require("../servicedata/bannedusers");
 const {getData, setData, updateData, removeData } = require('./firebaseAdmin');
 
 //Debugging
-const webhookURL = 'YOUR_START_LOGS_WEBHOOK'
+const webhookURL = 'YOUR_LOGS_WEBHOOK_URL_HERE'
 const webhookClient= new WebhookClient({ url: webhookURL});
 
 
@@ -63,13 +64,39 @@ async function waitForShardsReady() {
 const birthdayModule = require('../core/modules/birthday');
 birthdayModule.initializeCron(client);
 
+const dns = require('dns');
+
+function getInitialPing() {
+    return new Promise((resolve) => {
+        const start = Date.now();
+        dns.lookup('google.com', (err) => {
+            if (err) {
+                resolve(999); // Return a high ping if DNS lookup fails
+            } else {
+                resolve(Date.now() - start);
+            }
+        });
+    });
+}
+
 // Main bot ready event
 client.once('ready', async () => {
     console.log(`Shard ${client.shard.ids[0]} is ready!`);
-    
+
+    const initialPing = await getInitialPing();
+
     if (process.send) {
         process.send({ type: 'shardReady', shardId: client.shard.ids[0] }); // Notify manager
     }
+
+    setInterval(() => {
+        process.send({
+            type: 'statsUpdate',
+            shardId: client.shard.ids[0],
+            ping: client.ws.ping || initialPing, // Use WebSocket ping or initial ping
+            guilds: client.guilds.cache.size, // Include guild count
+        });
+    }, 450000); // 7.5 min
 
     // Set initial status
     const setRandomStatus = () => {
@@ -190,7 +217,10 @@ try {
 }
 
 client.on('guildCreate', async (guild) => {
+    if (settings.extendedlogs) {
     console.log(`Joined new guild: ${guild.name} (${guild.id})`);
+    webhookClient.send(`Joined new guild: ${guild.name} (${guild.id})`);
+    };
 
     try {
         // Check if the guild already has a config in Firebase
@@ -239,7 +269,7 @@ client.on('guildCreate', async (guild) => {
 
             // Store the config in Firebase
             await setData(`guildsettings/${guild.id}/config`, newGuildConfig);
-            console.log(`New guild config created for ${guild.name} (${guild.id}) with NirminiID ${newNirminiID}.`);
+            if (settings.extendedlogs) console.log(`New guild config created for ${guild.name} (${guild.id}) with NirminiID ${newNirminiID}.`);
         } else {
             console.log(`Config already exists for ${guild.name}, skipping creation.`);
         }
@@ -257,38 +287,46 @@ const TIME_WINDOW = 10 * 1000; // 10 seconds in milliseconds
 client.on('interactionCreate', async (interaction) => {
     try {
         // Log the interaction type and IDs for debugging
-        console.log(`Interaction Type: ${interaction.type}`);
+        if (settings.extendedlogs) console.log(`Interaction Type: ${interaction.type}`);
         if (interaction.isCommand()) {
-            console.log(`Command Name: ${interaction.commandName}`);
+            if (settings.extendedlogs) console.log(`Command Name: ${interaction.commandName}`);
         } else if (interaction.isModalSubmit()) {
-            console.log(`Modal Custom ID: ${interaction.customId}`);
+            if (settings.extendedlogs) console.log(`Modal Custom ID: ${interaction.customId}`);
         } else if (interaction.isButton()) {
-            console.log(`Button Custom ID: ${interaction.customId}`);
+            if (settings.extendedlogs) console.log(`Button Custom ID: ${interaction.customId}`);
         } else if (interaction.isStringSelectMenu()) {
-            console.log(`Select Menu Custom ID: ${interaction.customId}`);
+            if (settings.extendedlogs) console.log(`Select Menu Custom ID: ${interaction.customId}`);
         }
 
         // Handle Slash Commands
         if (interaction.isCommand()) {
-            const command = client.commands.get(interaction.commandName);
+            if (!settings.slashcommandsenabled) {
+                const cmddisabledembed = new EmbedBuilder()
+                    .setColor(0xff0000)
+                    .setTitle("Slash Commands Disabled by Bot Operator!")
+                    .setDescription("BOT OPERATOR: Run `$remoteconfig root slashcommandsenabled false` to resume user's access to command execution.")
+                interaction.reply({ embeds: [cmddisabledembed]});
+            } else {
+                const command = client.commands.get(interaction.commandName);
 
-            if (!command) {
-                await interaction.reply({
-                    content: 'Command not found!',
-                    flags: MessageFlags.Ephemeral,
-                });
-                console.warn(`Command not found: ${interaction.commandName}`);
-                return;
-            }
+                if (!command) {
+                    await interaction.reply({
+                        content: 'Command not found!',
+                        flags: MessageFlags.Ephemeral,
+                    });
+                    console.warn(`Command not found: ${interaction.commandName}`);
+                    return;
+                }
 
-            try {
-                await command.execute(interaction);
-            } catch (error) {
-                console.error(`Error executing command ${interaction.commandName}:`, error);
-                await interaction.reply({
-                    content: 'There was an error executing this command!',
-                    flags: MessageFlags.Ephemeral,
-                });
+                try {
+                    await command.execute(interaction);
+                } catch (error) {
+                    console.error(`Error executing command ${interaction.commandName}:`, error);
+                    await interaction.reply({
+                        content: 'There was an error executing this command!',
+                        flags: MessageFlags.Ephemeral,
+                    });
+                }
             }
         }
 
@@ -380,7 +418,37 @@ client.on('interactionCreate', async (interaction) => {
     }
 });
 
+const WebhookMsg = `
+**NovaBot Version:** ${pkg.version}
+**Node.js Version:** ${process.version}
+\`\`\`
+\u200B
+\`\`\`
+
+\`\`\`
+███╗   ██╗ ██████╗ ██╗   ██╗ █████╗ ██████╗  ██████╗ ████████╗  ███╗██████╗ ███████╗██╗   ██╗███╗
+████╗  ██║██╔═══██╗██║   ██║██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝  ██╔╝██╔══██╗██╔════╝██║   ██║╚██║
+██╔██╗ ██║██║   ██║██║   ██║███████║██████╔╝██║   ██║   ██║     ██║ ██║  ██║█████╗  ██║   ██║ ██║
+██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║██╔══██╗██║   ██║   ██║     ██║ ██║  ██║██╔══╝  ╚██╗ ██╔╝ ██║
+██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║██████╔╝╚██████╔╝   ██║     ███╗██████╔╝███████╗ ╚████╔╝ ███║
+╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝╚═════╝  ╚═════╝    ╚═╝     ╚══╝╚═════╝ ╚══════╝  ╚═══╝  ╚══╝
+                                                                                          
+                                                                                          
+█████████████████████████████████████████████████████████████████████████████████████████╗
+╚════════════════════════════════════════════════════════════════════════════════════════╝
+                                                                                          
+                                                                                           
+ ██╗ ██████╗██╗     ██╗    ██╗███████╗███████╗████████╗███████╗ ██████╗  ██╗██╗  ██╗
+██╔╝██╔════╝╚██╗    ██║    ██║██╔════╝██╔════╝╚══██╔══╝╚════██║██╔═████╗███║██║  ██║
+██║ ██║      ██║    ██║ █╗ ██║█████╗  ███████╗   ██║       ██╔╝██║██╔██║╚██║███████║
+██║ ██║      ██║    ██║███╗██║██╔══╝  ╚════██║   ██║      ██╔╝ ████╔╝██║ ██║╚════██║
+╚██╗╚██████╗██╔╝    ╚███╔███╔╝███████╗███████║   ██║      ██║  ╚██████╔╝ ██║     ██║
+ ╚═╝ ╚═════╝╚═╝      ╚══╝╚══╝ ╚══════╝╚══════╝   ╚═╝      ╚═╝   ╚═════╝  ╚═╝     ╚═╝
+\`\`\``;
+
+
 client.login(process.env.DISCORD_TOKEN);
+
 console.log(`
 ███████████████████████████████████████████████████████████████████████████████████████████████╗
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
@@ -418,4 +486,5 @@ console.log(`
 ███████████████████████████████████████████████████████████████████████████████████████████████╗
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-webhookClient.send(`Starting Nova!`);
+webhookClient.send(WebhookMsg);
+// UwO

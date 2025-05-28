@@ -112,6 +112,16 @@ module.exports = {
     try {
       const guildId = interaction.guild.id;
 
+      const currentBinds = (await getData(`/guildsettings/${guildId}/Binds`)) || [];
+
+      const currentBindCount = Object.keys(currentBinds).length;
+      if (currentBindCount > 50) {
+        return interaction.reply({
+          content: `You can only have 50 binds in a server. Please delete any unused binds before creating another.`,
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+
       if (subcommand === 'group') {
         const groupId = interaction.options.getString('groupid');
         const minRank = interaction.options.getInteger('minrank');
@@ -127,7 +137,6 @@ module.exports = {
 
         // Save to RTDB in the RBXBinds format
         const bindData = `group:${groupId},${minRank},${maxRank},${roleId}`;
-        const currentBinds = (await getData(`/guildsettings/${guildId}/Binds`)) || [];
         currentBinds.push(bindData);
         await setData(`/guildsettings/${guildId}/Binds`, currentBinds);
 
@@ -159,7 +168,6 @@ module.exports = {
 
         // Save to RTDB in the RBXBinds format
         const bindData = `pass:${gamepassId},${minRank},${maxRank},${roleId}`;
-        const currentBinds = (await getData(`/guildsettings/${guildId}/Binds`)) || [];
         currentBinds.push(bindData);
         await setData(`/guildsettings/${guildId}/Binds`, currentBinds);
 
@@ -191,7 +199,6 @@ module.exports = {
 
         // Save to RTDB in the RBXBinds format
         const bindData = `badge:${badgeId},${minRank},${maxRank},${roleId}`;
-        const currentBinds = (await getData(`/guildsettings/${guildId}/Binds`)) || [];
         currentBinds.push(bindData);
         await setData(`/guildsettings/${guildId}/Binds`, currentBinds);
 

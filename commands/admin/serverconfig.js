@@ -1,6 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
 const { getData, setData, updateData } = require('../../src/firebaseAdmin'); // Use Admin SDK
-const ADMIN_UID = '600464355917692952';
 const DB_PATH = 'guildsettings';
 
 module.exports = {
@@ -27,9 +26,14 @@ module.exports = {
                 .setRequired(false)),
 
     async execute(interaction) {
-        const userId = interaction.user.id;
-        if (userId !== ADMIN_UID) {
-            return interaction.reply({ content: '❌ You are not authorized to use this command.', flags: MessageFlags.Ephemeral });
+        const embed = new EmbedBuilder()
+        
+        // Permission check
+        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+        if (!userPerm || userPerm.level <= 300) {
+            embed.setColor(0xff0000);
+            embed.setTitle('You do not have permission to use this command.');
+            return message.reply({ embeds: [embed] });
         }
 
         const guildId = interaction.guild.id;

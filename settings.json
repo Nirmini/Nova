@@ -10,6 +10,8 @@
         "username": "west7014",
         "userId": "600464355917692952"
     },
+    "moduleshavepriority": true,
+    "checklatestversion": false,
     "watchdogcfg":{
         "enabled":true,
         "alertdisabled":true,
@@ -45,11 +47,12 @@
         "sharding": true,
         "startmsg": true
     },
-    "overrideallowedcommands": false,
+    "forcewhitelist": false,
     "slashcmdwhitelist": [
         "SLASH_COMMAND_ID_HERE"
     ],
     "NovaAPI-Config":{
         "APIPATH":"https://thatwest7014.pages.dev/API/Nova"
-    }
+    },
+    "allowcompv2": true
 }

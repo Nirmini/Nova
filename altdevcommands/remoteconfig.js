@@ -14,6 +14,14 @@ module.exports = {
         try {
             const embed = new EmbedBuilder()
 
+            // Permission check
+            const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+            if (!userPerm || userPerm.level <= 300) {
+                embed.setColor(0xff0000);
+                embed.setTitle('You do not have permission to use this command.');
+                return message.reply({ embeds: [embed] });
+            }
+
             // Check if remote configuration is allowed
             if (!settings.allowremoteconfig) {
                 embed.setColor(0xff0000);

@@ -9,6 +9,16 @@ module.exports = {
      */
     execute: async (message) => {
         try {
+            const embed = new EmbedBuilder()
+            
+            // Permission check
+            const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+            if (!userPerm || userPerm.level <= 100) {
+                embed.setColor(0xff0000);
+                embed.setTitle('You do not have permission to use this command.');
+                return message.reply({ embeds: [embed] });
+            }
+
             // Combine dependencies and devDependencies into a single object
             const allDependencies = {
                 ...packageJson.dependencies,

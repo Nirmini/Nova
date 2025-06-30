@@ -42,15 +42,14 @@ module.exports = {
                 .setRequired(false)), // Restricts to true/false as a BooleanOption
 
     async execute(interaction) {
-        // Check if the user is authorized
-        const authorizedUID = '600464355917692952';
-        if (interaction.user.id !== authorizedUID) {
-            await interaction.reply({
-                content: '🟥 You are not authorized to use this command.',
-                flags: MessageFlags.Ephemeral,
-            });
-            console.log(`Unauthorized access attempt by UID: ${interaction.user.id}`);
-            return;
+        const embed2 = new EmbedBuilder()
+        
+        // Permission check
+        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+        if (!userPerm || userPerm.level <= 200) {
+            embed2.setColor(0xff0000);
+            embed2.setTitle('You do not have permission to use this command.');
+            return message.reply({ embeds: [embed2] });
         }
 
         // Collect options

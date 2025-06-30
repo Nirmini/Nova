@@ -10,21 +10,26 @@ module.exports = {
                 .setDescription('The message for the bot to say')
                 .setRequired(true)),
     async execute(interaction) {
-        const authorizedUserId = '600464355917692952';
         const message = interaction.options.getString('message');
 
-        // Ensure only the authorized user can run this command
-        if (interaction.user.id === authorizedUserId || '830948578226339850' || '949096247883612231' || '1296245929292206135') {
-            // Reply to the interaction to let the user know their message was sent
-            await interaction.reply({ content: 'Message sent!', flags: MessageFlags.Ephemeral });
-
-            // Send the message to the channel, interpreting any newlines, markdown, etc.
-            await interaction.channel.send({
-                content: message, // Send the message as-is, allowing \n and markdown like ```codeblocks```
-            });
-            console.log(interaction.user.id + " sent message :" + `"` + message + `"`);
-        } else {
-            await interaction.reply({ content: 'You are not authorized to use this command.', flags: MessageFlags.Ephemeral });
+        const embed = new EmbedBuilder()
+        
+        // Permission check
+        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+        if (!userPerm || userPerm.level <= 200) {
+            embed.setColor(0xff0000);
+            embed.setTitle('You do not have permission to use this command.');
+            return message.reply({ embeds: [embed] });
         }
+
+        // Reply to the interaction to let the user know their message was sent
+        await interaction.reply({ content: 'Message sent!', flags: MessageFlags.Ephemeral });
+
+        // Send the message to the channel, interpreting any newlines, markdown, etc.
+        await interaction.channel.send({
+            content: message, // Send the message as-is, allowing \n and markdown like ```codeblocks```
+        });
+        console.log(interaction.user.id + " sent message :" + `"` + message + `"`);
+
     },
 };

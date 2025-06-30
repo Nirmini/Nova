@@ -9,6 +9,16 @@ module.exports = {
         .setDescription('Join the voice channel or stage channel where the user is currently in'),
     
     async execute(interaction) {
+        const embed = new EmbedBuilder()
+        
+        // Permission check
+        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+        if (!userPerm || userPerm.level <= 200) {
+            embed.setColor(0xff0000);
+            embed.setTitle('You do not have permission to use this command.');
+            return message.reply({ embeds: [embed] });
+        }
+
         // Get the member and their voice channel
         const member = interaction.guild.members.cache.get(interaction.user.id);
         const channel = member.voice.channel;

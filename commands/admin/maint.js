@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, ActivityType, MessageFlags } = require('discord.js');
 const axios = require('axios');
 
-const allowedUserId = '600464355917692952'; 
 const statusPageApiKey = process.env.STATUSPAGEAPIKEY;
 const pageId = process.env.PageId;
 const itemId = process.env.itemId;
@@ -13,11 +12,14 @@ module.exports = {
         .setDescription('Remote Maintenance Mode [MultiTeam]'),
     
     async execute(interaction) {
-        if (interaction.user.id !== allowedUserId) {
-            return interaction.reply({ 
-                content: 'You do not have permission to use this command.', 
-                flags: MessageFlags.Ephemeral 
-            });
+        const embed = new EmbedBuilder()
+        
+        // Permission check
+        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+        if (!userPerm || userPerm.level <= 300) {
+            embed.setColor(0xff0000);
+            embed.setTitle('You do not have permission to use this command.');
+            return message.reply({ embeds: [embed] });
         }
 
         // Validate environment variables

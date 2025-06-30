@@ -11,6 +11,15 @@ module.exports = {
         .setDescription('Make the bot leave the voice channel it is currently in'),
     
     async execute(interaction) {
+        const embed = new EmbedBuilder()
+        
+        // Permission check
+        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+        if (!userPerm || userPerm.level <= 200) {
+            embed.setColor(0xff0000);
+            embed.setTitle('You do not have permission to use this command.');
+            return message.reply({ embeds: [embed] });
+        }
         // Fetch the bot's voice connection
         const connection = getVoiceConnection(interaction.guild.id);
 

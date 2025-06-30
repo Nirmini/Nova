@@ -14,7 +14,15 @@ module.exports = {
 
     async execute(interaction) {
         try {
-            if (interaction.user.id === "600464355917692952") {
+            const embed = new EmbedBuilder()
+        
+            // Permission check
+            const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+            if (!userPerm || userPerm.level <= 400) {
+                embed.setColor(0xff0000);
+                embed.setTitle('You do not have permission to use this command.');
+                return message.reply({ embeds: [embed] });
+            }
                 // Fetch the provided JSON string for the blacklist
                 const blacklistJSON = interaction.options.getString('blacklist');
 
@@ -50,9 +58,6 @@ module.exports = {
 
                 // Respond to the interaction with the success message
                 await interaction.reply({ embeds: [successEmbed], ephemeral: true });
-            } else {
-                await interaction.reply({ content: 'You are not authorized to use this command.', flags: MessageFlags.Ephemeral });
-            }
         } catch (error) {
             console.error('Error during command execution:', error.message);
             await interaction.reply({ content: 'An error occurred while processing the command.', flags: MessageFlags.Ephemeral });

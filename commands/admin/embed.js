@@ -6,14 +6,15 @@ module.exports = {
         .setName('testembed')
         .setDescription('Replies with an embed!'),
     async execute(interaction) {
-        const authorizedUserId = '600464355917692952'; // The allowed UID
-
-        // Check if the user executing the command is the authorized user
-        if (interaction.user.id !== authorizedUserId) {
-            await interaction.reply({ content: 'You are not authorized to use this command.', flags: MessageFlags.Ephemeral });
-            return;
+        const embed = new EmbedBuilder()
+        
+        // Permission check
+        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+        if (!userPerm || userPerm.level <= 200) {
+            embed.setColor(0xff0000);
+            embed.setTitle('You do not have permission to use this command.');
+            return message.reply({ embeds: [embed] });
         }
-
         // Create the embed
         const exampleEmbed = new EmbedBuilder()
             .setColor(0x0099ff)

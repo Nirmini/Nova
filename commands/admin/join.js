@@ -2,6 +2,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { PermissionsBitField, ChannelType, MessageFlags } = require('discord.js');
 const { joinVoiceChannel, VoiceConnectionStatus } = require('@discordjs/voice');
 
+const devPerms = require('../../devperms.json');
+
 module.exports = {
     id: '1947382', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
@@ -12,11 +14,16 @@ module.exports = {
         const embed = new EmbedBuilder()
         
         // Permission check
-        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
-        if (!userPerm || userPerm.level <= 200) {
+        const userPerm = devPerms.usermap.find(u => u.userid === interaction.user.id);
+        if (!userPerm || userPerm.level <= 100) {
             embed.setColor(0xff0000);
             embed.setTitle('You do not have permission to use this command.');
-            return message.reply({ embeds: [embed] });
+            return interaction.reply({ embeds: [embed], ephemeral: true });
+        }
+        if (require('../../settings.json').devcmdsenabled != true) {
+            embed.setColor(0xff0000);
+            embed.setTitle('Developer commands are disabled in `settings.json`.');
+            return interaction.reply({ embeds: [embed] });
         }
 
         // Get the member and their voice channel

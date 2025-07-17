@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- 
+@TO-DO
+- Add ability to run command publishing
+- Add button to stop/shutdown the bot
+- Fix the ping test to just ping google or something
+- Add IPCs to Watchdog to support Watchdog comms
+- Add button to start the bot
+-->
+<head>
+    <meta charset="UTF-8">
+    <title>Novaworks</title>
+    <link rel="icon" href="../Icos/Nova/Nova-DevIconT.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #181a1b; color: #f3f3f3; }
+        .navbar {
+            display: flex;
+            align-items: center;
+            background: #23272a;
+            padding: 0 24px;
+            height: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .navbar-logo {
+            height: 40px;
+            margin-right: 24px;
+        }
+        .navbar-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .navbar-button {
+            background: #2c2f33;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .navbar-button:hover {
+            background: #5865f2;
+        }
+        .main-content {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #23272a;
+            border-radius: 10px;
+            padding: 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+        }
+        h1 { margin-top: 0; }
+        .cat-section {
+            margin-bottom: 40px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #333;
+        }
+        .cat-section:last-child {
+            border-bottom: none;
+        }
+        .cat-title {
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            color: #faa61a;
+        }
+        .op-section {
+            margin-bottom: 18px;
+        }
+        .loading-wheel {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid #444;
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        .status-ok { color: #43b581; }
+        .status-warn { color: #faa61a; }
+        .status-err { color: #f04747; }
+        .cat-desc {
+            font-size: 0.98em;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <img src="../Icos/Nova/Novaworks-Banner.png" alt="NovaBot Logo" class="navbar-logo">
+        <div class="navbar-buttons">
+            <button class="navbar-button" onclick="location.href='index.html'">Operation Stats</button>
+            <button class="navbar-button" onclick="location.href='manage.html'">Operations Management</button>
+            <button class="navbar-button" onclick="location.href='sysmsgs.html'">SysMsgMngr</button>
+            <button class="navbar-button" onclick="location.href='settings.html'">Settings & Legal</button>
+        </div>
+    </nav>
+    <div class="main-content">
+        <h1>Operations Management</h1>
+
+        <!-- 1. Shard & Command Management -->
+        <div class="cat-section">
+            <div class="cat-title">Shard & Command Management</div>
+            <div class="cat-desc">Control bot shards and deploy commands.</div>
+            <div class="op-section">
+                <button class="navbar-button" onclick="spawnShard()">Spawn Shard</button>
+                <button class="navbar-button" onclick="killShard()">Kill Shard</button>
+                <button class="navbar-button" onclick="deployCommands()">Deploy Commands</button>
+                <button class="navbar-button" onclick="runBirthday()">Run Birthday Service</button>
+            </div>
+        </div>
+
+        <!-- 2. Network & Ping Utilities -->
+        <div class="cat-section">
+            <div class="cat-title">Network & Ping Utilities</div>
+            <div class="cat-desc">Test network connectivity and latency.</div>
+            <div class="op-section">
+                <button class="navbar-button" onclick="testNetwork()">Test Network Connection</button>
+                <button class="navbar-button" onclick="pingUtil()">Ping Utility</button>
+                <span id="networkStatus"></span>
+            </div>
+        </div>
+
+        <!-- 3. Watchdog Integration -->
+        <div class="cat-section">
+            <div class="cat-title">Watchdog Integration</div>
+            <div class="cat-desc">Monitor and interact with the watchdog system.</div>
+            <div class="op-section">
+                <button class="navbar-button" onclick="getWatchdogStatus()">Get Watchdog Status</button>
+                <button class="navbar-button" onclick="triggerWatchdogCheck()">Trigger Watchdog Check</button>
+                <span id="watchdogStatus"></span>
+            </div>
+        </div>
+
+        <!-- 4. NovaAPIs Integration -->
+        <div class="cat-section">
+            <div class="cat-title">NovaAPIs Integration</div>
+            <div class="cat-desc">Interact with NovaAPIs endpoints and status.</div>
+            <div class="op-section">
+                <button class="navbar-button" onclick="checkNovaAPI()">Check NovaAPI Status</button>
+                <button class="navbar-button" onclick="syncNovaAPI()">Sync NovaAPI Data</button>
+                <span id="novaAPIStatus"></span>
+            </div>
+        </div>
+
+        <!-- 5. Miscellaneous & Utilities -->
+        <div class="cat-section">
+            <div class="cat-title">Miscellaneous & Utilities</div>
+            <div class="cat-desc">Other tools and utilities for operators.</div>
+            <div class="op-section">
+                <button class="navbar-button" onclick="clearCache()">Clear Cache</button>
+                <button class="navbar-button" onclick="restartBot()">Restart Bot</button>
+                <span id="miscStatus"></span>
+            </div>
+        </div>
+
+        <div id="manageStatus" style="margin-top:24px;"></div>
+    </div>
+    <script>
+    function showStatus(msg, ok = true, id = "manageStatus") {
+        document.getElementById(id).innerHTML =
+            `<span style="color:${ok ? '#43b581' : '#f04747'}">${msg}</span>`;
+    }
+
+    // Shard & Command Management
+    async function spawnShard() {
+        showStatus('Spawning shard...', true);
+        const res = await fetch('/manage/spawn-shard', { method: 'POST' });
+        const data = await res.json();
+        showStatus(data.message, res.ok);
+    }
+    async function killShard() {
+        showStatus('Killing shard...', true);
+        const res = await fetch('/manage/kill-shard', { method: 'POST' });
+        const data = await res.json();
+        showStatus(data.message, res.ok);
+    }
+    async function deployCommands() {
+        showStatus('Deploying commands...', true);
+        const res = await fetch('/manage/deploy-commands', { method: 'POST' });
+        const data = await res.json();
+        showStatus(data.message, res.ok);
+    }
+    async function runBirthday() {
+        showStatus('Running birthday service...', true);
+        const res = await fetch('/manage/run-birthday', { method: 'POST' });
+        const data = await res.json();
+        showStatus(data.message, res.ok);
+    }
+
+    // Network & Ping Utilities
+    async function testNetwork() {
+        showStatus('Testing network...', true, "networkStatus");
+        try {
+            const res = await fetch('/manage/test-network', { method: 'POST' });
+            const data = await res.json();
+            showStatus(data.message, res.ok, "networkStatus");
+        } catch {
+            showStatus('Network test failed.', false, "networkStatus");
+        }
+    }
+    async function pingUtil() {
+        showStatus('Pinging...', true, "networkStatus");
+        try {
+            const res = await fetch('/manage/ping-util', { method: 'POST' });
+            const data = await res.json();
+            showStatus(data.message, res.ok, "networkStatus");
+        } catch {
+            showStatus('Ping failed.', false, "networkStatus");
+        }
+    }
+
+    // Watchdog Integration
+    async function getWatchdogStatus() {
+        showStatus('Getting watchdog status...', true, "watchdogStatus");
+        try {
+            const res = await fetch('/manage/watchdog-status', { method: 'POST' });
+            const data = await res.json();
+            showStatus(data.message, res.ok, "watchdogStatus");
+        } catch {
+            showStatus('Failed to get watchdog status.', false, "watchdogStatus");
+        }
+    }
+    async function triggerWatchdogCheck() {
+        showStatus('Triggering watchdog check...', true, "watchdogStatus");
+        try {
+            const res = await fetch('/manage/watchdog-check', { method: 'POST' });
+            const data = await res.json();
+            showStatus(data.message, res.ok, "watchdogStatus");
+        } catch {
+            showStatus('Watchdog check failed.', false, "watchdogStatus");
+        }
+    }
+
+    // NovaAPIs Integration
+    async function checkNovaAPI() {
+        showStatus('Checking NovaAPI...', true, "novaAPIStatus");
+        try {
+            const res = await fetch('/manage/novaapi-status', { method: 'POST' });
+            const data = await res.json();
+            showStatus(data.message, res.ok, "novaAPIStatus");
+        } catch {
+            showStatus('Failed to check NovaAPI.', false, "novaAPIStatus");
+        }
+    }
+    async function syncNovaAPI() {
+        showStatus('Syncing NovaAPI...', true, "novaAPIStatus");
+        try {
+            const res = await fetch('/manage/novaapi-sync', { method: 'POST' });
+            const data = await res.json();
+            showStatus(data.message, res.ok, "novaAPIStatus");
+        } catch {
+            showStatus('NovaAPI sync failed.', false, "novaAPIStatus");
+        }
+    }
+
+    // Miscellaneous & Utilities
+    async function clearCache() {
+        showStatus('Clearing cache...', true, "miscStatus");
+        try {
+            const res = await fetch('/manage/clear-cache', { method: 'POST' });
+            const data = await res.json();
+            showStatus(data.message, res.ok, "miscStatus");
+        } catch {
+            showStatus('Failed to clear cache.', false, "miscStatus");
+        }
+    }
+    async function restartBot() {
+        showStatus('Restarting bot...', true, "miscStatus");
+        try {
+            const res = await fetch('/manage/restart-bot', { method: 'POST' });
+            const data = await res.json();
+            showStatus(data.message, res.ok, "miscStatus");
+        } catch {
+            showStatus('Failed to restart bot.', false, "miscStatus");
+        }
+    }
+    </script>
+    <script>
+        (function () {
+            const { hostname, port } = window.location;
+            if (hostname === 'localhost' || port === '25525') {
+                // Update favicon
+                const favicon = document.querySelector('link[rel="icon"]');
+                if (favicon) {
+                    favicon.href = 'https://thatwest7014.pages.dev/imgs/Novaworks/Novaworks.png';
+                }
+            
+                // Update navbar logo
+                const navbarLogo = document.querySelector('.navbar-logo');
+                if (navbarLogo) {
+                    navbarLogo.src = 'https://thatwest7014.pages.dev/imgs/Novaworks/Novaworks-Banner.png';
+                }
+            }
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Novaworks</title>
+    <link rel="icon" href="../Icos/Nova/Nova-DevIconT.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #181a1b; color: #f3f3f3; }
+        .navbar {
+            display: flex;
+            align-items: center;
+            background: #23272a;
+            padding: 0 24px;
+            height: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .navbar-logo {
+            height: 40px;
+            margin-right: 24px;
+        }
+        .navbar-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .navbar-button {
+            background: #2c2f33;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .navbar-button:hover {
+            background: #5865f2;
+        }
+        .main-content {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #23272a;
+            border-radius: 10px;
+            padding: 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+        }
+        h1 { margin-top: 0; }
+        .op-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+        }
+        .op-table th, .op-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+        }
+        .op-table th {
+            background: #202225;
+        }
+        .status-ok { color: #43b581; }
+        .status-warn { color: #faa61a; }
+        .status-err { color: #f04747; }
+        .op-section {
+            margin-bottom: 32px;
+        }
+        .loading-wheel {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid #444;
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <img src="../Icos/Nova/Novaworks-Banner.png" alt="NovaBot Logo" class="navbar-logo">
+        <div class="navbar-buttons">
+            <button class="navbar-button" onclick="location.href='index.html'">Operation Stats</button>
+            <button class="navbar-button" onclick="location.href='manage.html'">Operations Management</button>
+            <button class="navbar-button" onclick="location.href='sysmsgs.html'">SysMsgMngr</button>
+            <button class="navbar-button" onclick="location.href='settings.html'">Settings & Legal</button>
+        </div>
+    </nav>
+    <div class="main-content">
+        <h1>Operational Information</h1>
+        <div class="op-section">
+            <table class="op-table" id="opTable">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="3" style="text-align:center;">
+                            <span class="loading-wheel"></span> Loading...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="op-section">
+            <h2>Guilds & Users</h2>
+            <div id="guildUserStats">
+                <span class="loading-wheel"></span> Loading...
+            </div>
+        </div>
+    </div>
+    <script src="opsinfo.js"></script>
+    <script>
+        // Fetch operational info from your API
+       async function fetchOperationalInfo() {
+        const tbody = document.querySelector('#opTable tbody');
+        tbody.innerHTML = `<tr>
+            <td colspan="3" style="text-align:center;">
+                <span class="loading-wheel"></span> Loading...
+            </td>
+        </tr>`;
+        let data;
+        try {
+            const res = await fetch('/api/opsinfo');
+            if (!res.ok) throw new Error('Failed to fetch');
+            data = await res.json();
+            if (!data || typeof data !== 'object' || !data.uptime) throw new Error('Malformed data');
+        } catch (e) {
+            data = window.OPERATIONAL_INFO;
+        }
+
+        // Shard display and status
+        let shardDisplay = data.shard;
+        let shardStatus = data.shard_status || 'ok';
+        if (Array.isArray(shardDisplay)) {
+            shardDisplay = `${shardDisplay[0]}/${shardDisplay[1]}`;
+            if (shardStatus === 'err') shardStatus = 'err';
+        }
+
+        const rows = [
+            ['Uptime', data.uptime, data.uptime_status],
+            ['CPU Usage', data.cpu, data.cpu_status],
+            ['RAM Usage', data.ram, data.ram_status],
+            ['Ping', data.ping+"ms", data.ping_status],
+            ['Shard', shardDisplay, shardStatus],
+            ['Status', data.status, data.status_status]
+        ];
+
+        tbody.innerHTML = '';
+        for (const [metric, value, status] of rows) {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${metric}</td>
+                    <td>${value ?? '-'}</td>
+                    <td>${status ? `<span class="status-${status}">${status.toUpperCase()}</span>` : ''}</td>
+                </tr>
+            `;
+        }
+    }
+
+    async function fetchGuildUserStats() {
+        const statsDiv = document.getElementById('guildUserStats');
+        statsDiv.innerHTML = `<span class="loading-wheel"></span> Loading...`;
+        let guilds = [], users = [];
+        try {
+            const [guildsRes, usersRes] = await Promise.all([
+                fetch('/botguilds'),
+                fetch('/users')
+            ]);
+            const guildsData = guildsRes.ok ? await guildsRes.json() : { guilds: [] };
+            const usersData = usersRes.ok ? await usersRes.json() : { users: [] };
+            guilds = Array.isArray(guildsData.guilds) ? guildsData.guilds : [];
+            users = Array.isArray(usersData.users) ? usersData.users : [];
+            if (!guilds.length && window.OPERATIONAL_INFO?.guildIDs) guilds = window.OPERATIONAL_INFO.guildIDs;
+            if (!users.length && window.OPERATIONAL_INFO?.users) users = Array(window.OPERATIONAL_INFO.users).fill('N/A');
+        } catch (e) {
+            guilds = window.OPERATIONAL_INFO?.guildIDs || [];
+            users = Array(window.OPERATIONAL_INFO?.users || 0).fill('N/A');
+        }
+
+        statsDiv.innerHTML = `
+            <strong>Guild Count:</strong> ${guilds.length}<br>
+            <strong>User Count:</strong> ${users.length}<br>
+            <strong>Guild IDs:</strong> <span style="font-size:0.95em">${guilds.join(', ')}</span>
+        `;
+    }
+
+    fetchOperationalInfo();
+    fetchGuildUserStats();
+    setInterval(fetchOperationalInfo, 10000); // Refresh every 10s
+    setInterval(fetchGuildUserStats, 30000); // Refresh every 30s
+    </script>
+    <script>
+        (function () {
+            const { hostname, port } = window.location;
+            if (hostname === 'localhost' || port === '25525') {
+                // Update favicon
+                const favicon = document.querySelector('link[rel="icon"]');
+                if (favicon) {
+                    favicon.href = 'https://thatwest7014.pages.dev/imgs/Novaworks/Novaworks.png';
+                }
+            
+                // Update navbar logo
+                const navbarLogo = document.querySelector('.navbar-logo');
+                if (navbarLogo) {
+                    navbarLogo.src = 'https://thatwest7014.pages.dev/imgs/Novaworks/Novaworks-Banner.png';
+                }
+            }
+        })();
+    </script>
+</body>
+</html>

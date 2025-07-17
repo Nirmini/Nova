@@ -1,6 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const { setData, getData } = require('../../src/firebaseAdmin'); // Admin SDK functions
 
+const devPerms = require('../../devperms.json');
+
 module.exports = {
     id: '1735921', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
@@ -17,11 +19,16 @@ module.exports = {
             const embed = new EmbedBuilder()
         
             // Permission check
-            const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
-            if (!userPerm || userPerm.level <= 400) {
+            const userPerm = devPerms.usermap.find(u => u.userid === interaction.user.id);
+            if (!userPerm || userPerm.level <= 100) {
                 embed.setColor(0xff0000);
                 embed.setTitle('You do not have permission to use this command.');
-                return message.reply({ embeds: [embed] });
+                return interaction.reply({ embeds: [embed], ephemeral: true });
+            }
+            if (require('../../settings.json').devcmdsenabled != true) {
+                embed.setColor(0xff0000);
+                embed.setTitle('Developer commands are disabled in `settings.json`.');
+                return interaction.reply({ embeds: [embed] });
             }
                 // Fetch the provided JSON string for the blacklist
                 const blacklistJSON = interaction.options.getString('blacklist');

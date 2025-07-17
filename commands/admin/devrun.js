@@ -2,7 +2,9 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js'
 const { setData, getData } = require('../../src/firebaseAdmin'); // Admin SDK functions
 const birthdayModule = require('../../core/modules/birthday');
 const Client = require('../../core/global/Client');
-const cfg = require('../../settings.json')
+const cfg = require('../../settings.json');
+
+const devPerms = require('../../devperms.json');
 
 module.exports = {
     id: '1735921', // Unique 6-digit command ID
@@ -14,11 +16,16 @@ module.exports = {
             const embed = new EmbedBuilder()
             
             // Permission check
-            const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
+            const userPerm = devPerms.usermap.find(u => u.userid === interaction.user.id);
             if (!userPerm || userPerm.level <= 100) {
                 embed.setColor(0xff0000);
                 embed.setTitle('You do not have permission to use this command.');
-                return message.reply({ embeds: [embed] });
+                return interaction.reply({ embeds: [embed], ephemeral: true });
+            }
+            if (require('../../settings.json').devcmdsenabled != true) {
+                embed.setColor(0xff0000);
+                embed.setTitle('Developer commands are disabled in `settings.json`.');
+                return interaction.reply({ embeds: [embed] });
             }
             if (!interaction.user.id === cfg.operator.userId) return await interaction.reply({ content: 'You are not authorized to use this command.', flags: MessageFlags.Ephemeral });
             birthdayModule.sendBirthdayPing(Client);

@@ -1,104 +1,173 @@
-const { Client, IntentsBitField, MessageFlags } = require('discord.js');
-const client = require('../core/global/Client'); // Client is already initialized and logged in elsewhere.
+// TO BE OVERHAULED!!
+/**
+ * Guildsettings will allow for 10 automatic responses, 20 for Nova+ guilds.
+ */
+const {
+    Client,
+    IntentsBitField,
+    ActivityType,
+    Collection,
+    MessageFlags,
+    EmbedBuilder,
+    WebhookClient
+} = require('discord.js');
+
+const client = require('../core/global/Client'); // Already initialized client
 const path = require('path');
 require('dotenv').config();
 const fs = require('fs');
-// Import guild-specific responses
+const settings = require('../settings.json');
+const webhookURL = 'YOUR_DEBUG_LOGS_WEBHOOK_URL';
+const webhookClient= new WebhookClient({ url: webhookURL});
+
 const guildResponses = {
-    '<1225142849922928661>': { // Nirmini autoresponses as a demo.
+    '1225142849922928661': {
         dev: 'You may join the QHDT by submitting an application here: <#1282118886850039859>',
         director: 'You may apply for a Directorate application when one is available. Please note all Directorates are hand-picked.',
         manager: 'You may apply for Manager(R2) or Corporate(R3) via an application here: <#1226316800388628551>',
         qcg: 'HSRF is a Reactor Core Game currently in development by Nirmini.',
         hrf: 'HSRF is a Reactor Core Game currently in development by Nirmini.',
         hsrf: 'HSRF is a Reactor Core Game currently in development by Nirmini.',
-    },
-    '<Your_Guild_ID>': {
-        prompt1: 'Response1',
-        prompt2: 'Response2', // These can also ping users and link to channels using Discord's Markdown format. <@<UID>>, <#<ChannelID>>, <@&<RoleID>>, etc.
     }
 };
 
-// Rate-limiting setup
+const adminUID = settings.operator.userId;
 const rateLimitMap = new Map();
-const COMMAND_LIMIT = 10; // Max commands per minute
-const TIME_WINDOW = 60 * 1000; // 1 minute in milliseconds
+const COMMAND_LIMIT = 10;
+const TIME_WINDOW = 60 * 1000;
 
 client.on('messageCreate', async (message) => {
-    // Ignore messages from bots or without guild context
-    if (message.author.bot || !message.guild) return;
+    console.log(`[AutoResponse] Got message from ${message.author.tag} in ${message.guild?.name ?? 'DMs'}: ${message.content}`);
+    
+    // --- Universal Log ---
+    console.log(`[AutoResponse] Got message from ${message.author.tag} in ${message.guild ? `guild ${message.guild.name}` : 'DM'}: ${message.content}`);
 
-    // Rate-limiting check
-    const userID = message.author.id;
-    const now = Date.now();
+    // --- Handle Direct Messages (no guild) ---
+    if (!message.guild && !message.author.bot) {
+        console.log('[DM Handler] Received a DM from:', message.author.tag);
 
-    if (!rateLimitMap.has(userID)) {
-        rateLimitMap.set(userID, []);
-    }
+        const avatarURL = message.author.displayAvatarURL({ size: 64 });
+        console.log('[DM Handler] Avatar URL resolved as:', avatarURL);
 
-    const timestamps = rateLimitMap.get(userID);
+        const embed = new EmbedBuilder()
+            .setAuthor({
+                name: `${message.author.tag} (DM)`,
+                iconURL: avatarURL
+            })
+            .setDescription(message.content || '[No message content]')
+            .setTimestamp()
+            .setColor(0x7289da);
 
-    // Remove outdated timestamps
-    while (timestamps.length > 0 && timestamps[0] < now - TIME_WINDOW) {
-        timestamps.shift();
-    }
-
-    // Handle ?<cmd_name> commands
-    if (!message.content.startsWith('?')) return;
-
-    if (timestamps.length >= COMMAND_LIMIT) {
-        message.reply('You are sending commands too quickly. Please wait before trying again.');
-        return;
-    }
-
-    timestamps.push(now); // Record timestamp for the current message
-
-    const args = message.content.slice(1).trim().split(/\s+/); // Split by spaces
-    const commandName = args.shift().toLowerCase(); // Extract the command name
-
-    // Validate command name (must be alphanumeric and not empty)
-    if (!/^[a-zA-Z0-9]+$/.test(commandName)) return; 
-
-    const commandPath = path.join(__dirname, `../altcommands/${commandName}.js`);
-
-    try {
-        if (fs.existsSync(commandPath)) {
-            const command = require(commandPath);
-            await command.execute(message, args); // Pass arguments to the command
+        if (message.attachments.size > 0) {
+            const attachmentLinks = message.attachments.map(a => a.url).join('\n');
+            console.log('[DM Handler] Attachments detected:', attachmentLinks);
+            embed.addFields({ name: 'Attachments', value: attachmentLinks });
         } else {
-            await message.reply({ content:`Command \`${commandName}\` not found.`, flags: MessageFlags.Ephemeral});
+            console.log('[DM Handler] No attachments present.');
         }
-    } catch (error) {
-        console.error(`Error executing alt command ${commandName}:`,  error);
-        await message.reply({ content:`An error occurred while executing \`${commandName}\`.`,flags: MessageFlags.Ephemeral});
+
+        try {
+            if (!webhookClient) {
+                console.warn('[DM Handler] WebhookClient is undefined or not configured.');
+            }
+
+            const botAvatar = client.user?.displayAvatarURL();
+            console.log('[DM Handler] Bot avatar resolved as:', botAvatar);
+
+            await webhookClient.send({
+                username: 'Nova - DM Logger',
+                avatarURL: botAvatar,
+                embeds: [embed]
+            });
+
+            console.log('[DM Handler] DM forwarded successfully via webhook.');
+        } catch (err) {
+            console.error('[DM Forwarding] Failed to send message via webhook:', err);
+        }
+
+        return;
+    } else if (!message.guild) {
+        console.warn('[DM Handler] Ignored DM from bot user:', message.author.tag);
     }
 
-    // Handle standard commands like '?ping'
-    if (message.content.toLowerCase() === '?n.test') {
-        message.reply('Hello! `?n.` is the prefix to use shorthand commands rather than the slash commands.');
+    // --- Ignore bot or system messages ---
+    if (message.author.bot) return;
+
+    // --- Command Handling ($ or ?) ---
+    if (message.content.startsWith('$') || message.content.startsWith('?')) {
+        const isAdminCommand = message.content.startsWith('$');
+        const commandPrefix = isAdminCommand ? '$' : '?';
+        const commandDirectory = isAdminCommand ? '../altdevcommands' : '../altcommands';
+
+        if (isAdminCommand && message.author.id !== adminUID) {
+            await message.reply({
+                content: "Unable to run Developer Shorthand commands. `[403:Unauthorized]`",
+                flags: MessageFlags.Ephemeral
+            });
+            return;
+        }
+
+        if (!isAdminCommand) {
+            const userID = message.author.id;
+            const now = Date.now();
+
+            if (!rateLimitMap.has(userID)) rateLimitMap.set(userID, []);
+            const timestamps = rateLimitMap.get(userID);
+            while (timestamps.length && timestamps[0] < now - TIME_WINDOW) timestamps.shift();
+
+            if (timestamps.length >= COMMAND_LIMIT) {
+                await message.reply('You are sending commands too quickly. Please wait before trying again.');
+                return;
+            }
+
+            timestamps.push(now);
+        }
+
+        const args = message.content.slice(commandPrefix.length).trim().split(/\s+/);
+        const commandName = args.shift()?.toLowerCase();
+
+        if (!/^[a-zA-Z0-9]+$/.test(commandName)) return;
+
+        const commandPath = path.join(__dirname, `${commandDirectory}/${commandName}.js`);
+
+        try {
+            if (fs.existsSync(commandPath)) {
+                const command = require(commandPath);
+                await command.execute(message, args);
+            }
+        } catch (error) {
+            console.error(`Error executing command ${commandName}:`, error);
+            await message.reply({
+                content: `An error occurred while executing \`${commandName}\`.`,
+                flags: MessageFlags.Ephemeral
+            });
+        }
+
         return;
     }
 
-    // Handle guild-specific responses
+    // --- Guild-specific auto replies ---
     const guildResponsesForMessage = guildResponses[message.guild.id];
     if (!guildResponsesForMessage) return;
 
     const triggers = {
+        secops: ['how secops', 'how qhsd', 'how security'],
         dev: ['how developer', 'how dev', 'how qhdt'],
         director: ['how director', 'how directorate'],
         manager: ['how manager', 'how corporate', 'how corp'],
         qcg: ['what\'s qcg', 'whats qcg'],
         hrf: ['what\'s hrf', 'whats hrf'],
         hsrf: ['what\'s hsrf', 'whats hsrf'],
-        prompt1: ['testing1', 'testing 1'],
-        prompt2: ['testing2', 'testing 2'],
+        multi: ['what\'s multi', 'whats multi'],
+        tester: ['how tester', 'how game tester'],
+        nerf: ['what\'s nerf', 'whats nerf'],
     };
 
     for (const [key, phrases] of Object.entries(triggers)) {
         if (phrases.some(phrase => message.content.toLowerCase().includes(phrase))) {
             const replyText = guildResponsesForMessage[key];
             if (replyText) {
-                message.reply(`${replyText}, ${message.author}!`);
+                await message.reply(`${replyText}, ${message.author}!`);
                 return;
             }
         }

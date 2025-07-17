@@ -5,27 +5,36 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 require('dotenv').config();
-const settings = require('../settings.json')
+const settings = require('../settings.json');
+const express = require('express');
+const statusApp = express();
 
 //Info
-const pkg = require('../package.json')
+const pkg = require('../package.json');
+const workspkg = require('../Novaworks/novaworks.json');
 
 //Op Modules
 require('../core/global/statuspage');
 require('../core/global/statusmngr');
-require('../src/autoresponses');
-require('../src/modules');
+require('./autoresponses');
+require('./modules');
+require('./interactionhandlr');
+require('./services/index');
+const {fetchAndPostStats} = require('../core/global/topgg');
+
+//API Modules
+require('../NovaAPI/common/APIApp');
 
 //QoL Modules
 const NovaStatusMsgs = require('./statusmsgs');
-const { ndguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds');
+const {ndguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds');
 const {blacklistedusers, bannedusers} = require("../servicedata/bannedusers");
 const {getData, setData, updateData, removeData } = require('./firebaseAdmin');
 
 //Debugging
 const webhookURL = 'YOUR_LOGS_WEBHOOK_URL_HERE'
 const webhookClient= new WebhookClient({ url: webhookURL});
-
+require('../DevDash/manager');
 
 async function waitForShardsReady() {
     console.log("Waiting for all shards to be ready...");
@@ -79,9 +88,40 @@ function getInitialPing() {
     });
 }
 
+const SHARD_PORT_MIN = settings.ports.Shard.min;
+const SHARD_PORT_MAX = settings.ports.Shard.max;
+const shardId = client.shard?.ids?.[0] ?? 0;
+const STATUS_PORT = SHARD_PORT_MIN + shardId;
+
+if (STATUS_PORT > SHARD_PORT_MAX) {
+    throw new Error(`Shard port ${STATUS_PORT} exceeds configured maximum (${SHARD_PORT_MAX})`);
+}
+
 // Main bot ready event
 client.once('ready', async () => {
     console.log(`Shard ${client.shard.ids[0]} is ready!`);
+
+    statusApp.get('/status', (req, res) => {
+        res.json({
+            shard: client.shard?.ids?.[0] ?? 0,
+            ready: !!client.readyAt,
+            guilds: client.guilds.cache.size,
+            ping: client.ws.ping
+        });
+    });
+
+    statusApp.listen(STATUS_PORT, () => {
+        console.log(`[Shard ${client.shard?.ids?.[0] ?? 0}] Status API running on port ${STATUS_PORT}`);
+    });
+
+    fetchAndPostStats(client)
+        .then(success => {
+            if (success) {
+                console.log('[Top.gg] Stats posted successfully!');
+            } else {
+                console.warn('[Top.gg] Failed to post stats.');
+            }
+        });
 
     const initialPing = await getInitialPing();
 
@@ -153,8 +193,29 @@ waitForShardsReady().then(() => {
         status: 'online'
     });
 
-    // Start main bot logic
-    require('../src/index');
+});
+
+client.on('messageCreate', async (message) => {
+    // Ignore bot messages or messages not in DMs
+    if (message.author.bot || message.guild) return;
+
+    try {
+        const isLong = message.content.length > 256;
+        const embed = new EmbedBuilder()
+            .setAuthor({
+                name: `${message.author.tag} (${message.author.id})`,
+                iconURL: message.author.displayAvatarURL({ dynamic: true })
+            })
+            .setTitle(isLong ? 'Direct Message' : message.content || '[No content]')
+            .setDescription(isLong ? message.content.slice(0, 4096) : '\u200B') // Embed description limit is 4096
+            .setTimestamp()
+            .setColor(0x5865F2); // Discord blurple
+
+        await webhookClient.send({ embeds: [embed] });
+        console.log(`[DM Logger] Logged DM from ${message.author.tag}`);
+    } catch (err) {
+        console.error(`[DM Logger] Failed to log DM:`, err);
+    }
 });
 
 // Define the commands path
@@ -278,187 +339,18 @@ client.on('guildCreate', async (guild) => {
     }
 });
 
-// Create a rate limit map
-const rateLimitMap = new Map();
-const COMMAND_LIMIT = 4; // Maximum commands per minute
-const TIME_WINDOW = 10 * 1000; // 10 seconds in milliseconds
-
-// Client Event Execution Handler
-client.on('interactionCreate', async (interaction) => {
-    try {
-        // Log the interaction type and IDs for debugging
-        if (settings.extendedlogs) console.log(`Interaction Type: ${interaction.type}`);
-        if (interaction.isCommand()) {
-            if (settings.extendedlogs) console.log(`Command Name: ${interaction.commandName}`);
-        } else if (interaction.isModalSubmit()) {
-            if (settings.extendedlogs) console.log(`Modal Custom ID: ${interaction.customId}`);
-        } else if (interaction.isButton()) {
-            if (settings.extendedlogs) console.log(`Button Custom ID: ${interaction.customId}`);
-        } else if (interaction.isStringSelectMenu()) {
-            if (settings.extendedlogs) console.log(`Select Menu Custom ID: ${interaction.customId}`);
-        }
-
-        // Handle Slash Commands
-        if (interaction.isCommand()) {
-            if (!settings.slashcommandsenabled) {
-                const cmddisabledembed = new EmbedBuilder()
-                    .setColor(0xff0000)
-                    .setTitle("Slash Commands Disabled by Bot Operator!")
-                    .setDescription("BOT OPERATOR: Run `$remoteconfig root slashcommandsenabled false` to resume user's access to command execution.")
-                interaction.reply({ embeds: [cmddisabledembed]});
-            } else {
-                const command = client.commands.get(interaction.commandName);
-
-                if (!command) {
-                    await interaction.reply({
-                        content: 'Command not found!',
-                        flags: MessageFlags.Ephemeral,
-                    });
-                    console.warn(`Command not found: ${interaction.commandName}`);
-                    return;
-                }
-
-                try {
-                    await command.execute(interaction);
-                } catch (error) {
-                    console.error(`Error executing command ${interaction.commandName}:`, error);
-                    await interaction.reply({
-                        content: 'There was an error executing this command!',
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
-            }
-        }
-
-        // Handle Modal Submissions (Dynamic Handling)
-        else if (interaction.isModalSubmit()) {
-            // Dynamically find the command based on the modal's customId
-            const modalHandlerCommand = client.commands.find(cmd => cmd.modalHandler && interaction.customId.startsWith(cmd.data.name));
-            if (modalHandlerCommand?.modalHandler) {
-                try {
-                    await modalHandlerCommand.modalHandler(interaction);
-                } catch (error) {
-                    console.error(`Error handling modal interaction for ${modalHandlerCommand.data.name}:`, error);
-                    await interaction.reply({
-                        content: 'There was an error while processing the modal!',
-                        ephemeral: true,
-                    });
-                }
-            } else {
-                console.warn(`Unhandled modal interaction: ${interaction.customId}`);
-            }
-        }
-
-        // Handle Button Interactions
-        else if (interaction.isButton()) {
-            const buttonHandlerCommand = client.commands.find(cmd => cmd.buttonHandler && interaction.customId.startsWith(cmd.data.name));
-            if (buttonHandlerCommand?.buttonHandler) {
-                try {
-                    await buttonHandlerCommand.buttonHandler(interaction);
-                } catch (error) {
-                    console.error(`Error handling button interaction for ${buttonHandlerCommand.data.name}:`, error);
-                    await interaction.reply({
-                        content: 'There was an error processing this button interaction!',
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
-            } else {
-                console.warn(`Unhandled button interaction: ${interaction.customId}`);
-            }
-        }
-
-        // Handle Context Menu Commands
-        else if (interaction.isUserContextMenuCommand()) {
-            const ctxtCommand = client.commands.get(interaction.commandName);
-            if (!ctxtCommand) {
-                await interaction.reply({
-                    content: 'Context menu command not found!',
-                    flags: MessageFlags.Ephemeral,
-                });
-                console.warn(`Context menu command not found: ${interaction.commandName}`);
-                return;
-            }
-
-            try {
-                await ctxtCommand.execute(interaction);
-            } catch (error) {
-                console.error(`Error executing context menu command ${interaction.commandName}:`, error);
-                await interaction.reply({
-                    content: 'There was an error executing this context menu command!',
-                    flags: MessageFlags.Ephemeral,
-                });
-            }
-        }
-
-        // Handle Dropdown Menu (Select Menu) Interactions
-        else if (interaction.isStringSelectMenu()) {
-            const selectMenuCommand = client.commands.find(cmd => cmd.selectMenuHandler && interaction.customId.startsWith(cmd.data.name));
-            if (selectMenuCommand?.selectMenuHandler) {
-                try {
-                    await selectMenuCommand.selectMenuHandler(interaction);
-                } catch (error) {
-                    console.error(`Error handling select menu interaction for ${selectMenuCommand.data.name}:`, error);
-                    await interaction.reply({
-                        content: 'There was an error processing this select menu!',
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
-            } else {
-                console.warn(`Unhandled select menu interaction: ${interaction.customId}`);
-            }
-        }
-    } catch (error) {
-        console.error('Error handling interaction:', error);
-        if (interaction.isRepliable()) {
-            await interaction.reply({
-                content: 'An unexpected error occurred!',
-                flags: MessageFlags.Ephemeral,
-            });
-        }
-    }
-});
-
-const WebhookMsg = `
-**NovaBot Version:** ${pkg.version}
-**Node.js Version:** ${process.version}
-\`\`\`
-\u200B
-\`\`\`
-
-\`\`\`
-███╗   ██╗ ██████╗ ██╗   ██╗ █████╗ ██████╗  ██████╗ ████████╗  ███╗██████╗ ███████╗██╗   ██╗███╗
-████╗  ██║██╔═══██╗██║   ██║██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝  ██╔╝██╔══██╗██╔════╝██║   ██║╚██║
-██╔██╗ ██║██║   ██║██║   ██║███████║██████╔╝██║   ██║   ██║     ██║ ██║  ██║█████╗  ██║   ██║ ██║
-██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║██╔══██╗██║   ██║   ██║     ██║ ██║  ██║██╔══╝  ╚██╗ ██╔╝ ██║
-██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║██████╔╝╚██████╔╝   ██║     ███╗██████╔╝███████╗ ╚████╔╝ ███║
-╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝╚═════╝  ╚═════╝    ╚═╝     ╚══╝╚═════╝ ╚══════╝  ╚═══╝  ╚══╝
-                                                                                          
-                                                                                          
-█████████████████████████████████████████████████████████████████████████████████████████╗
-╚════════════════════════════════════════════════════════════════════════════════════════╝
-                                                                                          
-                                                                                           
- ██╗ ██████╗██╗     ██╗    ██╗███████╗███████╗████████╗███████╗ ██████╗  ██╗██╗  ██╗
-██╔╝██╔════╝╚██╗    ██║    ██║██╔════╝██╔════╝╚══██╔══╝╚════██║██╔═████╗███║██║  ██║
-██║ ██║      ██║    ██║ █╗ ██║█████╗  ███████╗   ██║       ██╔╝██║██╔██║╚██║███████║
-██║ ██║      ██║    ██║███╗██║██╔══╝  ╚════██║   ██║      ██╔╝ ████╔╝██║ ██║╚════██║
-╚██╗╚██████╗██╔╝    ╚███╔███╔╝███████╗███████║   ██║      ██║  ╚██████╔╝ ██║     ██║
- ╚═╝ ╚═════╝╚═╝      ╚══╝╚══╝ ╚══════╝╚══════╝   ╚═╝      ╚═╝   ╚═════╝  ╚═╝     ╚═╝
-\`\`\``;
-
-
 client.login(process.env.DISCORD_TOKEN);
 
 console.log(`
 ███████████████████████████████████████████████████████████████████████████████████████████████╗
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 
-███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗  ██████╗ ████████╗    ██╗   ██╗██████╗ ██████╗   ███╗██████╗ ███████╗██╗   ██╗███╗
-████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██╔═══██╗╚══██╔══╝    ██║   ██║╚════██╗╚════██╗  ██╔╝██╔══██╗██╔════╝██║   ██║╚██║
-██╔██╗ ██║██║   ██║██║   ██║███████║    ██████╔╝██║   ██║   ██║       ██║   ██║ █████╔╝ █████╔╝  ██║ ██║  ██║█████╗  ██║   ██║ ██║
-██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║    ██╔══██╗██║   ██║   ██║       ╚██╗ ██╔╝██╔═══╝  ╚═══██╗  ██║ ██║  ██║██╔══╝  ╚██╗ ██╔╝ ██║
-██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║    ██████╔╝╚██████╔╝   ██║        ╚████╔╝ ███████╗██████╔╝  ███╗██████╔╝███████╗ ╚████╔╝ ███║
-╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝         ╚═══╝  ╚══════╝╚═════╝   ╚══╝╚═════╝ ╚══════╝  ╚═══╝  ╚══╝
+███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗  ██████╗ ████████╗    ██╗   ██╗██████╗ ██╗  ██╗██████╗ 
+████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██╔═══██╗╚══██╔══╝    ██║   ██║╚════██╗██║  ██║██╔══██╗
+██╔██╗ ██║██║   ██║██║   ██║███████║    ██████╔╝██║   ██║   ██║       ██║   ██║ █████╔╝███████║██║  ██║
+██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║    ██╔══██╗██║   ██║   ██║       ╚██╗ ██╔╝██╔═══╝ ╚════██║██║  ██║
+██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║    ██████╔╝╚██████╔╝   ██║        ╚████╔╝ ███████╗     ██║██████╔╝
+╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝         ╚═══╝  ╚══════╝     ╚═╝╚═════╝ 
                                                                                                 
                                                                                                 
                                                                                                 
@@ -486,5 +378,31 @@ console.log(`
 ███████████████████████████████████████████████████████████████████████████████████████████████╗
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 `);
-webhookClient.send(WebhookMsg);
-// UwO
+webhookClient.send(`
+**NovaBot Version:** ${pkg.version}
+**Novaworks Version:** ${workspkg.version}
+**Node.js Version:** ${process.version}
+\`\`\`
+\u200B
+\`\`\`
+
+\`\`\`
+███╗   ██╗ ██████╗ ██╗   ██╗ █████╗ ██████╗  ██████╗ ████████╗  ███╗██████╗ ███████╗██╗   ██╗███╗
+████╗  ██║██╔═══██╗██║   ██║██╔══██╗██╔══██╗██╔═══██╗╚══██╔══╝  ██╔╝██╔══██╗██╔════╝██║   ██║╚██║
+██╔██╗ ██║██║   ██║██║   ██║███████║██████╔╝██║   ██║   ██║     ██║ ██║  ██║█████╗  ██║   ██║ ██║
+██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║██╔══██╗██║   ██║   ██║     ██║ ██║  ██║██╔══╝  ╚██╗ ██╔╝ ██║
+██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║██████╔╝╚██████╔╝   ██║     ███╗██████╔╝███████╗ ╚████╔╝ ███║
+╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝╚═════╝  ╚═════╝    ╚═╝     ╚══╝╚═════╝ ╚══════╝  ╚═══╝  ╚══╝
+                                                                                          
+                                                                                          
+█████████████████████████████████████████████████████████████████████████████████████████╗
+╚════════════════════════════════════════════════════════════════════════════════════════╝
+                                                                                          
+                                                                                           
+ ██╗ ██████╗██╗     ██╗    ██╗███████╗███████╗████████╗███████╗ ██████╗  ██╗██╗  ██╗
+██╔╝██╔════╝╚██╗    ██║    ██║██╔════╝██╔════╝╚══██╔══╝╚════██║██╔═████╗███║██║  ██║
+██║ ██║      ██║    ██║ █╗ ██║█████╗  ███████╗   ██║       ██╔╝██║██╔██║╚██║███████║
+██║ ██║      ██║    ██║███╗██║██╔══╝  ╚════██║   ██║      ██╔╝ ████╔╝██║ ██║╚════██║
+╚██╗╚██████╗██╔╝    ╚███╔███╔╝███████╗███████║   ██║      ██║  ╚██████╔╝ ██║     ██║
+ ╚═╝ ╚═════╝╚═╝      ╚══╝╚══╝ ╚══════╝╚══════╝   ╚═╝      ╚═╝   ╚═════╝  ╚═╝     ╚═╝
+\`\`\``);

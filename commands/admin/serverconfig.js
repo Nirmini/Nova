@@ -2,6 +2,8 @@ const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('disc
 const { getData, setData, updateData } = require('../../src/firebaseAdmin'); // Use Admin SDK
 const DB_PATH = 'guildsettings';
 
+const devPerms = require('../../devperms.json');
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('serverconfig')
@@ -29,11 +31,16 @@ module.exports = {
         const embed = new EmbedBuilder()
         
         // Permission check
-        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
-        if (!userPerm || userPerm.level <= 300) {
+        const userPerm = devPerms.usermap.find(u => u.userid === interaction.user.id);
+        if (!userPerm || userPerm.level <= 100) {
             embed.setColor(0xff0000);
             embed.setTitle('You do not have permission to use this command.');
-            return message.reply({ embeds: [embed] });
+            return interaction.reply({ embeds: [embed], ephemeral: true });
+        }
+        if (require('../../settings.json').devcmdsenabled != true) {
+            embed.setColor(0xff0000);
+            embed.setTitle('Developer commands are disabled in `settings.json`.');
+            return interaction.reply({ embeds: [embed] });
         }
 
         const guildId = interaction.guild.id;

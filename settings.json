@@ -1,4 +1,5 @@
 {
+    "currentreleasename":"france",
     "useremotedb": true,
     "usegitlabflags": false,
     "allowremoteconfig": true,
@@ -17,13 +18,13 @@
         "alertdisabled":true,
         "lv":5,
         "modules":{
-            "network":true,
-            "performance":true,
-            "operations":true
+            "netmonitor":true,
+            "perfmonitor":true,
+            "opsmonitor":true
         }
     },
     "modules": {
-        "statuspageupdates": false,
+        "statuspageupdates": true,
         "statuspagecore": true,
         "spotify": true,
         "vexrobotics": true,
@@ -51,8 +52,27 @@
     "slashcmdwhitelist": [
         "SLASH_COMMAND_ID_HERE"
     ],
+    "devcmdsenabled":true,
     "NovaAPI-Config":{
-        "APIPATH":"https://thatwest7014.pages.dev/API/Nova"
+        "APIPATH":"https://thatwest7014.pages.dev/API/Nova",
+        "allowdirectresponses":true
     },
-    "allowcompv2": true
+    "allowcompv2": true,
+    "ports":{
+        "DevDash":[
+            65525,
+            65524,
+            65523,
+            65522,
+            65521
+        ],
+        "NovaAPI":28878,
+        "StatusAPI": 65505,
+        "ShardMngr": 65515,
+        "Shard":{
+            "min":3000,
+            "max":6500
+        }
+    },
+    "executionmethod":"strict"
 }

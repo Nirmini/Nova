@@ -1,5 +1,9 @@
 const packageJson = require('../package.json'); // Import the package.json file
+const worksJson = require('../Novaworks/novaworks.json'); // Import the package.json file
 const client = require('../core/global/Client'); // Import the client instance
+const devPerms = require('../devperms.json');
+
+const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     id: '0284795', // Unique 6-digit command ID
@@ -18,6 +22,11 @@ module.exports = {
                 embed.setTitle('You do not have permission to use this command.');
                 return message.reply({ embeds: [embed] });
             }
+            if (require('../settings.json').devcmdsenabled != true) {
+                embed.setColor(0xff0000);
+                embed.setTitle('Developer commands are disabled in `settings.json`.');
+                return message.reply({ embeds: [embed] });
+            }
 
             // Combine dependencies and devDependencies into a single object
             const allDependencies = {
@@ -33,6 +42,7 @@ module.exports = {
             // Reply with the formatted dependency list
             await message.reply(`
 **NovaBot Version: ** \`${packageJson.version}\`
+**Novaworks Version: **\`${worksJson.version}\`
 **Node.js Version: ** \`${process.version}\`
 **Process Uptime: ** \`${Math.floor(process.uptime())} seconds\`
 **Bot Ping: ** \`${Math.floor(client.ws.ping)} ms\`

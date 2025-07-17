@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- @TO-DO
+    - Add support to DM users
+    - Add support to send txt msgs in specified channel(s)
+    - Add support to send embed msgs in specified channel(s)
+    - Add support to send compnonets v2 msgs in specified channel(s) 
+    -->
+<head>
+    <meta charset="UTF-8">
+    <title>Novaworks</title>
+    <link rel="icon" href="../Icos/Nova/Nova-DevIconT.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #181a1b; color: #f3f3f3; }
+        .navbar {
+            display: flex;
+            align-items: center;
+            background: #23272a;
+            padding: 0 24px;
+            height: 60px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .navbar-logo {
+            height: 40px;
+            margin-right: 24px;
+        }
+        .navbar-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        .navbar-button {
+            background: #2c2f33;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .navbar-button:hover {
+            background: #5865f2;
+        }
+        .main-content {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #23272a;
+            border-radius: 10px;
+            padding: 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+        }
+        h1 { margin-top: 0; }
+        .op-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 24px;
+        }
+        .op-table th, .op-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+        }
+        .op-table th {
+            background: #202225;
+        }
+        .status-ok { color: #43b581; }
+        .status-warn { color: #faa61a; }
+        .status-err { color: #f04747; }
+        .op-section {
+            margin-bottom: 32px;
+        }
+        .loading-wheel {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid #444;
+            border-top: 3px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <img src="../Icos/Nova/Novaworks-Banner.png" alt="NovaBot Logo" class="navbar-logo">
+        <div class="navbar-buttons">
+            <button class="navbar-button" onclick="location.href='index.html'">Operation Stats</button>
+            <button class="navbar-button" onclick="location.href='manage.html'">Operations Management</button>
+            <button class="navbar-button" onclick="location.href='sysmsgs.html'">SysMsgMngr</button>
+            <button class="navbar-button" onclick="location.href='settings.html'">Settings & Legal</button>
+        </div>
+    </nav>
+    <div class="main-content">
+        <h1>Operational Information</h1>
+        <div class="op-section">
+            <h2>Send Message</h2>
+            <form id="sendMsgForm">
+                <label>
+                    <input type="radio" name="type" value="dm" checked> DM User
+                </label>
+                <label>
+                    <input type="radio" name="type" value="channel"> Channel Message
+                </label>
+                <div id="dmFields">
+                    <input type="text" name="userId" placeholder="User ID (DM)" required>
+                    <input type="text" name="embedTitle" placeholder="Embed Title">
+                    <textarea name="embedDesc" placeholder="Embed Description"></textarea>
+                </div>
+                <div id="channelFields" style="display:none;">
+                    <select id="guildSelect" name="guildId" required></select>
+                    <select id="channelSelect" name="channelId" required></select>
+                    <select name="messageType">
+                        <option value="text">Text</option>
+                        <option value="embed">Embed</option>
+                        <option value="componentsv2">Components V2</option>
+                    </select>
+                    <input type="text" name="content" placeholder="Text/Embed/Component Content">
+                    <input type="text" name="embedTitleC" placeholder="Embed Title (if embed)">
+                    <textarea name="embedDescC" placeholder="Embed Description (if embed)"></textarea>
+                </div>
+                <input type="text" name="devUserId" placeholder="Your Discord User ID (for permission check)" required>
+                <button type="submit">Send</button>
+            </form>
+            <div id="sendMsgResult"></div>
+        </div>
+        <script>
+        document.querySelectorAll('input[name="type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('dmFields').style.display = this.value === 'dm' ? '' : 'none';
+                document.getElementById('channelFields').style.display = this.value === 'channel' ? '' : 'none';
+            });
+        });
+        // Populate guild dropdown with icons
+        async function loadGuilds() {
+            const guildSelect = document.getElementById('guildSelect');
+            guildSelect.innerHTML = '<option value="">Select Guild</option>';
+            const res = await fetch('http://localhost:65522/api/guilds');
+            const guilds = await res.json();
+            for (const g of guilds) {
+                const opt = document.createElement('option');
+                opt.value = g.id;
+                opt.textContent = g.name;
+                if (g.icon) {
+                    opt.style.backgroundImage = `url(${g.icon})`;
+                    opt.style.backgroundRepeat = 'no-repeat';
+                    opt.style.backgroundSize = '20px 20px';
+                    opt.style.paddingLeft = '24px';
+                }
+                guildSelect.appendChild(opt);
+            }
+        }
+        async function loadChannels(guildId) {
+            const channelSelect = document.getElementById('channelSelect');
+            channelSelect.innerHTML = '<option value="">Select Channel</option>';
+            if (!guildId) return;
+            const res = await fetch(`http://localhost:65522/api/guilds/${guildId}/channels`);
+            const channels = await res.json();
+            for (const c of channels) {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = `#${c.name}`;
+                channelSelect.appendChild(opt);
+            }
+        }
+        document.getElementById('guildSelect').addEventListener('change', function() {
+            loadChannels(this.value);
+        });
+        loadGuilds();
+        document.getElementById('sendMsgForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const form = e.target;
+            const type = form.type.value;
+            const devUserId = form.devUserId.value;
+            let payload = { type, devUserId };
+        
+            if (type === 'dm') {
+                payload.userId = form.userId.value;
+                payload.embed = {
+                    title: form.embedTitle.value,
+                    description: form.embedDesc.value
+                };
+            } else {
+                payload.guildId = form.guildId.value;
+                payload.channelId = form.channelId.value;
+                payload.messageType = form.messageType.value;
+                if (payload.messageType === 'text') {
+                    payload.content = form.content.value;
+                } else if (payload.messageType === 'embed') {
+                    payload.embed = {
+                        title: form.embedTitleC.value,
+                        description: form.embedDescC.value
+                    };
+                } else if (payload.messageType === 'componentsv2') {
+                    // Add your components v2 structure here
+                    payload.components = { content: form.content.value };
+                }
+            }
+        
+            const resultDiv = document.getElementById('sendMsgResult');
+            resultDiv.textContent = 'Sending...';
+            try {
+                const res = await fetch('http://localhost:65522/api/sendmsg', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                resultDiv.textContent = data.status || data.error || 'Unknown result';
+            } catch (err) {
+                resultDiv.textContent = 'Error: ' + err.message;
+            }
+        });
+        </script>
+        <script>
+            document.querySelectorAll('input[name="type"]').forEach(radio => {
+                radio.addEventListener('change', function () {
+                    const dmFields = document.getElementById('dmFields');
+                    const channelFields = document.getElementById('channelFields');
+                    const isDM = this.value === 'dm';
+                
+                    // Toggle visibility
+                    dmFields.style.display = isDM ? '' : 'none';
+                    channelFields.style.display = isDM ? 'none' : '';
+                
+                    // Toggle required attributes
+                    const userIdField = document.querySelector('input[name="userId"]');
+                    const guildIdField = document.querySelector('select[name="guildId"]');
+                    const channelIdField = document.querySelector('select[name="channelId"]');
+                
+                    if (isDM) {
+                        userIdField.setAttribute('required', 'required');
+                        guildIdField.removeAttribute('required');
+                        channelIdField.removeAttribute('required');
+                    } else {
+                        userIdField.removeAttribute('required');
+                        guildIdField.setAttribute('required', 'required');
+                        channelIdField.setAttribute('required', 'required');
+                    }
+                });
+            });
+
+            // Run once on page load to ensure form reflects current state
+            window.addEventListener('DOMContentLoaded', () => {
+                const checked = document.querySelector('input[name="type"]:checked');
+                if (checked) checked.dispatchEvent(new Event('change'));
+            });
+        </script>
+        <script>
+            (function () {
+                const { hostname, port } = window.location;
+                if (hostname === 'localhost' || port === '25525') {
+                    // Update favicon
+                    const favicon = document.querySelector('link[rel="icon"]');
+                    if (favicon) {
+                        favicon.href = 'https://thatwest7014.pages.dev/imgs/Novaworks/Novaworks.png';
+                    }
+                
+                    // Update navbar logo
+                    const navbarLogo = document.querySelector('.navbar-logo');
+                    if (navbarLogo) {
+                        navbarLogo.src = 'https://thatwest7014.pages.dev/imgs/Novaworks/Novaworks-Banner.png';
+                    }
+                }
+            })();
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+{
+    "GroupName": "guild.name", 
+    "NirminiID": "encodedID",
+    "NovaworksId":"nwencodedId",
+    "format":"NovaGS3",
+    "colours": {
+        "custom": false
+    },
+    "commandconfigs": {
+        "commandId":{
+            "key":"value"
+        }
+    },
+    "disabledcommands": [], 
+    "rbxgroup": "<GID>",
+    "substat": "L0",
+    "reports":{
+        "enabled":false,
+        "sendchannelid":"ChannelId",
+        "type":"primary"
+    },
+    "modules": {
+        "admin":{
+            "enabled":true,
+            "hidden":true,
+            "commands":[
+                {"CommandId":"CommandId","CommandName":"CommandName","CommandEnabled":true}
+            ]
+        },
+        "core":{
+            "enabled":true,
+            "hidden":false,
+            "commands":[
+                {"CommandId":"CommandId","CommandName":"CommandName","CommandEnabled":true}
+            ]
+        },
+        "events":{
+            "enabled":true,
+            "hidden":false,
+            "commands":[
+                {"CommandId":"CommandId","CommandName":"CommandName","CommandEnabled":true}
+            ]
+        },
+        "fun":{
+            "enabled":true,
+            "hidden":false,
+            "commands":[
+                {"CommandId":"CommandId","CommandName":"CommandName","CommandEnabled":true}
+            ]
+        },
+        "misc":{
+            "enabled":true,
+            "hidden":false,
+            "commands":[
+                {"CommandId":"CommandId","CommandName":"CommandName","CommandEnabled":true}
+            ]
+        },
+        "moderation":{
+            "enabled":true,
+            "hidden":false,
+            "commands":[
+                {"CommandId":"CommandId","CommandName":"CommandName","CommandEnabled":true}
+            ]
+        },
+        "premium":{
+            "enabled":true,
+            "hidden":false,
+            "commands":[
+                {"CommandId":"CommandId","CommandName":"CommandName","CommandEnabled":true}
+            ]
+        },
+        "roblox":{
+            "enabled":true,
+            "hidden":false,
+            "commands":[
+                {"CommandId":"CommandId","CommandName":"CommandName","CommandEnabled":true}
+            ]
+        },
+        "usermanagement":{
+            "enabled":true,
+            "hidden":false,
+            "commands":[
+                {"CommandId":"CommandId","CommandName":"CommandName","CommandEnabled":true}
+            ]
+        }
+    },
+    "customcmds":null
+}

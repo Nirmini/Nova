@@ -1,4 +1,14 @@
-const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, 
+    ModalBuilder, 
+    TextInputBuilder, 
+    TextInputStyle, 
+    ActionRowBuilder, 
+    ButtonBuilder, 
+    ButtonStyle, 
+    EmbedBuilder,
+    MessageFlags } = require('discord.js');
+
+const devPerms = require('../../devperms.json');
 
 module.exports = {
     id: '1000001', // This is like, pretty important.
@@ -30,11 +40,16 @@ module.exports = {
         const embed = new EmbedBuilder()
         
         // Permission check
-        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
-        if (!userPerm || userPerm.level <= 100) {
+        const userPerm = devPerms.usermap.find(u => u.userid === interaction.user.id);
+        if (!userPerm || userPerm.level <= 500) {
             embed.setColor(0xff0000);
             embed.setTitle('You do not have permission to use this command.');
-            return message.reply({ embeds: [embed] });
+            return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+        }
+        if (require('../../settings.json').devcmdsenabled != true) {
+            embed.setColor(0xff0000);
+            embed.setTitle('Developer commands are disabled in `settings.json`.');
+            return interaction.reply({ embeds: [embed] });
         }
         
         const subcommand = interaction.options.getSubcommand();

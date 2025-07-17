@@ -2,7 +2,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { PermissionsBitField, MessageFlags } = require('discord.js');
 const { getVoiceConnection } = require('@discordjs/voice');
 
-const EXEMPT_USER_ID = '600464355917692952'; // The exempted user ID
+const devPerms = require('../../devperms.json');
 
 module.exports = {
     id: '1947383', // Unique 6-digit command ID
@@ -14,12 +14,18 @@ module.exports = {
         const embed = new EmbedBuilder()
         
         // Permission check
-        const userPerm = devPerms.usermap.find(u => u.userid === message.author.id);
-        if (!userPerm || userPerm.level <= 200) {
+        const userPerm = devPerms.usermap.find(u => u.userid === interaction.user.id);
+        if (!userPerm || userPerm.level <= 100) {
             embed.setColor(0xff0000);
             embed.setTitle('You do not have permission to use this command.');
-            return message.reply({ embeds: [embed] });
+            return interaction.reply({ embeds: [embed], ephemeral: true });
         }
+        if (require('../../settings.json').devcmdsenabled != true) {
+            embed.setColor(0xff0000);
+            embed.setTitle('Developer commands are disabled in `settings.json`.');
+            return interaction.reply({ embeds: [embed] });
+        }
+
         // Fetch the bot's voice connection
         const connection = getVoiceConnection(interaction.guild.id);
 

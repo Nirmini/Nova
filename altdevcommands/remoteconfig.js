@@ -4,6 +4,8 @@ const path = require('path');
 const settingsPath = path.join(__dirname, '../settings.json'); // Path to settings.json
 const settings = require(settingsPath); // Load the settings.json file
 
+const devPerms = require('../devperms.json');
+
 module.exports = {
     id: '0264795', // Unique 6-digit command ID
     /**
@@ -19,6 +21,11 @@ module.exports = {
             if (!userPerm || userPerm.level <= 300) {
                 embed.setColor(0xff0000);
                 embed.setTitle('You do not have permission to use this command.');
+                return message.reply({ embeds: [embed] });
+            }
+            if (require('../../settings.json').devcmdsenabled != true) {
+                embed.setColor(0xff0000);
+                embed.setTitle('Developer commands are disabled in `settings.json`.');
                 return message.reply({ embeds: [embed] });
             }
 

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova: Developer Shard Status</title>
+    
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background-color: #1e1e1e;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            border-bottom: 2px solid #333;
+        }
+
+        .container {
+            flex-grow: 1;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Status Summary */
+        .summary {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        /* Shard Grid */
+        .shard-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+            gap: 5px;
+            justify-items: center;
+            margin-top: 20px;
+        }
+
+        .shard {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: bold;
+            position: relative;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .shard:hover {
+            transform: scale(1.1);
+        }
+
+        /* Tooltip */
+        .shard::before {
+            content: attr(data-info);
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 4px 6px;
+            border-radius: 5px;
+            font-size: 0.75em;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease-in-out;
+        }
+
+        .shard:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Status Colors */
+        .online { background-color: #27ae60; }        /* Green */
+        .reconnecting { background-color: #f1c40f; } /* Yellow */
+        .offline { background-color: #e74c3c; }       /* Red */
+        .unknown { background-color: #7f8c8d; }       /* Gray */
+
+        .footer {
+            background-color: #1e1e1e;
+            text-align: center;
+            padding: 10px;
+            font-size: 0.9em;
+            border-top: 2px solid #333;
+        }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9gDFgOzAnDDusE-Cq2E7KzFcX4d9sXKg",
+            authDomain: "nova-statusmngr.firebaseapp.com",
+            databaseURL: "https://nova-statusmngr-default-rtdb.firebaseio.com",
+            projectId: "nova-statusmngr",
+            storageBucket: "nova-statusmngr.firebasestorage.app",
+            messagingSenderId: "763554552610",
+            appId: "1:763554552610:web:fe8e7669c7f658128ca37b",
+            measurementId: "G-03GNBDKP5S"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        function updateShardUI(clusterData) {
+            const shardContainer = document.getElementById('shardContainer');
+            const shardsOnlineElement = document.getElementById('shardsOnline');
+            const clustersOnlineElement = document.getElementById('clustersOnline');
+
+            shardContainer.innerHTML = '';
+
+            let clustersOnline = 0;
+            let totalClusters = Object.keys(clusterData).length;
+
+            Object.keys(clusterData).forEach((clusterId) => {
+                const cluster = clusterData[clusterId];
+                const status = cluster.status || 'unknown';
+                const ping = cluster.ping ?? 'N/A';
+                const guilds = cluster.guilds ?? 'N/A';
+
+                if (status === 'ONLINE') clustersOnline++;
+
+                let statusClass;
+                switch (status) {
+                    case 'ONLINE':
+                        statusClass = 'online';
+                        break;
+                    case 'RECONNECTING':
+                        statusClass = 'reconnecting';
+                        break;
+                    case 'OFFLINE':
+                    case 'ERROR':
+                        statusClass = 'offline';
+                        break;
+                    default:
+                        statusClass = 'unknown';
+                }
+
+                const clusterDiv = document.createElement('div');
+                clusterDiv.classList.add('shard', statusClass);
+                clusterDiv.setAttribute('data-info', `Ping: ${ping}ms | Guilds: ${guilds}`);
+                clusterDiv.innerText = clusterId; // Show only the cluster number
+
+                shardContainer.appendChild(clusterDiv);
+            });
+
+            shardsOnlineElement.innerText = `${clustersOnline}/${totalClusters}`;
+            clustersOnlineElement.innerText = `${clustersOnline}/${totalClusters}`;
+        }
+
+        const statusRef = ref(db, 'devshards');
+        onValue(statusRef, (snapshot) => {
+            if (snapshot.exists()) {
+                console.log('Received cluster data:', snapshot.val()); // Log data for debugging
+                updateShardUI(snapshot.val());
+            } else {
+                console.warn('No dev shard status data available.');
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <div class="topbar">Nova [DEV]: Status Viewer</div>
+
+    <div class="container">
+        <!-- Summary Section -->
+        <div class="summary">
+            <p>Shards Online: <span id="shardsOnline">0/3600</span></p>
+            <p>Clusters Online: <span id="clustersOnline">0/3600</span></p>
+        </div>
+
+        <!-- Shard Display -->
+        <div class="shard-container" id="shardContainer"></div>
+    </div>
+
+    <div class="footer">
+        &copy; West7014 2025 | All rights reserved.
+    </div>
+</body>
+</html>

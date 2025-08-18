@@ -1,138 +1,153 @@
 const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
-require('./statusmngr');
-// Environment Variables
+
+const settingsPath = path.join(__dirname, '../../settings.json');
+let settings = {};
+
+try {
+    settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+} catch (error) {
+    console.error('Error loading settings.json:', error.message);
+}
+
+const ModuleEnabled = settings.modules?.statuspageupdates || false;
+
+// Env Vars
 const statusPageApiKey = process.env.STATUSPAGEAPIKEY;
 const pageId = process.env.PAGEID;
-const metricId = process.env.METRICID; // Ensure this is set in .env
+const metricId = process.env.METRICID;
 const itemId = process.env.ITEMID;
 
 let statusPageLogResponse = "";
 
-// Measure Latency (Similar to ?ping)
+// Used for deduplication
+let loopRunning = false;
+
+// Simulate Ping / Latency Measurement
 const measureLatency = async () => {
     try {
         const startTime = Date.now();
-
-        // Simulate a lightweight ping with a request to your Statuspage component or another reliable endpoint
         await axios.get(`https://api.statuspage.io/v1/pages/${pageId}`, {
             headers: {
                 'Authorization': `OAuth ${statusPageApiKey}`
             },
             timeout: 5000
         });
-
-        const endTime = Date.now();
-        const latency = endTime - startTime;
-
-        console.log(`Measured latency: ${latency} ms`);
-        return latency;
+        return Date.now() - startTime;
     } catch (error) {
-        console.error('Error measuring latency:', error.message);
-        return null; // Return null if latency couldn't be measured
+        console.error('[Statuspage] Latency measurement failed:', error.message);
+        return null;
     }
 };
 
-// Submit Latency Metric Data with Rate Limiting
-const submitLatencyMetrics = async () => {
-    console.log("Starting continuous latency metric submission...");
-
-    let dataPointCounter = 0;
-
-    while (true) { // Infinite loop for continuous submission
-        const timestamp = Math.floor(Date.now() / 1000); // Current timestamp
-        const latency = await measureLatency();
-
-        // Skip submission if latency measurement failed
-        if (latency === null) {
-            console.warn(`Skipping metric point ${dataPointCounter + 1}: Unable to measure latency.`);
-            continue;
-        }
-
-        try {
-            const response = await axios({
-                method: 'post',
-                url: `https://api.statuspage.io/v1/pages/${pageId}/metrics/${metricId}/data.json`,
+// Submit single latency point
+const submitLatency = async (latency) => {
+    const timestamp = Math.floor(Date.now() / 1000);
+    try {
+        const res = await axios.post(
+            `https://api.statuspage.io/v1/pages/${pageId}/metrics/${metricId}/data.json`,
+            {
+                data: { timestamp, value: latency }
+            },
+            {
                 headers: {
                     'Authorization': `OAuth ${statusPageApiKey}`,
                     'Content-Type': 'application/json'
-                },
-                data: {
-                    data: {
-                        timestamp,
-                        value: latency
-                    }
                 }
-            });
-            dataPointCounter++;
-            console.log(`Submitted data point ${dataPointCounter}:`, response.data);
-
-            // Add a delay to prevent hitting rate limits
-            await new Promise(resolve => setTimeout(resolve, 90000)); // Wait 90 seconds
-        } catch (error) {
-            if (error.response?.status === 429) {
-                console.error(`Rate limit hit. Retrying after delay...`);
-                await new Promise(resolve => setTimeout(resolve, 60000)); // 1-minute delay
-            } else {
-                console.error(`Error submitting metric point ${dataPointCounter}:`, error.response?.data || error.message);
-                break; // Exit loop on a non-recoverable error
             }
+        );
+        console.log(`[Statuspage] Submitted latency: ${latency}ms`);
+        return res.data;
+    } catch (error) {
+        if (error.response?.status === 429) {
+            console.warn('[Statuspage] Rate limited. Waiting 60s.');
+            await new Promise(resolve => setTimeout(resolve, 60000));
+        } else {
+            console.error('[Statuspage] Submission error:', error.response?.data || error.message);
         }
     }
 };
 
-// **Update Component Status (Prevents changes if in maintenance)**
-const updateComponentStatus = async () => {
+// Periodic loop
+const startLatencyLoop = async () => {
+    if (loopRunning) return;
+    loopRunning = true;
+
+    console.log('[Statuspage] Starting latency metric loop.');
+
+    while (true) {
+        const latency = await measureLatency();
+        if (latency !== null) await submitLatency(latency);
+        await new Promise(resolve => setTimeout(resolve, 90000));
+    }
+};
+
+// Update component status manually
+const updateComponentStatus = async (newStatus = 'operational') => {
     try {
-        // **Fetch current component status**
-        const currentStatusResponse = await axios({
-            method: 'get',
-            url: `https://api.statuspage.io/v1/pages/${pageId}/components/${itemId}`,
-            headers: {
-                'Authorization': `OAuth ${statusPageApiKey}`,
-                'Content-Type': 'application/json'
+        const current = await axios.get(
+            `https://api.statuspage.io/v1/pages/${pageId}/components/${itemId}`,
+            {
+                headers: {
+                    'Authorization': `OAuth ${statusPageApiKey}`
+                }
             }
-        });
+        );
 
-        const currentStatus = currentStatusResponse.data.status;
-        console.log(`Current component status: ${currentStatus}`);
-
-        // **Prevent changes if the status is "under_maintenance"**
-        if (currentStatus === 'under_maintenance') {
-            console.log('Component is in maintenance mode. Skipping status update.');
+        if (current.data.status === 'under_maintenance') {
+            console.log('[Statuspage] Component in maintenance. Skipping status update.');
             return;
         }
 
-        // **Update status only if it's not in maintenance**
-        const response = await axios({
-            method: 'patch',
-            url: `https://api.statuspage.io/v1/pages/${pageId}/components/${itemId}`,
-            headers: {
-                'Authorization': `OAuth ${statusPageApiKey}`,
-                'Content-Type': 'application/json'
+        const response = await axios.patch(
+            `https://api.statuspage.io/v1/pages/${pageId}/components/${itemId}`,
+            {
+                component: { status: newStatus }
             },
-            data: {
-                component: {
-                    status: 'operational'
+            {
+                headers: {
+                    'Authorization': `OAuth ${statusPageApiKey}`,
+                    'Content-Type': 'application/json'
                 }
             }
-        });
+        );
 
-        console.log('Statuspage item set to operational:', response.data);
-        statusPageLogResponse = 'Statuspage item set to operational: ' + JSON.stringify(response.data);
-
+        console.log(`[Statuspage] Component set to ${newStatus}.`);
+        statusPageLogResponse = `Statuspage item updated: ${JSON.stringify(response.data)}`;
     } catch (error) {
-        console.error('Error setting Statuspage item to operational:', error.response?.data || error.message);
-        statusPageLogResponse = 'Error setting Statuspage item to operational: ' + error.response?.data || error.message;
+        console.error('[Statuspage] Failed to update component:', error.response?.data || error.message);
+        statusPageLogResponse = `Status update failed: ${error.response?.data || error.message}`;
     }
 };
 
-// Main Function to Run Both Handlers
-const main = async () => {
+// Initialization runner
+const init = async () => {
+    const isPrimary = process.env.IS_PRIMARY === 'true'; // Optional shard control
+
+    if (!ModuleEnabled) {
+        console.log('[Statuspage] Module disabled via settings.');
+        return;
+    }
+
+    if (!isPrimary) {
+        console.log('[Statuspage] Not primary process. Skipping startup.');
+        return;
+    }
+
     await updateComponentStatus();
-    await submitLatencyMetrics();
+    await startLatencyLoop(); // No await to keep looping
 };
 
-main();
+// External API
+module.exports = {
+    init,
+    update: updateComponentStatus,
+    statusPageLogResponse
+};
 
-module.exports = statusPageLogResponse;
+// Only auto-run if main process
+if (require.main === module) {
+    init();
+}

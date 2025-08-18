@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '5905507', // Unique 6-digit command ID
+    id: '5000012', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('whois')
         .setDescription('Get public information about a user')

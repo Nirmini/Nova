@@ -1,4 +1,5 @@
-# 7/3/25: Scrubbed Open-Source branch of security issues.
-/node_modules/
 node_modules
-package-lock
+/src/temp/
+/keys/
+firebase.json
+.vscode

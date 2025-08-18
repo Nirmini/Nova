@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { getData } = require('../../src/firebaseAdmin'); // Admin SDK function
+const { getData } = require('../../src/Database'); // Admin SDK function
 
 module.exports = {
-  id: '9439092', // Unique 6-digit command ID
+  id: '9000006', // Unique 6-digit command ID
   data: new SlashCommandBuilder()
     .setName('ranks')
     .setDescription('View the list of ranks (roles) in the guild.'),

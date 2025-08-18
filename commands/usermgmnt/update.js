@@ -1,9 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { getData } = require('../../src/firebaseAdmin');
+const { getData } = require('../../src/Database');
 const noblox = require('noblox.js');
 
 module.exports = {
-    id: '9742387', // Unique 6-digit command ID
+    id: '9000009', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('update')
         .setDescription('Update your roles based on your Roblox account.'),
@@ -11,7 +11,7 @@ module.exports = {
     async execute(interaction) {
         try {
             const userId = interaction.user.id;
-            const userData = await getData(`/userdata/${userId}`);
+            const userData = await getData(`userdata/${userId}`);
 
             if (!userData || !userData.RobloxID) {
                 return interaction.reply({
@@ -24,7 +24,7 @@ module.exports = {
             const guildId = interaction.guild.id;
 
             // Fetch binds from the guild
-            const binds = (await getData(`/guildsettings/${guildId}/Binds`)) || [];
+            const binds = (await getData(`guildsettings/${guildId}/Binds`)) || [];
             const rolesToAdd = [];
 
             for (const bind of binds) {

@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder,MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '2692226', // Unique 6-digit command ID
+    id: '2000009', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('help')
         .setDescription('Displays a list of available commands or details about a specific command.')

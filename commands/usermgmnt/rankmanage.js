@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { setData, getData, updateData, removeData } = require('../../src/firebaseAdmin'); // Admin SDK functions
+const { setData, getData, updateData, removeData } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
-  id: '9141035', // Unique 6-digit command ID
+  id: '9000005', // Unique 6-digit command ID
   data: new SlashCommandBuilder()
     .setName('rankmanage')
     .setDescription('Add or remove ranks (roles) to be used with the /rank command.')

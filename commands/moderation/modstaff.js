@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
 
 module.exports = {
-  id: '6076204', // Unique 6-digit command ID
+  id: '6000010', // Unique 6-digit command ID
   data: new SlashCommandBuilder()
     .setName('modstaff')
     .setDescription('Manage staff members.')

@@ -4,6 +4,12 @@ const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
 
+/**
+ * TO DO:
+ * Integrate this density with ../settings.json
+ * Move away from IPCs for communication with shard processes
+ */
+
 // IPC helpers
 function sendToShardManager(type, data = {}) {
     if (process.send) {
@@ -11,10 +17,10 @@ function sendToShardManager(type, data = {}) {
     }
 }
 
-// Export for use in modules
+process.send({ type: "wdg:pong" });
+
 module.exports = { sendToShardManager };
 
-// Watchdog Modules
 require('./netmonitor');
 require('./opsmonitor');
 require('./perfmonitor');
@@ -28,7 +34,7 @@ try {
             console.log("Suppressed 1 warning(s) from watchdog.");
         }
     } else {
-        //Continue as normal
+        //Why is there an else here, was I drunk?
     }
 } catch(error) {
     console.error('[WATCHDOG]: Stopping due to an error:', error);

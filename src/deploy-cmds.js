@@ -1,9 +1,10 @@
 const { REST, Routes } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const { env } = require('process');
 require('dotenv').config();
+require('./portman');
 
-// Environment variables
 const botToken = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENTID;
 
@@ -12,7 +13,6 @@ if (!botToken || !clientId) {
     process.exit(1);
 }
 
-// Helper function to recursively read files in a directory
 function getAllCommandFiles(dir) {
     let files = [];
     if (!fs.existsSync(dir)) return files;
@@ -35,7 +35,6 @@ async function deployCommands() {
     try {
         console.log('Started deploying application (/) commands and context menu commands.');
 
-        // Load slash commands
         const commands = [];
         const commandFiles = getAllCommandFiles(path.join(__dirname, '../commands'));
 
@@ -48,7 +47,6 @@ async function deployCommands() {
             }
         }
 
-        // Load context menu commands
         const ctxtmenuFiles = getAllCommandFiles(path.join(__dirname, '../ctxtmenu'));
 
         for (const file of ctxtmenuFiles) {
@@ -65,10 +63,7 @@ async function deployCommands() {
             console.log(`First command: ${JSON.stringify(commands[0])}`);
         }
 
-        // Initialize REST client
         const rest = new REST({ version: '10' }).setToken(botToken);
-
-        // Deploy all commands at once
         console.log('Deploying all commands at once...');
         await rest.put(Routes.applicationCommands(clientId), { body: commands });
         console.log('Successfully deployed all application and context menu commands.');

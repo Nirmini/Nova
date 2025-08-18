@@ -7,7 +7,7 @@ const novaFailureEmojiId = '1329622917109252247'; // Nova Failure emoji
 const novaWarnEmojiId = '1329624040226426973'; // Nova Warn emoji
 
 module.exports = {
-    id: '3042585', // Unique 6-digit command ID
+    id: '3000001', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('eval')
         .setDescription('Schedule a evaluation')

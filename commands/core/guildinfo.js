@@ -9,7 +9,7 @@ const verificationLevelMap = {
 };
 
 module.exports = {
-    id: '2860823', // Unique 6-digit command ID
+    id: '2000008', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('serverinfo')
         .setDescription('Get information about the server'),

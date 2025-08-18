@@ -10,10 +10,10 @@ const {
     PermissionsBitField,
     MessageFlags,
 } = require('discord.js');
-const { setData, getData } = require('../../src/firebaseAdmin');
+const { setData, getData } = require('../../src/Database');
 
 module.exports = {
-    id: '6583689', // Unique 6-digit command ID
+    id: '6000020', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('panel')
         .setDescription('Creates a ticket panel with an interactive button for users to open tickets.')

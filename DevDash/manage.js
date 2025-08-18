@@ -3,14 +3,19 @@ const path = require('path');
 const { spawn } = require('child_process');
 const https = require('https');
 const http = require('http');
+const cors = require('cors');
 const app = express();
 const cfg = require('../settings.json');
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 app.use(express.json());
-app.use(express.static(__dirname));
 
 // Import your bot manager, shard manager, or relevant modules here
-const botManager = require('../src/shard-monitor'); // Adjust as needed
-const modules = require('../src/modules.js'); // ModuleManager for birthday
+//const botManager = require('../mainapp/shardmngr.js');
+const birthdayModule = require('../modules/birthday.js');
 
 // --- Shard & Command Management ---
 app.post('/manage/spawn-shard', async (req, res) => {
@@ -42,7 +47,8 @@ app.post('/manage/deploy-commands', async (req, res) => {
 });
 app.post('/manage/run-birthday', async (req, res) => {
     try {
-        await modules.executeModuleFunction('BirthdayHandler', 'sendBirthdayPing', global.client);
+        // Use the correct function from the birthday module
+        await birthdayModule.sendBirthdayPing(global.client);
         res.json({ message: 'Birthday service run started.' });
     } catch (e) {
         res.status(500).json({ message: 'Failed to run birthday service.' });

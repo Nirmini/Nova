@@ -3,7 +3,7 @@ const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const activeReminders = new Map(); // Keeps track of reminders for each user
 
 module.exports = {
-    id: '2306341', // Unique 6-digit command ID
+    id: '2000015', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('remind')
         .setDescription('Set a reminder.')

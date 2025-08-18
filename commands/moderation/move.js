@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '6106323', // Unique 6-digit command ID
+    id: '6000011', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('move')
         .setDescription('Move a user to a specified voice channel.')

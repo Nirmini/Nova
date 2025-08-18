@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '5387489', // Unique 6-digit command ID
+    id: '5000008', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('roles')
         .setDescription('Lists all roles in the server.'),

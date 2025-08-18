@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '6235902', // Unique 6-digit command ID
+    id: '6000016', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('smode')
         .setDescription('Set slowmode for a channel.')

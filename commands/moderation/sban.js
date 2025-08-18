@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '6840885', // Unique 6-digit command ID
+    id: '6000015', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('sban')
         .setDescription('Softban a user (ban and unban to remove their messages)')

@@ -6,7 +6,7 @@ const devPerms = require('../devperms.json');
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    id: '0284795', // Unique 6-digit command ID
+    id: '0000021', // Unique 6-digit command ID
     /**
      * Executes the version command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

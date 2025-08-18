@@ -3,7 +3,7 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js'
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1482716', // Unique 6-digit command ID
+    id: '1000002', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('testembed')
         .setDescription('Replies with an embed!'),

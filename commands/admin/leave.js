@@ -5,7 +5,7 @@ const { getVoiceConnection } = require('@discordjs/voice');
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1947383', // Unique 6-digit command ID
+    id: '1000005', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('leave')
         .setDescription('Make the bot leave the voice channel it is currently in'),

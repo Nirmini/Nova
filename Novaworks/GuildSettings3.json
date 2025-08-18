@@ -1,23 +1,36 @@
 {
-    "GroupName": "guild.name", 
-    "NirminiID": "encodedID",
-    "NovaworksId":"nwencodedId",
-    "format":"NovaGS3",
-    "colours": {
-        "custom": false
-    },
+    "%GroupName": "Nirmini", 
+    "%GuildName": "Nirmini Development", 
+    "%GuildId": "1225142849922928661", 
+    "%NirminiID": "1",
+    "%NovaworksId":"1",
+    "%format":"NovaGS3",
     "commandconfigs": {
-        "commandId":{
-            "key":"value"
+        "0000000":{
+            "enabled":false
         }
     },
     "disabledcommands": [], 
-    "rbxgroup": "<GID>",
-    "substat": "L0",
+    "rbxgroup": "1225142849922928661",
     "reports":{
         "enabled":false,
-        "sendchannelid":"ChannelId",
+        "reports_fallback_channel":"<ChannelId>",
+        "slashcomamnd_reports_enabled":true,
+        "slashcomamnd_reports_channel":"<ChannelId>",
+        "contextmenu_reports_enabled":true,
+        "contextmenu_reports_channel":"<ChannelId>",
+        "tickets_reports_enabled":true,
+        "tickets_reports_channel":"<ChannelId>",
         "type":"primary"
+    },
+    "bancfg":{
+        "first_appeal":30,
+        "second_appeal":40,
+        "other_appeals": 45,
+        "dm_notification":{
+            "embed_title":"default",
+            "embed_description": "default"
+        }
     },
     "modules": {
         "admin":{
@@ -84,5 +97,59 @@
             ]
         }
     },
-    "customcmds":null
+    "commanddata":{
+        "lockdown":{
+            "channels":[
+                
+            ]
+        }
+    },
+    "customcmds":[
+        
+    ],
+    "autoreplies":[
+        {"trigger":"trigger","type":"percise/wild", "reply":"response"}
+    ],
+    "guildforms":[
+        {"id":"formId","name":"formName"}
+    ],
+    "featuremodules":{
+        "social": {
+            "youtube":{
+                
+            },
+            "tiktok":{
+
+            },
+            "github":{
+
+            },
+            "twitch":{
+
+            },
+            "steam":{
+                
+            }
+        },
+        "reactionroles": {
+
+        },
+        "actionlogs":{
+            "enabled": true,
+            "logchannel": "1396594826329460796",
+            "webhookURL": "",
+            "exemptroles": [
+
+            ],
+            "exemptchannels": [
+
+            ],
+            "focusedroles": [
+
+            ],
+            "focusedchannels": [
+
+            ]
+        }
+    }
 }

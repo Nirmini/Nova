@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '6725600', // Unique 6-digit command ID
+    id: '6000012', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('mute')
         .setDescription('Mute a user for a specified duration.')

@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '6105013', // Unique 6-digit command ID
+    id: '6000004', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('kick')
         .setDescription('Kick a user from the server')

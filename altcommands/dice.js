@@ -1,5 +1,5 @@
 module.exports = {
-    id: '0719221', // Unique 6-digit command ID
+    id: '0000007', // Unique 6-digit command ID
     /**
      * Executes the dice roll command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

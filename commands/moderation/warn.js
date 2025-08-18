@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
-const { setData, getData } = require('../../src/firebaseAdmin'); // Admin SDK functions
+const { setData, getData } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
-    id: '6161901', // Unique 6-digit command ID
+    id: '6000023', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('warn')
         .setDescription('Warn a user')
@@ -23,6 +23,11 @@ module.exports = {
             // Check for necessary permissions
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
                 await interaction.reply({ content: 'You do not have permission to use this command.', flags: MessageFlags.Ephemeral });
+                return;
+            }
+
+            if (!interaction.guild) {
+                await interaction.reply({ content: 'This command cannot be used outside of servers.', flags: MessageFlags.Ephemeral });
                 return;
             }
 
@@ -98,10 +103,12 @@ module.exports = {
                 );
 
             await interaction.reply({ embeds: [publicEmbed], ephemeral: false });
+                
+            const guildname = interaction.guild.name
 
             // Create a private embed for the user
             const privateEmbed = new EmbedBuilder()
-                .setTitle('You have been warned')
+                .setTitle(`You have been warned in [${guildname}]`)
                 .setColor(0xff0000)
                 .setTimestamp()
                 .setFooter({ text: 'Warning' })

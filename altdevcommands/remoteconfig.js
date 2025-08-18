@@ -1,13 +1,12 @@
 const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const settingsPath = path.join(__dirname, '../settings.json'); // Path to settings.json
-const settings = require(settingsPath); // Load the settings.json file
+const settings = require('../settings.json'); // Load the settings.json file
 
 const devPerms = require('../devperms.json');
 
 module.exports = {
-    id: '0264795', // Unique 6-digit command ID
+    id: '0000022', // Unique 6-digit command ID
     /**
      * Executes the remoteconfig command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.
@@ -23,14 +22,14 @@ module.exports = {
                 embed.setTitle('You do not have permission to use this command.');
                 return message.reply({ embeds: [embed] });
             }
-            if (require('../../settings.json').devcmdsenabled != true) {
+            if (settings.allow_remote_cfg != true) {
                 embed.setColor(0xff0000);
                 embed.setTitle('Developer commands are disabled in `settings.json`.');
                 return message.reply({ embeds: [embed] });
             }
 
             // Check if remote configuration is allowed
-            if (!settings.allowremoteconfig) {
+            if (!settings.allow_remote_cfg) {
                 embed.setColor(0xff0000);
                 embed.setTitle('Remote configuration is disabled. If you run this instance check \`root/settings.json\`')
                 return message.reply({ embeds: [embed] });

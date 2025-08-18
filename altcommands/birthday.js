@@ -1,7 +1,7 @@
 const birthdayModule = require('../core/modules/birthday');
 
 module.exports = {
-    id: '0947326', // Unique 6-digit command ID
+    id: '0000002', // Unique 6-digit command ID
     /**
      * Handles the birthday command for setting, updating, or removing a user's birthday.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

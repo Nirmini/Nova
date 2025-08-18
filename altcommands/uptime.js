@@ -1,7 +1,7 @@
 const { EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '0382881', // Unique 6-digit command ID
+    id: '0000017', // Unique 6-digit command ID
     /**
      * Executes the uptime command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

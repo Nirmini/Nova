@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    id: '0725283', // Unique 6-digit command ID
+    id: '0000009', // Unique 6-digit command ID
     /**
      * Executes the kick command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.
@@ -11,8 +11,8 @@ module.exports = {
         if (args.length < 3) {
             const embed = new EmbedBuilder()
                 .setTitle('Kick Command Help')
-                .setDescription('Usage: `?kick <Notify:True/False> <@User> <Public Reason> <Audit Log Reason>`')
-                .setColor('YELLOW')
+                .setDescription('Usage: `?kick <Notify:True/False> <@User> <Public Reason>`')
+                .setColor(0x00ffff)
                 .setTimestamp();
             return message.reply({ embeds: [embed] });
         }

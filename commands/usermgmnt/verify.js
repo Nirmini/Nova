@@ -1,30 +1,11 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, InteractionType, MessageFlags, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const noblox = require('noblox.js');
-const { getData, setData } = require('../../src/firebaseAdmin');
+const { getData, setData } = require('../../src/Database');
 const { createCanvas, loadImage } = require('canvas');
 const path = require('path');
 
-/*
-sudo bash -c 'cat > /etc/systemd/system/novalyte.service' <<EOF
-[Unit]
-Description=Nova Lyte Discord Bot
-After=network.target
-
-[Service]
-Type=simple
-User=azureuser
-WorkingDirectory=/home/azureuser/NovaLyte
-ExecStart=/home/azureuser/novalyte-starter.sh
-Restart=always
-RestartSec-5
-Environment=NODE_ENV=production
-
-[Install]
-WantedBy=multi-user.target
-EOF
-*/
 module.exports = {
-    id: '9688368', // Unique 6-digit command ID
+    id: '9000010', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('verify')
         .setDescription('Verify your Roblox account with Nova'),
@@ -33,6 +14,48 @@ module.exports = {
         try {
             console.log(`${interaction.user.username}@${interaction.user.id} Ran /verify`);
 
+            // Check if the user is already verified
+            const existingUserData = await getData(`/userdata/${interaction.user.id}`);
+            if (existingUserData) {
+                console.log(`User ${interaction.user.username}@${interaction.user.id} is already verified.`);
+
+                // Create an embed for already verified users
+                const alreadyVerifiedEmbed = new EmbedBuilder()
+                    .setTitle('Already Verified')
+                    .setColor(0xFFA500) // Orange color
+                    .setDescription(
+                        `You are already verified as **${existingUserData.RobloxUName}**.\n` +
+                        `If you want to re-verify, click **Continue** below.`
+                    )
+                    .setTimestamp();
+
+                // Create buttons for Cancel and Continue
+                const actionRow = {
+                    type: 1,
+                    components: [
+                        {
+                            type: 2,
+                            label: 'Cancel',
+                            style: 4, // Red button
+                            custom_id: 'verify-cancelVerification', // Updated custom ID
+                        },
+                        {
+                            type: 2,
+                            label: 'Continue',
+                            style: 1, // Blue button
+                            custom_id: 'verify-continueVerification', // Updated custom ID
+                        },
+                    ],
+                };
+                
+                return interaction.reply({
+                    embeds: [alreadyVerifiedEmbed],
+                    components: [actionRow],
+                    flags: MessageFlags.Ephemeral, // Use flags instead of ephemeral
+                });
+            }
+
+            // If the user is not already verified, show the modal
             const modal = new ModalBuilder()
                 .setCustomId('verifyModal')
                 .setTitle('Roblox Verification');
@@ -51,7 +74,7 @@ module.exports = {
             console.error('Error in /verify execute:', error);
             await interaction.reply({
                 content: 'Something went wrong while starting the verification process. Please try again later.',
-                flags: MessageFlags.Ephemeral,
+                flags: MessageFlags.Ephemeral, // Use flags instead of ephemeral
             });
         }
     },
@@ -96,11 +119,61 @@ module.exports = {
     },
 
     async buttonHandler(interaction) {
-        if (interaction.customId.startsWith('verifyCode')) {
+        if (interaction.customId === 'verify-continueVerification') {
+            try {
+                console.log(`${interaction.user.username}@${interaction.user.id} Clicked Continue Button`);
+
+                // Show the modal for re-verification
+                const modal = new ModalBuilder()
+                    .setCustomId('verifyModal')
+                    .setTitle('Roblox Verification');
+
+                const robloxUsernameInput = new TextInputBuilder()
+                    .setCustomId('robloxUsername')
+                    .setLabel('Enter your Roblox Username')
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true);
+
+                const actionRow = new ActionRowBuilder().addComponents(robloxUsernameInput);
+                modal.addComponents(actionRow);
+
+                await interaction.showModal(modal);
+            } catch (error) {
+                console.error('Error in /verify buttonHandler (Continue):', error);
+                await interaction.reply({
+                    content: 'Something went wrong while processing your request. Please try again later.',
+                    flags: MessageFlags.Ephemeral, // Use flags instead of ephemeral
+                });
+            }
+        } else if (interaction.customId === 'verify-cancelVerification') {
+            // Handle cancel button
+            try {
+                console.log(`${interaction.user.username}@${interaction.user.id} Clicked Cancel Button`);
+
+                // Create a cancellation embed
+                const cancelEmbed = new EmbedBuilder()
+                    .setTitle('Verification Canceled')
+                    .setColor(0xFF0000) // Red color
+                    .setDescription('The verification process has been canceled.')
+                    .setTimestamp();
+
+                 // Edit the original message with the cancellation embed
+                await interaction.update({
+                    embeds: [cancelEmbed],
+                    components: [], // Remove buttons
+                });
+            } catch (error) {
+                console.error('Error in /verify buttonHandler (Cancel):', error);
+                await interaction.reply({
+                    content: 'Something went wrong while canceling the verification process. Please try again later.',
+                    flags: MessageFlags.Ephemeral, // Use flags instead of ephemeral
+                });
+            }
+        } else if (interaction.customId.startsWith('verifyCode')) {
             try {
                 console.log(`${interaction.user.username}@${interaction.user.id} Clicked Verify Button`);
 
-                await interaction.deferReply({ ephemeral: true });
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral }); // Use flags instead of ephemeral
 
                 const [_, robloxUsername, verificationCode] = interaction.customId.split('-');
                 const userId = await noblox.getIdFromUsername(robloxUsername);
@@ -108,6 +181,47 @@ module.exports = {
 
                 console.log(`Fetched Roblox user data for ${robloxUsername}:`, profileInfo);
 
+                // Check if the user is already verified
+                const existingUserData = await getData(`/userdata/${interaction.user.id}`);
+                if (existingUserData) {
+                    console.log(`User ${interaction.user.username}@${interaction.user.id} is already verified.`);
+
+                    // Create an embed for already verified users
+                    const alreadyVerifiedEmbed = new EmbedBuilder()
+                        .setTitle('Already Verified')
+                        .setColor(0xFFA500) // Orange color
+                        .setDescription(
+                            `You are already verified as **${existingUserData.RobloxUName}**.\n` +
+                            `If you want to re-verify, click **Continue** below.`
+                        )
+                        .setTimestamp();
+
+                    // Create buttons for Cancel and Continue
+                    const actionRow = {
+                        type: 1,
+                        components: [
+                            {
+                                type: 2,
+                                label: 'Cancel',
+                                style: 4, // Red button
+                                custom_id: 'cancelVerification',
+                            },
+                            {
+                                type: 2,
+                                label: 'Continue',
+                                style: 1, // Blue button
+                                custom_id: `continueVerification-${robloxUsername}-${verificationCode}`,
+                            },
+                        ],
+                    };
+
+                    return interaction.editReply({
+                        embeds: [alreadyVerifiedEmbed],
+                        components: [actionRow],
+                    });
+                }
+
+                // Proceed with verification if the user is not already verified
                 if (profileInfo.blurb.includes(verificationCode)) {
                     const guildId = interaction.guild.id;
 
@@ -136,6 +250,10 @@ module.exports = {
                     // Assign the verified role to the user
                     await interaction.member.roles.add(verifiedRole);
 
+                    // Generate a unique NovaUID
+                    const allUsers = await getData('/userdata') || {};
+                    const novaUID = Object.keys(allUsers).length + 1;
+
                     // Save user data to Firebase
                     const userData = {
                         UserID: interaction.user.id,
@@ -145,6 +263,8 @@ module.exports = {
                         RobloxID: userId,
                         RobloxUName: robloxUsername,
                         RobloxName: profileInfo.displayName,
+                        VerifiedAt: new Date().toISOString(), // Add verification timestamp
+                        NovaUID: novaUID, // Add unique NovaUID
                         Birthday: {
                             date: null, // Optional, can be added later
                             UIDping: interaction.user.id,
@@ -161,7 +281,9 @@ module.exports = {
                         .setDescription(`You have been successfully verified as **${robloxUsername}**.`)
                         .addFields(
                             { name: 'Assigned Role', value: `<@&${verifiedRole.id}>`, inline: true },
-                            { name: 'Roblox Display Name', value: profileInfo.displayName, inline: true }
+                            { name: 'Roblox Display Name', value: profileInfo.displayName, inline: true },
+                            { name: 'NovaUID', value: novaUID.toString(), inline: true }, // Display NovaUID
+                            { name: 'Verified At', value: new Date().toLocaleString(), inline: true } // Display verification timestamp
                         )
                         .setTimestamp();
 

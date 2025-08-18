@@ -20,7 +20,7 @@ const STATUSPAGE_API_KEY = process.env.STATUSPAGEAPIKEY;
 const STATUSPAGE_PAGE_ID = process.env.PAGEID;
 const NOVADROPDOWN_ID = process.env.NOVADROPDOWN_ID;
 const STATUSPAGE_API = `https://api.statuspage.io/v1/pages/${STATUSPAGE_PAGE_ID}/incidents`;
-const webhookURL = 'YOUR_STATUS_UPDATES_WEBHOOK_URL';
+const webhookURL = 'YOUR_STATUS_WEBHOOK';
 const webhookClient = new WebhookClient({ url: webhookURL });
 
 const lockFilePath = path.join(__dirname, 'incidentLock.json');
@@ -126,7 +126,10 @@ if (ModuleEnabled) {
             investigating: 0xBD6A6A,
             identified: 0xBA6ABD,
             monitoring: 0x6ABD74,
-            resolved: 0x6ABDB1
+            resolved: 0x6ABDB1,
+            scheduled: 0x4287f5,
+            in_progress: 0x4287f6,
+            completed: 0x30d140
         };
     
         const statusEmoji = statusEmojis[incident.status] || '<:NovaRed:1322771825087873147>';
@@ -145,7 +148,7 @@ if (ModuleEnabled) {
     
         const embed = {
             title: embedTitle,
-            color: embedColours[incident.status] || 0xE74C3C,
+            color: embedColours[incident.status] || 0xFFFFFF,
             fields: [
                 ...updateFields,
                 { name: '**Status**', value: `**${incident.status.charAt(0).toUpperCase() + incident.status.slice(1)}**` }

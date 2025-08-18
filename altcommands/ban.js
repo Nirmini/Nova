@@ -1,7 +1,8 @@
 const { EmbedBuilder } = require('discord.js');
+const emoji = require('../emoji.json');
 
 module.exports = {
-    id: '0650011', // Unique 6-digit command ID
+    id: '0000001', // Unique 6-digit command ID
     /**
      * Executes the ban command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.
@@ -11,8 +12,8 @@ module.exports = {
         if (args.length < 3) {
             const embed = new EmbedBuilder()
                 .setTitle('Ban Command Help')
-                .setDescription('Usage: `?ban <Notify:True/False> <@User> <Public Reason> <Audit Log Reason>`')
-                .setColor('YELLOW')
+                .setDescription(`Usage: \`?ban <Notify:True/False> <@user> <Reason>\``)
+                .setColor(0x00ffff)
                 .setTimestamp();
             return message.reply({ embeds: [embed] });
         }
@@ -21,24 +22,23 @@ module.exports = {
             const [notifyArg, userMention, publicReason, ...auditLogReasonParts] = args;
             const notify = notifyArg.toLowerCase() === 'true';
             const user = message.mentions.members.first();
-            const auditLogReason = auditLogReasonParts.join(' ');
 
             if (!user) return message.reply('Please mention a valid user.');
 
-            await user.ban({ reason: auditLogReason });
+            const directEmbeds = new EmbedBuilder()
+            .setColor(0xff5050)
+            .setTitle(`<:ShieldDenied:${emoji.ShieldDenied}> You were banned from ${message.guild.name} | ${publicReason}`)
+            .setDescription(`You can submit an appeal in XX days.`)
+
+            await user.ban({ reason: publicReason });
 
             if (notify) {
-                await user.send(`You have been banned for: ${publicReason}`);
+                await user.send({ embeds: [directEmbeds]});
             }
 
             const embed = new EmbedBuilder()
-                .setTitle('User Banned')
-                .setDescription(`Successfully banned ${user}.`)
-                .addFields(
-                    { name: 'Public Reason', value: publicReason, inline: true },
-                    { name: 'Audit Log Reason', value: auditLogReason || 'None', inline: true },
-                )
-                .setColor('RED')
+                .setTitle(`<:ShieldDenied:${emoji.ShieldDenied}> ***${user.tag} was banned.*** | ${publicReason}`)
+                .setColor(0x0fff0f)
                 .setTimestamp();
 
             await message.reply({ embeds: [embed] });

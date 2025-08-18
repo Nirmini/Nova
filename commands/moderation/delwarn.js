@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
-const { getData, setData, removeData } = require('../../src/firebaseAdmin'); // Use Admin SDK
+const { getData, setData, removeData } = require('../../src/Database'); // Use Admin SDK
 
 module.exports = {
-    id: '6659812', // Unique 6-digit command ID
+    id: '6000003', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('delwarn')
         .setDescription('Delete a specific warning from a user')

@@ -7,7 +7,7 @@ const novaFailureEmojiId = '1329622917109252247'; // Nova Failure emoji
 const novaWarnEmojiId = '1329624040226426973'; // Nova Warn emoji
 
 module.exports = {
-    id: '3247163', // Unique 6-digit command ID
+    id: '3000004', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('tryout')
         .setDescription('Schedule a tryout')
@@ -26,7 +26,8 @@ module.exports = {
         .addChannelOption(option =>
             option.setName('eventchannel')
                 .setDescription('Stage channel for the event')
-                .addChannelTypes(ChannelType.GuildStageVoice)), // Restricts to stage channels
+                .addChannelTypes(ChannelType.GuildStageVoice)
+                .setRequired(true)), // Restricts to stage channels
     async execute(interaction) {
         try {
             const guildId = interaction.guildId;

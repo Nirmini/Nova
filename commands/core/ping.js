@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
-    id: '2413285', // Unique 6-digit command ID
+    id: '2000013', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('View the bot\'s latency'),

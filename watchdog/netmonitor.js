@@ -7,8 +7,16 @@ function checkNetwork() {
             console.error('[WATCHDOG][netmonitor]: Network access failed!');
             sendToShardManager('neterr', { reason: 'Network access failed' });
         }
+        else {
+            console.log('[WATCHDOG]: Network access check passed.')
+        }
     });
 }
 
-// Run every 5 minutes, offset by 0s
+module.exports = {
+    checkNetwork
+}
+
 setInterval(checkNetwork, 5 * 60 * 1000);
+
+setInterval();

@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    id: '4498186', // Unique 6-digit command ID
+    id: '4000008', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('rps')
         .setDescription('Play Rock, Paper, Scissors (or something else) with the bot!')

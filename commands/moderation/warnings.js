@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
-const { getData } = require('../../src/firebaseAdmin'); // Use Admin SDK
+const { getData } = require('../../src/Database'); // Use Admin SDK
 
 module.exports = {
-    id: '6374027', // Unique 6-digit command ID
+    id: '6000024', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('warnings')
         .setDescription('Display all warnings for a user')
@@ -12,21 +12,14 @@ module.exports = {
                 .setRequired(true)),
     async execute(interaction) {
         try {
-            console.log('Checking permissions...');
-            if (!interaction.member.permissions.has(PermissionsBitField.Flags.ManageRoles)) {
+            if (!interaction.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
                 await interaction.reply({ content: 'You do not have permission to use this command.', flags: MessageFlags.Ephemeral });
                 return;
             }
-
-            console.log('Fetching user...');
             const user = interaction.options.getUser('user');
             const userId = user.id;
             const guildId = interaction.guildId;
-
-            console.log(`User: ${userId}, Guild: ${guildId}`);
-
             const path = `warnings/${guildId}/${userId}`;
-            console.log(`Fetching warnings from path: ${path}`);
             const warnings = await getData(path);
 
             if (!warnings || Object.keys(warnings).length === 0) {
@@ -50,12 +43,14 @@ module.exports = {
                 embed.addFields([
                     { 
                         name: `Warning #${totalWarnings - limitedWarnings.length + index + 1}`, 
-                        value: `**Reason:** ${warning.reason || 'No reason provided'}\n**Date:** ${warning.date || 'Unknown'}`
+                        value: `**Reason:** ${warning.reason || 'No reason provided'}
+                        \n**Date:** ${warning.date || 'Unknown'}
+                        \n**Expiration:** ${warning.expires || 'Unknown'}`
                     }
                 ]);
             });
 
-            await interaction.reply({ embeds: [embed], ephemeral: false });
+            await interaction.reply({ embeds: [embed] });
         } catch (error) {
             console.error('Error fetching warnings:', error);
             await interaction.reply({ content: 'There was an error fetching the warnings. Please try again later.', flags: MessageFlags.Ephemeral });

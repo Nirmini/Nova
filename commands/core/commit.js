@@ -2,7 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js'
 const { execSync } = require('child_process');
 
 module.exports = {
-    id: '2489322', // Unique 6-digit command ID
+    id: '2000006', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('commit')
         .setDescription('Display the current Git commit ID.'),

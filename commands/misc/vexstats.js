@@ -4,7 +4,7 @@ const axios = require('axios');
 const API_KEY = process.env.RBT_EVNTS;
 
 module.exports = {
-    id: '5723849', // Unique ID for the command
+    id: '5000011', // Unique ID for the command
     data: new SlashCommandBuilder()
         .setName('vexstats')
         .setDescription('Fetches VEX team stats from RobotEvents')

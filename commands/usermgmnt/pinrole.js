@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { setData, getData, updateData, removeData } = require('../../src/firebaseAdmin'); // Admin SDK functions
+const { setData, getData, updateData, removeData } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
-    id: '9369009', // Unique 6-digit command ID
+    id: '9000003', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('pinrole')
         .setDescription('Pin a role for users in the guild.')

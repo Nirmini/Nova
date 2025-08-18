@@ -1,6 +1,8 @@
-const { setData, getData, updateData, removeData } = require('../../src/firebaseAdmin');
+const { setData, getData, updateData, removeData } = require('../../src/Database');
 const { EmbedBuilder } = require('discord.js');
 const cron = require('node-cron');
+const Client = require('../../core/global/Client');
+
 
 module.name = "BirthdayHandler";
 
@@ -80,6 +82,9 @@ async function removeBirthday(userId) {
  * Sends birthday pings to users on their birthday.
  */
 async function sendBirthdayPing(client) {
+    console.log('clienttype', typeof client);
+    console.log('clientguilds', client.guilds);
+    console.log('clientguildscache', client.guilds?.cache);
     const guilds = client.guilds.cache;
 
     for (const [guildId, guild] of guilds) {

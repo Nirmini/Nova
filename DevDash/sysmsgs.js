@@ -7,6 +7,7 @@ app.use(express.json());
 
 app.use(express.static(__dirname));
 
+// Add at the top of sysmsgs.js
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");

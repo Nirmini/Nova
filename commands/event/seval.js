@@ -3,7 +3,7 @@ const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField, MessageFlags } =
 const botEmojiId = '1319480831303225354';
 
 module.exports = {
-    id: '3763760', // Unique 6-digit command ID
+    id: '3000002', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('seval')
         .setDescription('Start an evaluation')

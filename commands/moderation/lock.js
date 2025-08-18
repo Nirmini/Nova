@@ -1,7 +1,13 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ChannelType, PermissionsBitField } = require('discord.js');
+const {
+    SlashCommandBuilder,
+    PermissionFlagsBits,
+    ChannelType,
+    PermissionsBitField,
+    EmbedBuilder
+} = require('discord.js');
 
 module.exports = {
-    id: '6673834', // Unique 6-digit command ID
+    id: '6000005',
     data: new SlashCommandBuilder()
         .setName('lock')
         .setDescription('Locks a given channel.')
@@ -11,38 +17,75 @@ module.exports = {
                 .setRequired(true)
                 .addChannelTypes(ChannelType.GuildText)
         )
+        .addStringOption(option =>
+            option.setName('reason')
+                .setDescription('Optional reason for locking the channel')
+                .setRequired(false)
+        )
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels),
 
     async execute(interaction) {
         const channel = interaction.options.getChannel('channel');
+        const reason = interaction.options.getString('reason') || 'No reason provided.';
+        const everyoneRole = interaction.guild.roles.everyone;
 
-        if (!channel) {
-            return interaction.reply({ content: '❌ Invalid channel.', ephemeral: true });
-        }
+        const emojis = require('../../emoji.json');
 
-        const roles = interaction.guild.roles.cache
-            .filter(role => channel.permissionsFor(role).has(PermissionsBitField.Flags.SendMessages))
-            .sort((a, b) => a.position - b.position); // Sort by hierarchy (lowest first)
-
-        const lowestRole = roles.first();
-
-        if (!lowestRole) {
-            return interaction.reply({ content: '❌ No role has Send Messages enabled in this channel.', ephemeral: true });
+        if (!channel || channel.type !== ChannelType.GuildText) {
+            return interaction.reply({
+                embeds: [new EmbedBuilder()
+                    .setColor('Red')
+                    .setDescription(`<:failure:${emojis.failure}> Invalid or unsupported channel.`)],
+                ephemeral: true
+            });
         }
 
         try {
-            await channel.permissionOverwrites.edit(lowestRole, {
+            const rolesWithSend = interaction.guild.roles.cache
+                .filter(role =>
+                    channel.permissionsFor(role).has(PermissionsBitField.Flags.SendMessages) &&
+                    role.id !== everyoneRole.id
+                )
+                .sort((a, b) => a.position - b.position); // Lowest role first
+
+            const lowestRole = rolesWithSend.first();
+
+            const overwrites = [];
+
+            // Always lock @everyone
+            overwrites.push(channel.permissionOverwrites.edit(everyoneRole, {
                 SendMessages: false
-            });
+            }, { reason }));
 
-            return interaction.reply({
-                content: `🔒 Locked **${channel.name}** for **${lowestRole.name}**.`,
-                ephemeral: false
-            });
+            // Lock lowest role if any (besides @everyone)
+            if (lowestRole) {
+                overwrites.push(channel.permissionOverwrites.edit(lowestRole, {
+                    SendMessages: false
+                }, { reason }));
+            }
 
-        } catch (error) {
-            console.error('Error locking channel:', error);
-            return interaction.reply({ content: '❌ Failed to lock the channel.', ephemeral: true });
+            await Promise.all(overwrites);
+
+            // Lock message to channel
+            const lockEmbed = new EmbedBuilder()
+                .setColor('Red')
+                .setDescription(`:lock: ${reason}`);
+            await channel.send({ embeds: [lockEmbed] });
+
+            // Confirmation to command invoker
+            const confirmEmbed = new EmbedBuilder()
+                .setColor('Green')
+                .setDescription(`<:check:${emojis.check}> Locked channel ${channel}`);
+
+            await interaction.reply({ embeds: [confirmEmbed] });
+
+        } catch (err) {
+            console.error('Error during lock:', err);
+
+            const failEmbed = new EmbedBuilder()
+                .setColor('Red')
+                .setDescription(`<:failure:${emojis.failure}> Failed to lock channel ${channel}`);
+            return interaction.reply({ embeds: [failEmbed], ephemeral: true });
         }
     }
 };

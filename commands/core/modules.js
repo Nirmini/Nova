@@ -28,7 +28,7 @@ function checkDirectoryStatus(directoryPath) {
 }
 
 module.exports = {
-    id: '2881307', // Unique 6-digit command ID
+    id: '2000012', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('modules')
         .setDescription('Module Status.'),

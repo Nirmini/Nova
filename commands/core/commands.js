@@ -1,9 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { getData, updateData } = require('../../src/firebaseAdmin');
+const { getData, updateData } = require('../../src/Database');
 const { convertCommandIdToName, convertCommandNameToId } = require('../../src/CommandIDs');
 
 module.exports = {
-    id: '2648610', // Unique 6-digit command ID
+    id: '2000005', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('commands')
         .setDescription('View or toggle slash commands in your guild.')

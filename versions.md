@@ -1,6 +1,7 @@
 # Version numbers/IDs in Nova
 ---
-## Nova uses semantic versioning. This means that Nova's version number is along the lines of `x.x.x`.
-### The first digit is representive of Major changes. The second digit is smaller changes that may or may not work with exisitng integrations. The Third digit is patches. Whenever a new large or small update is relased, all the numbers tailing it should be 0.
+## Nova uses a variation of sematic versioning. This means that major and/or breaking changes will be a change in the x number and medium to small patches result in a change to the y number. With the version number being XX.YY with an optional ZZ at the end if needed.
 ---
-Last updated: 6/3/25
+Last updated: July 15th, 2025
+
+Actually we use sematic versioning on the backend again and just use this in front of the customer/user.

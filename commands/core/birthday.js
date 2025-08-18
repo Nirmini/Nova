@@ -2,7 +2,7 @@ const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const birthdayModule = require('../../core/modules/birthday');
 
 module.exports = {
-    id: '2333781', // Unique 6-digit command ID
+    id: '2000003', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('birthday')
         .setDescription('Manage your birthday to receive a special ping!')

@@ -1,7 +1,4 @@
-// TO BE OVERHAULED!!
-/**
- * Guildsettings will allow for 10 automatic responses, 20 for Nova+ guilds.
- */
+// TO BE OVERHAULED!! (Eventually)
 const {
     Client,
     IntentsBitField,
@@ -12,13 +9,14 @@ const {
     WebhookClient
 } = require('discord.js');
 
-const client = require('../core/global/Client'); // Already initialized client
+const {getGuildConfig} = require('./Database')
+
+const client = require('../core/global/Client'); 
 const path = require('path');
 require('dotenv').config();
 const fs = require('fs');
 const settings = require('../settings.json');
-const webhookURL = 'YOUR_DEBUG_LOGS_WEBHOOK_URL';
-const webhookClient= new WebhookClient({ url: webhookURL});
+const webhookClient= new WebhookClient({ url: process.env.LOG_S_WEBHOOK});
 
 const guildResponses = {
     '1225142849922928661': {
@@ -37,17 +35,26 @@ const COMMAND_LIMIT = 10;
 const TIME_WINDOW = 60 * 1000;
 
 client.on('messageCreate', async (message) => {
-    console.log(`[AutoResponse] Got message from ${message.author.tag} in ${message.guild?.name ?? 'DMs'}: ${message.content}`);
-    
-    // --- Universal Log ---
-    console.log(`[AutoResponse] Got message from ${message.author.tag} in ${message.guild ? `guild ${message.guild.name}` : 'DM'}: ${message.content}`);
+    const origin = message.guild ? `guild ${message.guild.name}` : 'DM';
 
-    // --- Handle Direct Messages (no guild) ---
-    if (!message.guild && !message.author.bot) {
-        console.log('[DM Handler] Received a DM from:', message.author.tag);
+    if (message.author.bot) {
+        if (!message.guild) {
+            console.warn(`[DM Handler] Ignored DM from bot user: ${message.author.tag}`);
+        }
+        return;
+    }
+
+    if (!message.guild) {
+    const shardId = client.shard?.ids?.[0] ?? 0;
+    if (shardId !== 0) {
+        console.log(`[Shard ${shardId}] Skipping DM handler — only shard 0 processes DMs.`);
+        return;
+    }
+
+        console.log('[DM Handler] Processing DM from:', message.author.tag);
 
         const avatarURL = message.author.displayAvatarURL({ size: 64 });
-        console.log('[DM Handler] Avatar URL resolved as:', avatarURL);
+        const botAvatar = client.user?.displayAvatarURL();
 
         const embed = new EmbedBuilder()
             .setAuthor({
@@ -60,40 +67,31 @@ client.on('messageCreate', async (message) => {
 
         if (message.attachments.size > 0) {
             const attachmentLinks = message.attachments.map(a => a.url).join('\n');
-            console.log('[DM Handler] Attachments detected:', attachmentLinks);
+            console.log('[DM Handler] Attachments:', attachmentLinks);
             embed.addFields({ name: 'Attachments', value: attachmentLinks });
         } else {
-            console.log('[DM Handler] No attachments present.');
+            console.log('[DM Handler] No attachments found.');
+        }
+
+        if (!webhookClient) {
+            console.warn('[DM Handler] WebhookClient is undefined. Cannot forward DM.');
         }
 
         try {
-            if (!webhookClient) {
-                console.warn('[DM Handler] WebhookClient is undefined or not configured.');
-            }
-
-            const botAvatar = client.user?.displayAvatarURL();
-            console.log('[DM Handler] Bot avatar resolved as:', botAvatar);
-
             await webhookClient.send({
                 username: 'Nova - DM Logger',
                 avatarURL: botAvatar,
                 embeds: [embed]
             });
 
-            console.log('[DM Handler] DM forwarded successfully via webhook.');
+            console.log('[DM Handler] Successfully forwarded DM via webhook.');
         } catch (err) {
-            console.error('[DM Forwarding] Failed to send message via webhook:', err);
+            console.error('[DM Forwarding] Webhook send failed:', err);
         }
 
         return;
-    } else if (!message.guild) {
-        console.warn('[DM Handler] Ignored DM from bot user:', message.author.tag);
     }
 
-    // --- Ignore bot or system messages ---
-    if (message.author.bot) return;
-
-    // --- Command Handling ($ or ?) ---
     if (message.content.startsWith('$') || message.content.startsWith('?')) {
         const isAdminCommand = message.content.startsWith('$');
         const commandPrefix = isAdminCommand ? '$' : '?';
@@ -146,29 +144,28 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // --- Guild-specific auto replies ---
     const guildResponsesForMessage = guildResponses[message.guild.id];
     if (!guildResponsesForMessage) return;
 
-    const triggers = {
-        secops: ['how secops', 'how qhsd', 'how security'],
-        dev: ['how developer', 'how dev', 'how qhdt'],
-        director: ['how director', 'how directorate'],
-        manager: ['how manager', 'how corporate', 'how corp'],
-        qcg: ['what\'s qcg', 'whats qcg'],
-        hrf: ['what\'s hrf', 'whats hrf'],
-        hsrf: ['what\'s hsrf', 'whats hsrf'],
-        multi: ['what\'s multi', 'whats multi'],
-        tester: ['how tester', 'how game tester'],
-        nerf: ['what\'s nerf', 'whats nerf'],
-    };
+    const guildId = message.guild.id
+    const guildTriggers = await getGuildConfig(guildId, 'autoreplies'); //Returns the JSON Table (Hopefully)
 
-    for (const [key, phrases] of Object.entries(triggers)) {
-        if (phrases.some(phrase => message.content.toLowerCase().includes(phrase))) {
-            const replyText = guildResponsesForMessage[key];
-            if (replyText) {
-                await message.reply(`${replyText}, ${message.author}!`);
-                return;
+    if (Array.isArray(guildTriggers) && guildTriggers.length > 0) {
+        for (const entry of guildTriggers) {
+            // entry: { trigger: "<trigger>", type: "percise/wild", reply: "<reply text>" }
+            if (!entry.trigger || !entry.type) continue;
+            const trigger = entry.trigger.toLowerCase();
+            const msgContent = message.content.toLowerCase();
+
+            if (
+                (entry.type === 'percise' && msgContent === trigger) ||
+                (entry.type === 'wild' && msgContent.includes(trigger))
+            ) {
+                const replyText = entry.reply || (guildResponsesForMessage && guildResponsesForMessage[trigger]);
+                if (replyText) {
+                    await message.reply(`${replyText}, ${message.author}!`);
+                    return;
+                }
             }
         }
     }

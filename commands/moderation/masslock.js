@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '6072073', // Unique 6-digit command ID
+    id: '6000007', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('masslock')
         .setDescription('Lock a channel to prevent messages from being sent.')

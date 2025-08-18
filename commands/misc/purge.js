@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '5891803', // Unique 6-digit command ID
+    id: '5000006', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('purge')
         .setDescription('Delete the last specified number of messages')

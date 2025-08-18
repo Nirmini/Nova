@@ -5,7 +5,7 @@ require('dotenv').config();
 const githubToken = process.env.GTHBTOKEN; // Ensure this is set in .env
 
 module.exports = {
-    id: '0818710', // Unique 6-digit command ID
+    id: '0000008', // Unique 6-digit command ID
     /**
      * Executes the github command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

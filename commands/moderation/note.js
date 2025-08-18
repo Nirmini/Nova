@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { setData, getData, updateData, removeData } = require('../../src/firebaseAdmin'); // Admin SDK functions
+const { setData, getData, updateData, removeData } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
-  id: '6465805', // Unique 6-digit command ID
+  id: '6000013', // Unique 6-digit command ID
   data: new SlashCommandBuilder()
     .setName('note')
     .setDescription('Add or remove a note/tag for a user.')

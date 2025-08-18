@@ -1,7 +1,7 @@
 const { PermissionsBitField } = require('discord.js');
 
 module.exports = {
-    id: '0836593', // Unique 6-digit command ID
+    id: '0000016', // Unique 6-digit command ID
     /**
      * Unlocks a specified channel by modifying the lowest role's permissions.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

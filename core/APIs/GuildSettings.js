@@ -1,5 +1,5 @@
 const settings = require('../../settings.json');
-const { setData, getData, removeData, updateData } = require('../../src/firebaseAdmin'); // Firebase RTDB Admin SDK
+const { setData, getData, removeData, updateData } = require('../../src/Database'); // Firebase RTDB Admin SDK
 
 /**
  * Get a specific setting for a guild.

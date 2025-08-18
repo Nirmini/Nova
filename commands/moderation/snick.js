@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '6033246', // Unique 6-digit command ID
+    id: '6000017', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('snick')
         .setDescription('Set a user\'s nickname.')

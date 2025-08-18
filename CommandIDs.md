@@ -10,3 +10,5 @@
 7XXXXXX : Premium Commands
 8XXXXXX : Roblox Commands
 9XXXXXX : User Mgmngt Commands
+
+THE SIX DIGIT COMMAND ID IS TIED TO THE CATEGORY ID!

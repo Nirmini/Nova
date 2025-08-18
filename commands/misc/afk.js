@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '5861851', // Unique 6-digit command ID
+    id: '5000001', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('afk')
         .setDescription('Manage AFK status.')

@@ -2,7 +2,7 @@ const { SlashCommandBuilder, PermissionsBitField, MessageFlags } = require('disc
 const ms = require('ms');
 
 module.exports = {
-    id: '6013696', // Unique 6-digit command ID
+    id: '6000018', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('tban')
         .setDescription('Temporarily ban a user')

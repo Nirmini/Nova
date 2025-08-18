@@ -5,7 +5,7 @@ const path = require('path');
 const NovaDevEmojiId = '1335094430339698750';
 
 module.exports = {
-    id: '0869825', // Unique 6-digit command ID
+    id: '0000004', // Unique 6-digit command ID
     /**
      * Executes the ?commands command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.
@@ -43,7 +43,7 @@ module.exports = {
                 .setColor(0x0099ff)
                 .setTitle(`<:NovaDev:${NovaDevEmojiId}> Available Commands`)
                 .setDescription('Here are all available commands:')
-                .setFooter({ text: 'Use \`/help <command>\` for more details.' })
+                .setFooter({ text: 'Use \`/help <command>\` for more details :3' })
                 .setTimestamp();
 
             // Add each category to the embed

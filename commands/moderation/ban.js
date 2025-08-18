@@ -1,7 +1,7 @@
-const { SlashCommandBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
+const { SlashCommandBuilder, PermissionsBitField, MessageFlags, EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    id: '6975089', // Unique 6-digit command ID
+    id: '6000001', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('ban')
         .setDescription('Permanently ban a user')
@@ -30,12 +30,22 @@ module.exports = {
             return;
         }
 
+        const publicEmbeds = new EmbedBuilder()
+            .setColor(0x00ff00)
+            .setTitle(`<:ShieldDenied:1329622917109252247> ***${user.tag} was banned.*** | ${providedReason}`)
+        const publicEmbedf = new EmbedBuilder()
+            .setColor(0xff0000)
+            .setTitle(`<:Failure:1329622862742421594> ***Failed to ban ${user.tag}.***`)
+        const directEmbeds = new EmbedBuilder()
+            .setColor(0xff0000)
+            .setTitle(`<:ShieldDenied:1329622917109252247> You were banned from ${interaction.guild.name} | ${providedReason}`)
+            .setDescription(`You can submit an appeal in XX days.`)
         try {
             const banReason = `Permanent ban issued by ${moderator.tag} with the reason: ${providedReason}`;
 
             // Send DM to the user
             try {
-                await user.send(`You have been permanently banned from **${interaction.guild.name}**. Reason: ${banReason}`);
+                await user.send({ embeds: [directEmbeds] });
             } catch (err) {
                 console.error('Error sending DM:', err);
             }
@@ -43,10 +53,10 @@ module.exports = {
             // Ban the user
             await member.ban({ reason: banReason });
 
-            await interaction.reply(`Successfully banned ${user.tag} permanently. Reason: ${banReason}`);
+            await interaction.reply({ embeds: [publicEmbeds] });
         } catch (error) {
             console.error('Error banning user:', error);
-            await interaction.reply('There was an error banning the user. Please try again later.');
+            await interaction.reply({ embeds: [publicEmbedf] });
         }
     },
 };

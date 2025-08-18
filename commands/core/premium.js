@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '2258051', // Unique 6-digit command ID
+    id: '2000014', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('premium')
         .setDescription('Info About Nova Premium.'),
@@ -9,7 +9,7 @@ module.exports = {
         const creditsEmbed = new EmbedBuilder()
             .setColor(0x0099ff)
             .setTitle('Nova Premium Info')
-            .setAuthor({ name: 'Multi 22' })
+            .setAuthor({ name: 'Nova smth or smth' })
             .setThumbnail('https://i.imgur.com/nhqjXCq.png')
             .addFields(
                 { name: 'Premium is the way to support Nova\'s development and it\'s developers.', value: '\u200B' },  // Added valid text here
@@ -21,7 +21,7 @@ module.exports = {
                 { name: 'https://thatwest7014.github.io/nova/wiki/plus', value: '\u200B' },
             )
             .setTimestamp()
-            .setFooter({ text: 'Have an amazing rest of your day! *mewo* - Blitz' });
+            .setFooter({ text: 'much mewo\'s - thatWest7014' });
 
             await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 

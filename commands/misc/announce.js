@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '5343884', // Unique 6-digit command ID
+    id: '5000002', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('announce')
         .setDescription('Send an announcement to a specific channel.')

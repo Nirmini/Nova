@@ -32,7 +32,6 @@ router.use((req, res, next) => {
 router.post('/api/sendmsg', async (req, res) => {
     const { type, userId, guildId, channelId, messageType, content, embed, components, devUserId } = req.body;
 
-    // Permission check (optional, can be improved)
     console.log("[UMS]: devUserId =", devUserId, typeof devUserId);
     const userPerm = devPerms.usermap.find(u => u.userid === devUserId);
     if (!userPerm || userPerm.level <= 100) {
@@ -42,18 +41,24 @@ router.post('/api/sendmsg', async (req, res) => {
 
     try {
         if (type === 'dm') {
-            // DM a user (embed only)
             console.log("[UMS]: Requested DM");
             if (!userId) return res.status(400).json({ error: 'Missing userId' });
             if (!(await hasMutualGuild(userId))) return res.status(400).json({ error: 'No mutual guild' });
             const user = await client.users.fetch(userId);
             if (!user) return res.status(404).json({ error: 'User not found' });
-            const dmEmbed = new EmbedBuilder(embed || {});
-            await user.send({ embeds: [dmEmbed] });
+
+            const dmPayload = {};
+            if (content) dmPayload.content = content;
+            if (embed) dmPayload.embeds = [new EmbedBuilder(embed)];
+
+            if (!dmPayload.content && !dmPayload.embeds) {
+                return res.status(400).json({ error: 'No content or embed provided for DM' });
+            }
+
+            await user.send(dmPayload);
             console.log("[UMS]: Sent DM");
             return res.json({ status: 'DM sent' });
         } else if (type === 'channel') {
-            // Send to a channel in a guild
             if (!guildId || !channelId) return res.status(400).json({ error: 'Missing guildId or channelId' });
             const guild = await client.guilds.fetch(guildId).catch(() => null);
             if (!guild) return res.status(404).json({ error: 'Guild not found' });
@@ -61,13 +66,16 @@ router.post('/api/sendmsg', async (req, res) => {
             if (!channel || !channel.isTextBased()) return res.status(404).json({ error: 'Channel not found or not text' });
 
             if (messageType === 'text') {
+                if (!content) return res.status(400).json({ error: 'Content required for text message' });
                 await channel.send({ content });
             } else if (messageType === 'embed') {
-                const msgEmbed = new EmbedBuilder(embed || {});
-                await channel.send({ embeds: [msgEmbed] });
+                const embedPayload = { embeds: [new EmbedBuilder(embed || {})] };
+                if (content) embedPayload.content = content;
+                await channel.send(embedPayload);
             } else if (messageType === 'componentsv2') {
-                // To be edited
-                await channel.send({ ...components, flags: MessageFlags.IsComponentsV2 });
+                const compPayload = { ...components, flags: MessageFlags.IsComponentsV2 };
+                if (content) compPayload.content = content;
+                await channel.send(compPayload);
             } else {
                 return res.status(400).json({ error: 'Invalid messageType' });
             }

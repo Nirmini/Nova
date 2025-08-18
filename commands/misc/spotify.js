@@ -4,7 +4,7 @@ const { env } = require('process');
 require('dotenv').config();
 
 module.exports = {
-    id: '5904576', // Unique 6-digit command ID
+    id: '5000009', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('spotify')
         .setDescription('Get information about a Spotify track.')

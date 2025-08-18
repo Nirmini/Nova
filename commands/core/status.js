@@ -3,13 +3,17 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
-const { getData } = require('../../src/firebaseAdmin');
+const { getData } = require('../../src/Database');
 require('dotenv').config();
 const {GetGroupNameFromID} = require('../../core/APIs/Roblox')
 
-// Load package.json for Nova version
+// Load package.json + settings.json for Nova version
 const packagePath = path.join(__dirname, '../../package.json');
 const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
+const worksPath = path.join(__dirname, '../../Novaworks/novaworks.json');
+const worksJson = JSON.parse(fs.readFileSync(worksPath, 'utf8'));
+const settingsPath = path.join(__dirname, '../../settings.json');
+const settingsJson = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
 
 // Load standards.json
 const standardsPath = path.join(__dirname, '../../standards.json'); 
@@ -67,7 +71,7 @@ const getMemoryUsage = () => (process.memoryUsage().heapUsed / 1024 / 1024).toFi
 const gitCommit = getGitCommit();
 
 module.exports = {
-    id: '2025486',
+    id: '2000020',
     data: new SlashCommandBuilder()
         .setName('status')
         .setDescription('Get the status of Nirmini Nova'),
@@ -131,6 +135,8 @@ SysUptime: ${getSystemUptime()}
                     value: `\`\`\`yaml
 Nova: ${packageJson.version}
 Build: ${gitCommit.id}
+Release: ${settingsJson.currentreleasename}
+Novaworks: ${worksJson.version}
 Date: ${gitCommit.date}
 \`\`\``,
                 },

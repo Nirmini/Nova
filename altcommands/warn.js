@@ -1,8 +1,8 @@
 const { PermissionsBitField, EmbedBuilder } = require('discord.js');
-const { setData, getData } = require('../../src/firebaseAdmin'); // Admin SDK functions
+const { setData, getData } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
-    id: '0936749', // Unique 6-digit command ID
+    id: '0000020', // Unique 6-digit command ID
     name: 'warn',
     description: 'Warn a user in the server',
     usage: '?warn <@user> <Reason>',

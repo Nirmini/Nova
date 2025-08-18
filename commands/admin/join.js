@@ -5,7 +5,7 @@ const { joinVoiceChannel, VoiceConnectionStatus } = require('@discordjs/voice');
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1947382', // Unique 6-digit command ID
+    id: '1000004', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('join')
         .setDescription('Join the voice channel or stage channel where the user is currently in'),

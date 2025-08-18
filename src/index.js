@@ -17,23 +17,25 @@ const workspkg = require('../Novaworks/novaworks.json');
 require('../core/global/statuspage');
 require('../core/global/statusmngr');
 require('./autoresponses');
-require('./modules');
 require('./interactionhandlr');
 require('./services/index');
 const {fetchAndPostStats} = require('../core/global/topgg');
 
-//API Modules
-require('../NovaAPI/common/APIApp');
+require('../modules/novamodules'); //Init modules in the shard process(es)
 
 //QoL Modules
 const NovaStatusMsgs = require('./statusmsgs');
 const {ndguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds');
 const {blacklistedusers, bannedusers} = require("../servicedata/bannedusers");
-const {getData, setData, updateData, removeData } = require('./firebaseAdmin');
+const {
+    getGuildConfig, setGuildConfig, updateGuildConfig, removeGuildConfig,
+    getGuildData, setGuildData, updateGuildData, removeGuildData,
+    getBirthday, setBirthday, updBirthday, remBirthday,
+    getUserData, setUserData, updateUserData, removeUserData
+} = require('./Database');
 
 //Debugging
-const webhookURL = 'YOUR_LOGS_WEBHOOK_URL_HERE'
-const webhookClient= new WebhookClient({ url: webhookURL});
+const webhookClient= new WebhookClient({ url: process.env.LOG_S_WEBHOOK});
 require('../DevDash/manager');
 
 async function waitForShardsReady() {
@@ -70,7 +72,7 @@ async function waitForShardsReady() {
 }
 
 // Initialize birthday module
-const birthdayModule = require('../core/modules/birthday');
+const birthdayModule = require('../modules/birthday');
 birthdayModule.initializeCron(client);
 
 const dns = require('dns');
@@ -113,6 +115,18 @@ client.once('ready', async () => {
     statusApp.listen(STATUS_PORT, () => {
         console.log(`[Shard ${client.shard?.ids?.[0] ?? 0}] Status API running on port ${STATUS_PORT}`);
     });
+
+    // Make the Discord API not ghost people
+    const userIDsToCache = ['600464355917692952', '830948578226339850', '1200168516154839133', '949096247883612231'];
+    
+    for (const userId of userIDsToCache) {
+        client.users.fetch(userId).then(async user => {
+            const dm = await user.createDM();
+            console.log(`[DEBUG] Fetched and cached DM channel with user ${user.tag} (${user.id}): ${dm.id}`);
+        }).catch(err => {
+            console.error(`[ERROR] Failed to cache DM for ${userId}:`, err);
+        });
+    }
 
     fetchAndPostStats(client)
         .then(success => {
@@ -195,26 +209,9 @@ waitForShardsReady().then(() => {
 
 });
 
-client.on('messageCreate', async (message) => {
-    // Ignore bot messages or messages not in DMs
-    if (message.author.bot || message.guild) return;
-
-    try {
-        const isLong = message.content.length > 256;
-        const embed = new EmbedBuilder()
-            .setAuthor({
-                name: `${message.author.tag} (${message.author.id})`,
-                iconURL: message.author.displayAvatarURL({ dynamic: true })
-            })
-            .setTitle(isLong ? 'Direct Message' : message.content || '[No content]')
-            .setDescription(isLong ? message.content.slice(0, 4096) : '\u200B') // Embed description limit is 4096
-            .setTimestamp()
-            .setColor(0x5865F2); // Discord blurple
-
-        await webhookClient.send({ embeds: [embed] });
-        console.log(`[DM Logger] Logged DM from ${message.author.tag}`);
-    } catch (err) {
-        console.error(`[DM Logger] Failed to log DM:`, err);
+client.on('messageCreate', (message) => {
+    if (!message.guild) {
+        console.log(`[DEBUG] Detected a DM message from ${message.author.tag}`);
     }
 });
 
@@ -279,19 +276,19 @@ try {
 
 client.on('guildCreate', async (guild) => {
     if (settings.extendedlogs) {
-    console.log(`Joined new guild: ${guild.name} (${guild.id})`);
-    webhookClient.send(`Joined new guild: ${guild.name} (${guild.id})`);
-    };
+        console.log(`Joined new guild: ${guild.name} (${guild.id})`);
+        webhookClient.send(`Joined new guild: ${guild.name} (${guild.id})`);
+    }
 
     try {
-        // Check if the guild already has a config in Firebase
-        const existingConfig = await getData(`guildsettings/${guild.id}/config`);
+        // Check if the guild already has a config in the database
+        const existingConfig = await getGuildConfig(guild.id, 'config');
 
         if (!existingConfig) {
             console.log(`No config found for ${guild.name}. Creating a new one...`);
 
-            // Get the current highest NirminiID from Firebase
-            const allGuilds = await getData(`/guildsettings/`);
+            // Get the current highest NirminiID from the database
+            const allGuilds = await getGuildConfig(); // Get all guild configs
             let highestID = 0;
 
             if (allGuilds) {
@@ -328,8 +325,8 @@ client.on('guildCreate', async (guild) => {
                 "substat": "L0/L1/L2"
             };
 
-            // Store the config in Firebase
-            await setData(`guildsettings/${guild.id}/config`, newGuildConfig);
+            // Store the config in the database
+            await setGuildConfig(guild.id, 'config', newGuildConfig);
             if (settings.extendedlogs) console.log(`New guild config created for ${guild.name} (${guild.id}) with NirminiID ${newNirminiID}.`);
         } else {
             console.log(`Config already exists for ${guild.name}, skipping creation.`);
@@ -339,7 +336,23 @@ client.on('guildCreate', async (guild) => {
     }
 });
 
-client.login(process.env.DISCORD_TOKEN);
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
+
+    // Pre-cache user's DM channel to prepare for possible replies
+    try {
+        const dmChannel = await interaction.user.createDM();
+        console.log(`[Cache] Preloaded DM channel for ${interaction.user.tag}: ${dmChannel.id}`);
+    } catch (err) {
+        console.warn(`[Cache] Failed to preload DM channel for ${interaction.user.tag}:`, err.message);
+    }
+});
+
+const resolvedIntents = new IntentsBitField(client.options.intents).toArray();
+console.log('[DEBUG] Intents:', resolvedIntents);
+console.log('[DEBUG] Partials:', client.options.partials);
+
+client.login(process.env.DISCORD_TOKEN); //TODO: Make this only run if we're starting an older
 
 console.log(`
 ███████████████████████████████████████████████████████████████████████████████████████████████╗

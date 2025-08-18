@@ -1,10 +1,11 @@
 const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
-const { getData, setData, updateData } = require('../../src/firebaseAdmin'); // Use Admin SDK
+const { getData, setData, updateData } = require('../../src/Database'); // Use Admin SDK
 const DB_PATH = 'guildsettings';
 
 const devPerms = require('../../devperms.json');
 
 module.exports = {
+    id: '1000009',
     data: new SlashCommandBuilder()
         .setName('serverconfig')
         .setDescription('Manage server settings for the bot.')

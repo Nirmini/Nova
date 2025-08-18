@@ -1,8 +1,14 @@
 const { SlashCommandBuilder, PermissionsBitField, ChannelType, MessageFlags } = require('discord.js');
-const { setData, getData } = require('../../src/firebaseAdmin'); // Firebase Admin functions
+const { setData, getData } = require('../../src/Database'); // Firebase Admin functions
+
+/**
+ * TO BE REFACTORED
+ * 
+ * Cover user ident with Case IDs
+ */
 
 module.exports = {
-    id: '2454475', // Unique 6-digit command ID
+    id: '2000002', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('anommsg')
         .setDescription('Send anonymous messages or manage the system.')
@@ -38,6 +44,12 @@ module.exports = {
         const guild = interaction.guild;
         const firebasePath = 'anommsg'; // Root path for storing data in Firebase
 
+        // This will return null if the interaction is not in a guild and the ! will flip the result so it will return true and return without doing anything.
+        if (!interaction.guild.id) {
+            await interaction.reply({ content: 'This command can only be used in servers.', flags: MessageFlags.Ephemeral });
+            return;
+        }
+        
         // Ensure the category exists
         let category = guild.channels.cache.find(channel => channel.name === 'AnomTickets' && channel.type === ChannelType.GuildCategory);
         if (!category) {
@@ -53,7 +65,10 @@ module.exports = {
             // Check if the user is banned in Firebase
             const bannedUsers = await getData(`${firebasePath}/banned`) || [];
             if (bannedUsers.includes(userId)) {
-                await interaction.reply({ content: 'You are banned from sending anonymous messages.', flags: MessageFlags.Ephemeral });
+                const BannedMsg = new EmbedBuilder()
+                    .setColor(0xff0000)
+                    .setTitle('<:ShieldDenied:1329622917109252247> You are banned from sending anonymous messages.')
+                await interaction.reply({ embeds: [BannedMsg], flags: MessageFlags.Ephemeral });
                 return;
             }
 
@@ -61,7 +76,7 @@ module.exports = {
 
             // Create a ticket channel
             const ticketChannel = await guild.channels.create({
-                name: `ticket-${Date.now()}`,
+                name: `aticket-${Date.now()}`,
                 type: ChannelType.GuildText,
                 parent: category.id,
                 topic: `Anonymous message ticket.`,
@@ -78,7 +93,13 @@ module.exports = {
             await setData(userLogsPath, userLogs);
 
             // Send the message in the ticket channel
-            await ticketChannel.send(`**Anonymous Message**\n${messageText}`);
+            const ticketEmbed = new EmbedBuilder()
+                .setColor(0x0099ff)
+                .setTitle('Anonymous Message')
+                .setDescription(messageText)
+                .setFooter({ text: `Sent by ${interaction.member.roles.highest.name}` });
+
+            await ticketChannel.send({ embeds: [ticketEmbed] });
 
             await interaction.reply({ content: 'Your anonymous message has been sent!', flags: MessageFlags.Ephemeral });
         } else if (subcommand === 'track') {

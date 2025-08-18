@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField } = require('discord.js');
 
 module.exports = {
-    id: '5457562', // Unique 6-digit command ID
+    id: '5000007', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('roleinfo')
         .setDescription('Get information about a role in the server.')

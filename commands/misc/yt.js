@@ -3,7 +3,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 module.exports = {
-    id: '5353193', // Unique 6-digit command ID
+    id: '5000013', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('yt')
         .setDescription('Get information about a YouTube video.')

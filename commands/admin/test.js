@@ -11,7 +11,7 @@ const { SlashCommandBuilder,
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1000001', // This is like, pretty important.
+    id: '1000011', // This is like, pretty important.
     data: new SlashCommandBuilder()
         .setName('test')
         .setDescription('A command for testing various features.')
@@ -41,7 +41,7 @@ module.exports = {
         
         // Permission check
         const userPerm = devPerms.usermap.find(u => u.userid === interaction.user.id);
-        if (!userPerm || userPerm.level <= 500) {
+        if (!userPerm || userPerm.level <= 200) {
             embed.setColor(0xff0000);
             embed.setTitle('You do not have permission to use this command.');
             return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });

@@ -4,7 +4,7 @@ const { env } = require('process');
 require('dotenv').config();
 
 module.exports = {
-    id: '5657524', // Unique 6-digit command ID
+    id: '5000004', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('itunes')
         .setDescription('Search for iTunes media.')

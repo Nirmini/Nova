@@ -165,124 +165,135 @@
         <div id="manageStatus" style="margin-top:24px;"></div>
     </div>
     <script>
-    function showStatus(msg, ok = true, id = "manageStatus") {
-        document.getElementById(id).innerHTML =
-            `<span style="color:${ok ? '#43b581' : '#f04747'}">${msg}</span>`;
-    }
+        let WinLoc = 'localhost'
+        if (window.location.hostname != "") {
+            WinLoc = window.location.hostname
+        }
+        const DEV_DASH_PORT = 65523; // Or dynamically inject from server if needed
+        const API_BASE = `http://${WinLoc}:${DEV_DASH_PORT}`;
 
-    // Shard & Command Management
-    async function spawnShard() {
-        showStatus('Spawning shard...', true);
-        const res = await fetch('/manage/spawn-shard', { method: 'POST' });
-        const data = await res.json();
-        showStatus(data.message, res.ok);
-    }
-    async function killShard() {
-        showStatus('Killing shard...', true);
-        const res = await fetch('/manage/kill-shard', { method: 'POST' });
-        const data = await res.json();
-        showStatus(data.message, res.ok);
-    }
-    async function deployCommands() {
-        showStatus('Deploying commands...', true);
-        const res = await fetch('/manage/deploy-commands', { method: 'POST' });
-        const data = await res.json();
-        showStatus(data.message, res.ok);
-    }
-    async function runBirthday() {
-        showStatus('Running birthday service...', true);
-        const res = await fetch('/manage/run-birthday', { method: 'POST' });
-        const data = await res.json();
-        showStatus(data.message, res.ok);
-    }
+        // Helper for all fetches
+        function apiFetch(endpoint, options) {
+            return fetch(`${API_BASE}${endpoint}`, options);
+        }
+        function showStatus(msg, ok = true, id = "manageStatus") {
+            document.getElementById(id).innerHTML =
+                `<span style="color:${ok ? '#43b581' : '#f04747'}">${msg}</span>`;
+        }
 
-    // Network & Ping Utilities
-    async function testNetwork() {
-        showStatus('Testing network...', true, "networkStatus");
-        try {
-            const res = await fetch('/manage/test-network', { method: 'POST' });
+        // Shard & Command Management
+        async function spawnShard() {
+            showStatus('Spawning shard...', true);
+            const res = await apiFetch('/manage/spawn-shard', { method: 'POST' });
             const data = await res.json();
-            showStatus(data.message, res.ok, "networkStatus");
-        } catch {
-            showStatus('Network test failed.', false, "networkStatus");
+            showStatus(data.message, res.ok);
         }
-    }
-    async function pingUtil() {
-        showStatus('Pinging...', true, "networkStatus");
-        try {
-            const res = await fetch('/manage/ping-util', { method: 'POST' });
+        async function killShard() {
+            showStatus('Killing shard...', true);
+            const res = await apiFetch('/manage/kill-shard', { method: 'POST' });
             const data = await res.json();
-            showStatus(data.message, res.ok, "networkStatus");
-        } catch {
-            showStatus('Ping failed.', false, "networkStatus");
+            showStatus(data.message, res.ok);
         }
-    }
+        async function deployCommands() {
+            showStatus('Deploying commands...', true);
+            const res = await apiFetch('/manage/deploy-commands', { method: 'POST' });
+            const data = await res.json();
+            showStatus(data.message, res.ok);
+        }
+        async function runBirthday() {
+            showStatus('Running birthday service...', true);
+            const res = await apiFetch('/manage/run-birthday', { method: 'POST' });
+            const data = await res.json();
+            showStatus(data.message, res.ok);
+        }
 
-    // Watchdog Integration
-    async function getWatchdogStatus() {
-        showStatus('Getting watchdog status...', true, "watchdogStatus");
-        try {
-            const res = await fetch('/manage/watchdog-status', { method: 'POST' });
-            const data = await res.json();
-            showStatus(data.message, res.ok, "watchdogStatus");
-        } catch {
-            showStatus('Failed to get watchdog status.', false, "watchdogStatus");
+        // Network & Ping Utilities
+        async function testNetwork() {
+            showStatus('Testing network...', true, "networkStatus");
+            try {
+                const res = await apiFetch('/manage/test-network', { method: 'POST' });
+                const data = await res.json();
+                showStatus(data.message, res.ok, "networkStatus");
+            } catch {
+                showStatus('Network test failed.', false, "networkStatus");
+            }
         }
-    }
-    async function triggerWatchdogCheck() {
-        showStatus('Triggering watchdog check...', true, "watchdogStatus");
-        try {
-            const res = await fetch('/manage/watchdog-check', { method: 'POST' });
-            const data = await res.json();
-            showStatus(data.message, res.ok, "watchdogStatus");
-        } catch {
-            showStatus('Watchdog check failed.', false, "watchdogStatus");
+        async function pingUtil() {
+            showStatus('Pinging...', true, "networkStatus");
+            try {
+                const res = await apiFetch('/manage/ping-util', { method: 'POST' });
+                const data = await res.json();
+                showStatus(data.message, res.ok, "networkStatus");
+            } catch {
+                showStatus('Ping failed.', false, "networkStatus");
+            }
         }
-    }
 
-    // NovaAPIs Integration
-    async function checkNovaAPI() {
-        showStatus('Checking NovaAPI...', true, "novaAPIStatus");
-        try {
-            const res = await fetch('/manage/novaapi-status', { method: 'POST' });
-            const data = await res.json();
-            showStatus(data.message, res.ok, "novaAPIStatus");
-        } catch {
-            showStatus('Failed to check NovaAPI.', false, "novaAPIStatus");
+        // Watchdog Integration
+        async function getWatchdogStatus() {
+            showStatus('Getting watchdog status...', true, "watchdogStatus");
+            try {
+                const res = await apiFetch('/manage/watchdog-status', { method: 'POST' });
+                const data = await res.json();
+                showStatus(data.message, res.ok, "watchdogStatus");
+            } catch {
+                showStatus('Failed to get watchdog status.', false, "watchdogStatus");
+            }
         }
-    }
-    async function syncNovaAPI() {
-        showStatus('Syncing NovaAPI...', true, "novaAPIStatus");
-        try {
-            const res = await fetch('/manage/novaapi-sync', { method: 'POST' });
-            const data = await res.json();
-            showStatus(data.message, res.ok, "novaAPIStatus");
-        } catch {
-            showStatus('NovaAPI sync failed.', false, "novaAPIStatus");
+        async function triggerWatchdogCheck() {
+            showStatus('Triggering watchdog check...', true, "watchdogStatus");
+            try {
+                const res = await apiFetch('/manage/watchdog-check', { method: 'POST' });
+                const data = await res.json();
+                showStatus(data.message, res.ok, "watchdogStatus");
+            } catch {
+                showStatus('Watchdog check failed.', false, "watchdogStatus");
+            }
         }
-    }
 
-    // Miscellaneous & Utilities
-    async function clearCache() {
-        showStatus('Clearing cache...', true, "miscStatus");
-        try {
-            const res = await fetch('/manage/clear-cache', { method: 'POST' });
-            const data = await res.json();
-            showStatus(data.message, res.ok, "miscStatus");
-        } catch {
-            showStatus('Failed to clear cache.', false, "miscStatus");
+        // NovaAPIs Integration
+        async function checkNovaAPI() {
+            showStatus('Checking NovaAPI...', true, "novaAPIStatus");
+            try {
+                const res = await apiFetch('/manage/novaapi-status', { method: 'POST' });
+                const data = await res.json();
+                showStatus(data.message, res.ok, "novaAPIStatus");
+            } catch {
+                showStatus('Failed to check NovaAPI.', false, "novaAPIStatus");
+            }
         }
-    }
-    async function restartBot() {
-        showStatus('Restarting bot...', true, "miscStatus");
-        try {
-            const res = await fetch('/manage/restart-bot', { method: 'POST' });
-            const data = await res.json();
-            showStatus(data.message, res.ok, "miscStatus");
-        } catch {
-            showStatus('Failed to restart bot.', false, "miscStatus");
+        async function syncNovaAPI() {
+            showStatus('Syncing NovaAPI...', true, "novaAPIStatus");
+            try {
+                const res = await apiFetch('/manage/novaapi-sync', { method: 'POST' });
+                const data = await res.json();
+                showStatus(data.message, res.ok, "novaAPIStatus");
+            } catch {
+                showStatus('NovaAPI sync failed.', false, "novaAPIStatus");
+            }
         }
-    }
+
+        // Miscellaneous & Utilities
+        async function clearCache() {
+            showStatus('Clearing cache...', true, "miscStatus");
+            try {
+                const res = await apiFetch('/manage/clear-cache', { method: 'POST' });
+                const data = await res.json();
+                showStatus(data.message, res.ok, "miscStatus");
+            } catch {
+                showStatus('Failed to clear cache.', false, "miscStatus");
+            }
+        }
+        async function restartBot() {
+            showStatus('Restarting bot...', true, "miscStatus");
+            try {
+                const res = await apiFetch('/manage/restart-bot', { method: 'POST' });
+                const data = await res.json();
+                showStatus(data.message, res.ok, "miscStatus");
+            } catch {
+                showStatus('Failed to restart bot.', false, "miscStatus");
+            }
+        }
     </script>
     <script>
         (function () {

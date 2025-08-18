@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '6819561', // Unique 6-digit command ID
+    id: '6000002', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('deafen')
         .setDescription('Deafen/Undeafen a user')

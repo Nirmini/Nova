@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { getData } = require('../../src/firebaseAdmin'); // Admin SDK functions
+const { getData } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
-  id: '9101380', // Unique 6-digit command ID
+  id: '9000002', // Unique 6-digit command ID
   data: new SlashCommandBuilder()
     .setName('binds')
     .setDescription('View your server\'s active binds'),

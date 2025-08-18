@@ -192,6 +192,7 @@
                 if (payload.messageType === 'text') {
                     payload.content = form.content.value;
                 } else if (payload.messageType === 'embed') {
+                    payload.content = form.content.value; 
                     payload.embed = {
                         title: form.embedTitleC.value,
                         description: form.embedDescC.value

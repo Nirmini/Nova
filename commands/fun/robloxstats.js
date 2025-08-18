@@ -5,7 +5,7 @@ const noblox = require('noblox.js'); // Use noblox.js for unsupported features
 const novaRobloxEmojiId = '1335069604032282655'; // Nova Info emoji
 
 module.exports = {
-    id: '4921303', // Unique 6-digit command ID
+    id: '4000007', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('robloxstats')
         .setDescription('Get detailed stats of a Roblox user.')
@@ -20,20 +20,27 @@ module.exports = {
 
         try {
             // Fetch user ID from username using Roblox.js API
+            console.log(`Fetching UserID for username: ${username}`);
             const userId = await RobloxAPI.UserName2ID(username);
             if (!userId) {
+                console.warn(`User not found for username: ${username}`);
                 return interaction.reply({ content: '❌ User not found!', flags: MessageFlags.Ephemeral });
             }
+            console.log(`UserID for username "${username}": ${userId}`);
 
             // Fetch general user info using Roblox.js API
+            console.log(`Fetching general info for UserID: ${userId}`);
             const generalInfo = await RobloxAPI.GetGeneral(userId);
             if (!generalInfo) {
+                console.warn(`Failed to fetch general info for UserID: ${userId}`);
                 return interaction.reply({ content: '❌ Failed to fetch user info!', flags: MessageFlags.Ephemeral });
             }
+            console.log(`General info for UserID "${userId}":`, generalInfo);
 
-            let { username: accountName, displayName, description, avatarUrl, joinDate } = generalInfo;
+            let { username: accountName, displayName, description, avatarUrl, badges, joinDate } = generalInfo;
 
             // Fetch additional data using noblox.js
+            console.log(`Fetching additional profile info for UserID: ${userId}`);
             const profileInfo = await noblox.getPlayerInfo(userId);
             const age = profileInfo.age || 'N/A';
             const friendCount = profileInfo.friendCount || 0;
@@ -63,20 +70,12 @@ module.exports = {
             }
 
             // Fetch avatar details using Roblox Avatar API
+            console.log(`Fetching avatar details for UserID: ${userId}`);
             const avatarDetailsResponse = await RobloxAPI.GetAvtrItms(userId);
+            console.log(`Avatar details for UserID "${userId}":`, avatarDetailsResponse);
 
             // Check for specific keywords in the description or avatar assets
             let footerText = '';
-            if (
-                description.toLowerCase().includes('furry') || // Check for "furry" in the description
-                avatarDetailsResponse.some(asset =>
-                    asset.name.toLowerCase().includes('fursuit') || // Check for "fursuit" in the avatar assets
-                    asset.name.toLowerCase().includes('kemono') || // Check for "kemono" in the avatar assets
-                    asset.name.toLowerCase().includes('tail') // Check for "tail" in the avatar assets
-                )
-            ) {
-                footerText = '\"UWU\" - West7014';
-            }
 
             // Build the embed
             const embed = new EmbedBuilder()
@@ -86,6 +85,7 @@ module.exports = {
                 .addFields(
                     { name: 'Description', value: `${description}`, inline: false },
                     { name: 'Account Age (days)', value: `${age}`, inline: true },
+                    { name: 'Badges', value: `${badges}`, inline: true },
                     { name: 'Friends', value: `${friendCount}`, inline: true },
                     { name: 'Followers', value: `${followerCount}`, inline: true },
                     { name: 'Following', value: `${followingCount}`, inline: true },

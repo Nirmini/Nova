@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    id: '5911899', // Unique 6-digit command ID
+    id: '5000010', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('uptime')
         .setDescription('Displays the bot\'s uptime.'),

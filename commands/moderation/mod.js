@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
 module.exports = {
-    id: '6902911', // Unique 6-digit command ID
+    id: '6000009', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('mod')
         .setDescription('Moderation tools')

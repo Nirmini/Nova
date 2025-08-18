@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionFlagsBits, ChannelType, PermissionsBitField } = require('discord.js');
 
 module.exports = {
-    id: '6323282', // Unique 6-digit command ID
+    id: '6000022', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('unlock')
         .setDescription('Unlocks a given channel.')

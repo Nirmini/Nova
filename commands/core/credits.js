@@ -1,13 +1,12 @@
 const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 
 module.exports = {
-    id: '2876459', // Unique 6-digit command ID
+    id: '2000007', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('credits')
         .setDescription('NovaBot Credits.'),
     async execute(interaction) {
-        const NirminiDevLogo = new AttachmentBuilder('./Icos/Nirmini/NirminiDevelopment-Banner.png');
-        const NovaLogo = new AttachmentBuilder('./Icos/NirminiDevelopment.png');
+        const NirminiDevLogo = new AttachmentBuilder('./Icos/Nirmini/ND/NirminiDevelopment-v2Logo-Text.png');
         const creditsEmbed = new EmbedBuilder()
             .setColor(0x0099ff)
             .setTitle('Nova Credits')
@@ -19,11 +18,11 @@ module.exports = {
                 { name: '**SUPPORTING DEVELOPERS**', value: '.aaron227 - Former Internal Bug Testing & QA Support Staff\nZacharyeb17 - Former Internal Bug Testing' },
                 { name: '**INSPIRATION**', 
 value: `
-- Dyno by Flexlabs
-- Bloxlink by Bloxlink
-- Tickets by rxdn (GitHub)
-- Ticket Tool by BattleEye
-- Guardsman by Bunker Bravo Interactive
+- Dyno by [Flexlabs](https://github.com/Flexlabs)
+- Bloxlink by [Bloxlink](https://blox.link)
+- Tickets by [rxdn (GitHub)](https://github.com/rxdn)
+- Ticket Tool by [BattleEye](https://tickettool.xyz/)
+- Guardsman by [Bunker Bravo Interactive](https://bunkerbravointeractive.com)
 ` }
             )
             .setTimestamp()

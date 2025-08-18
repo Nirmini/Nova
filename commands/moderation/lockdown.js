@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '6739556', // Unique 6-digit command ID
+    id: '6000006', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('lockdown')
         .setDescription('Manage lockdown state for all text channels.')

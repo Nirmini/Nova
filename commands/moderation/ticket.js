@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
-const { setData, getData, updateData, deleteData } = require('../../src/firebaseAdmin'); // Admin SDK functions
+const { setData, getData, updateData, deleteData } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
-    id: '6094274', // Unique 6-digit command ID
+    id: '6000019', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('ticket')
         .setDescription('Manage tickets')

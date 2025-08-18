@@ -5,7 +5,7 @@ require('dotenv').config();
 const githubToken = process.env.GTHBTOKEN; // Ensure this is set in .env
 
 module.exports = {
-    id: '5704798', // Unique 6-digit command ID
+    id: '5000003', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('github')
         .setDescription('Fetch information about a GitHub repository')

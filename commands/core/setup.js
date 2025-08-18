@@ -1,10 +1,10 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const { setData, getData } = require('../../src/firebaseAdmin'); // Use Admin SDK
+const { setData, getData } = require('../../src/Database'); // Use Admin SDK
 
 module.exports = {
-    id: '2640130', // Unique 6-digit command ID
+    id: '2000018', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('setup')
         .setDescription('Initial bot setup for the server.'),
@@ -31,23 +31,23 @@ module.exports = {
 
             // Roblox Group ID Input
             const groupIDInput = new TextInputBuilder()
-                .setCustomId('robloxGroupID')
-                .setLabel('Enter your Roblox Group ID:')
-                .setStyle(TextInputStyle.Short)
-                .setRequired(true);
-
+            .setCustomId('robloxGroupID')
+            .setLabel('Enter your Roblox Group ID:')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+                    
             // Add Roles/Channels Option (True/False)
             const addRolesChannelsInput = new TextInputBuilder()
-                .setCustomId('addRolesChannels')
-                .setLabel('Do you want to add roles/channels? (true/false)')
-                .setStyle(TextInputStyle.Short)
-                .setRequired(true);
-
+            .setCustomId('addRolesChannels')
+            .setLabel('Add roles/channels? (true/false)') // Shortened label
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+                    
             // Assemble form
             modal.addComponents(
-                new ActionRowBuilder().addComponents(groupNameInput),
-                new ActionRowBuilder().addComponents(groupIDInput),
-                new ActionRowBuilder().addComponents(addRolesChannelsInput)
+            new ActionRowBuilder().addComponents(groupNameInput),
+            new ActionRowBuilder().addComponents(groupIDInput),
+            new ActionRowBuilder().addComponents(addRolesChannelsInput)
             );
 
             // Show the modal
@@ -58,7 +58,7 @@ module.exports = {
         }
     },
 
-    async handleModal(interaction) {
+    async modalHandler(interaction) {
         if (interaction.customId !== 'setupModal') return;
 
         // Extract form inputs

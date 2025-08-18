@@ -1,7 +1,7 @@
 const { EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '0717849', // Unique 6-digit command ID
+    id: '0000006', // Unique 6-digit command ID
     data: {
         name: 'debug',
         description: 'Checks if a command exists and displays its arguments.',
@@ -43,7 +43,7 @@ module.exports = {
                         inline: false 
                     },
                 )
-                .setFooter({ text: 'Command Debug Tool' })
+                .setFooter({ text: 'Command Debug Tool :3' })
                 .setTimestamp();
 
             await message.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });

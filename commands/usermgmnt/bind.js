@@ -1,9 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { setData, getData } = require('../../src/firebaseAdmin'); // Admin SDK functions
+const { setData, getData } = require('../../src/Database'); // Admin SDK functions
 const noblox = require('noblox.js');
 
 module.exports = {
-  id: '9259806', // Unique 6-digit command ID
+  id: '9000001', // Unique 6-digit command ID
   data: new SlashCommandBuilder()
     .setName('bind')
     .setDescription('Connect ROBLOX ranks to roles')

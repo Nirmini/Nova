@@ -3,7 +3,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 module.exports = {
-    id: '4414315', // Unique 6-digit command ID
+    id: '4000005', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('mcstats')
         .setDescription('Get detailed stats of a Minecraft player.')

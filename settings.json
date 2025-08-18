@@ -1,21 +1,20 @@
 {
-    "currentreleasename":"france",
-    "useremotedb": true,
-    "usegitlabflags": false,
-    "allowremoteconfig": true,
-    "debugmode": false,
-    "allowremoteshellexec": true,
-    "slashcommandsenabled": true,
-    "extendedlogs": true,
+    "currentreleasename":"nebula",
+    "local_database": true,
+    "use_remote_flag": false,
+    "allow_remote_cfg": true,
+    "enbable_debug": false,
+    "slash_commands_enabled": true,
+    "extended_logs": true,
     "operator": {
         "username": "west7014",
         "userId": "600464355917692952"
     },
-    "moduleshavepriority": true,
-    "checklatestversion": false,
-    "watchdogcfg":{
+    "modules_have_priority": true,
+    "check_latest_version": false,
+    "watchdog_cfg":{
         "enabled":true,
-        "alertdisabled":true,
+        "alert_disabled":true,
         "lv":5,
         "modules":{
             "netmonitor":true,
@@ -24,15 +23,14 @@
         }
     },
     "modules": {
-        "statuspageupdates": true,
-        "statuspagecore": true,
+        "statuspage_updates": true,
+        "statuspage_core": true,
         "spotify": true,
         "vexrobotics": true,
         "github": true,
         "gitlab": true,
         "youtube": true,
         "roblox": true,
-        "atlas": true,
         "minecraft": true
     },
     "apis": {
@@ -48,15 +46,23 @@
         "sharding": true,
         "startmsg": true
     },
-    "forcewhitelist": false,
-    "slashcmdwhitelist": [
+    "shardingcfg":{
+        "userecomended":false,
+        "shardcount": 1,
+        "spawndelay": false,
+        "autorespawn": true,
+        "batchsize": 1
+    },
+    "force_whitelist": false,
+    "slash_cmd_whitelist": [
         "SLASH_COMMAND_ID_HERE"
     ],
     "devcmdsenabled":true,
-    "NovaAPI-Config":{
+    "NovaAPI_Config":{
         "APIPATH":"https://thatwest7014.pages.dev/API/Nova",
         "allowdirectresponses":true
     },
+    "push_2_topgg": true,
     "allowcompv2": true,
     "ports":{
         "DevDash":[
@@ -70,9 +76,12 @@
         "StatusAPI": 65505,
         "ShardMngr": 65515,
         "Shard":{
-            "min":3000,
-            "max":6500
+            "min":30500,
+            "max":60500
         }
     },
-    "executionmethod":"strict"
+    "execution_method":"strict",
+    "appcfg": {
+        "automaticupdates":true
+    }
 }

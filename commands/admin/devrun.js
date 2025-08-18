@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { setData, getData } = require('../../src/firebaseAdmin'); // Admin SDK functions
+const { setData, getData } = require('../../src/Database'); // Admin SDK functions
 const birthdayModule = require('../../core/modules/birthday');
 const Client = require('../../core/global/Client');
 const cfg = require('../../settings.json');
@@ -7,7 +7,7 @@ const cfg = require('../../settings.json');
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1735921', // Unique 6-digit command ID
+    id: '1000001', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('devrun')
         .setDescription('Run a specific module remotely. Intended for developers to use for debugging.'),

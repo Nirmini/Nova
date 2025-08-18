@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, MessageEmbed, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '4575518', // Unique 6-digit command ID
+    id: '4000002', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('coin')
         .setDescription('Flip a coin and see the result!'),

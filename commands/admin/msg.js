@@ -3,7 +3,7 @@ const { SlashCommandBuilder, MessageFlags, EmbedBuilder } = require('discord.js'
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1387645', // Unique 6-digit command ID
+    id: '1000007', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('msg')
         .setDescription('[DEPRECATED] Allows a specific user to pass a string for the bot to say in the channel.')

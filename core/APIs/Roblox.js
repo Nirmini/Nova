@@ -229,6 +229,69 @@ async function GetUserNameFromID(userId) {
     }
 }
 
+/**
+ * Updates the rank of a user in a Roblox group.
+ * @param {number} groupId - The Roblox Group ID.
+ * @param {number} userId - The Roblox User ID.
+ * @param {number} rankId - The new rank ID to assign.
+ * @returns {Promise<object|null>} - The response data or null on error.
+ */
+async function UpdateRankInGroup(groupId, userId, rankId) {
+    try {
+        const response = await axios.patch(
+            `https://groups.roblox.com/v1/groups/${groupId}/users/${userId}`,
+            { roleId: rankId },
+            { headers }
+        );
+        return response.data;
+    } catch (error) {
+        console.error(`Error updating rank for UserID ${userId} in GroupID ${groupId}:`, error.response?.data || error.message);
+        return null;
+    }
+}
+
+/**
+ * Removes a user from a Roblox group.
+ * @param {number} groupId - The Roblox Group ID.
+ * @param {number} userId - The Roblox User ID.
+ * @returns {Promise<object|null>} - The response data or null on error.
+ */
+async function RemoveUserFromGroup(groupId, userId) {
+    try {
+        const response = await axios.delete(
+            `https://groups.roblox.com/v1/groups/${groupId}/users/${userId}`,
+            { headers }
+        );
+        return response.data;
+    } catch (error) {
+        console.error(`Error removing UserID ${userId} from GroupID ${groupId}:`, error.response?.data || error.message);
+        return null;
+    }
+}
+
+/**
+ * Gets the rank of a user in a specific Roblox group.
+ * @param {number} groupId - The Roblox Group ID.
+ * @param {number} userId - The Roblox User ID.
+ * @returns {Promise<number|null>} - The rank ID or null if not found.
+ */
+async function GetRankInGroup(groupId, userId) {
+    try {
+        const response = await axios.get(
+            `https://groups.roblox.com/v1/users/${userId}/groups/roles`,
+            { headers }
+        );
+        if (response.data && Array.isArray(response.data.data)) {
+            const group = response.data.data.find(g => g.group.id === groupId);
+            return group ? group.role.rank : null;
+        }
+        return null;
+    } catch (error) {
+        console.error(`Error fetching rank for UserID ${userId} in GroupID ${groupId}:`, error.response?.data || error.message);
+        return null;
+    }
+}
+
 module.exports = {
     UserID2Name,
     UserName2ID,
@@ -241,4 +304,14 @@ module.exports = {
     IsUserGroup,
     GetGroupNameFromID,
     GetUserNameFromID,
+    UpdateRankInGroup,
+    RemoveUserFromGroup,
+    GetRankInGroup,
 };
+
+//  ██╗ ██╗ ███████╗██████╗ ███████╗███████╗███████╗ ██████╗██╗  ██╗██╗     ███████╗██████╗ 
+// ████████╗██╔════╝██╔══██╗██╔════╝██╔════╝██╔════╝██╔════╝██║  ██║██║     ██╔════╝██╔══██╗
+// ╚██╔═██╔╝█████╗  ██████╔╝█████╗  █████╗  ███████╗██║     ███████║██║     █████╗  ██████╔╝
+// ████████╗██╔══╝  ██╔══██╗██╔══╝  ██╔══╝  ╚════██║██║     ██╔══██║██║     ██╔══╝  ██╔═══╝ 
+// ╚██╔═██╔╝██║     ██║  ██║███████╗███████╗███████║╚██████╗██║  ██║███████╗███████╗██║     
+//  ╚═╝ ╚═╝ ╚═╝     ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝

@@ -3,7 +3,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
-const { getData } = require('../../src/Database');
+const { getGuildConfig } = require('../../src/Database');
 require('dotenv').config();
 const {GetGroupNameFromID} = require('../../core/APIs/Roblox')
 
@@ -80,28 +80,19 @@ module.exports = {
         const botUser = interaction.client.user;
         const guild = interaction.guild;
 
-        // Fetch guild-specific data from Firebase
-        let guildConfig;
-        try {
-            guildConfig = await getData(`guildsettings/${guild.id}/config`);
-        } catch (error) {
-            console.error('Error fetching guild config:', error);
-            guildConfig = null;
-        }
-
-        const disabledCommands = guildConfig?.disabledcommands || [];
+        const disabledCommands = await getGuildConfig(guild.id, "disabledcommands") || [];
         const disabledCommandsList = disabledCommands.length > 0
             ? disabledCommands.map(id => `- ${id}`).join('\n')
             : 'None';
 
-        const groupName = guildConfig?.rbxgroup ? await GetGroupNameFromID(guildConfig.rbxgroup) : 'Not Found';
+        const groupName = getGuildConfig(guild.id, "rbxgroup") ? await GetGroupNameFromID( await getGuildConfig(guild.id, "rbxgroup")) : 'Not Found';
 
         const embed = new EmbedBuilder()
             .setTitle('**Nirmini Nova Info**')
             .setDescription(
-                'This bot is provided by the Novabot Team @ Nirmini Development. ' +
-                'If you have any questions or concerns, please contact us at our ' +
-                '[website](https://thatwest7014.pages.dev/Nova) or [support server](https://discord.gg/9Y7aZejzUH).'
+                'This bot is provided by Nirmini\'s Engineering & Development Team. ' +
+                'If you have any questions, comments, or concerns, please contact us at our ' +
+                '[website](https://nirmini.dev/Nova) or [support server](https://discord.gg/9Y7aZejzUH).'
             )
             .addFields(
                 {
@@ -152,10 +143,10 @@ Roles: ${guild.roles.cache.size}
                 {
                     name: '**Group Stats**',
                     value: `\`\`\`yaml
-ROBLOX Group ID: ${guildConfig?.rbxgroup || 'None Found'}
-Nova Group ID: ${guildConfig?.NirminiID || 'An Error Occured'}
+ROBLOX Group ID: ${await getGuildConfig(guild.id, "rbxgroup") || 'None Found'}
+Nova Group ID: ${await getGuildConfig(guild.id, "%NirminiID") || 'An Error Occured'}
 ROBLOX Group Name: ${groupName || 'Not Found'}
-Nova Group Name: ${guildConfig?.GroupName || 'None Found'}
+Nova Group Name: ${await getGuildConfig(guild.id, "%GroupName") || 'None Found'}
 \`\`\``,
                 }
             )

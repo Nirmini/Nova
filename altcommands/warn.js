@@ -1,5 +1,6 @@
-const { PermissionsBitField, EmbedBuilder } = require('discord.js');
-const { setData, getData } = require('../../src/Database'); // Admin SDK functions
+const { PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
+const { setData, getData } = require('../src/Database'); // Admin SDK functions
+const emoji = require('../emoji.json');
 
 module.exports = {
     id: '0000020', // Unique 6-digit command ID
@@ -12,20 +13,25 @@ module.exports = {
      * @param {string[]} args - The arguments passed with the command.
      */
     async execute(message, args) {
+        const logEmbed = new EmbedBuilder()
         try {
             // Check if the user has the necessary permissions
             if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
+                logEmbed.setColor(0xe35550);
+                logEmbed.setsetDescriptionTitle(`<:ShieldDenied:${emoji.ShieldDenied}> You don't have permission to use this command!`)
                 return message.reply({
-                    content: 'You do not have permission to use this command.',
-                    ephemeral: true,
+                    embeds: [logEmbed],
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
             // Validate arguments
             if (args.length < 2) {
+                logEmbed.setColor(0x5086e3);
+                logEmbed.setDescription(`<:Info:${emoji.Info}> Usage \`${this.usage}\``)
                 return message.reply({
-                    content: `Usage: \`${this.usage}\``,
-                    ephemeral: true,
+                    embeds: [logEmbed],
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -35,9 +41,19 @@ module.exports = {
 
             const user = message.mentions.users.first();
             if (!user) {
+                logEmbed.setColor(0xe35550);
+                logEmbed.setDescription(`<:NovaFailure:${emoji.NovaFailure}> Please mention a valid user to warn!`)
                 return message.reply({
-                    content: 'Please mention a valid user to warn.',
-                    ephemeral: true,
+                    embeds: [logEmbed],
+                    flags: MessageFlags.Ephemeral
+                });
+            }
+            if (user == message.author) {
+                logEmbed.setColor(0xe35550);
+                logEmbed.setDescription(`<:NovaFailure:${emoji.NovaFailure}> I Couldn't warn \`${user.tag}\`.`)
+                return message.reply({
+                    embeds: [logEmbed],
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -66,7 +82,7 @@ module.exports = {
             // Create a public embed
             const publicEmbed = new EmbedBuilder()
                 .setTitle('User Warned')
-                .setColor(0xff0000)
+                .setColor(0xe35550)
                 .setTimestamp()
                 .setFooter({ text: 'Warnings' })
                 .addFields(
@@ -80,7 +96,7 @@ module.exports = {
             // Create a private embed for the user
             const privateEmbed = new EmbedBuilder()
                 .setTitle('You have been warned')
-                .setColor(0xff0000)
+                .setColor(0xe35550)
                 .setTimestamp()
                 .setFooter({ text: 'Warning' })
                 .addFields(
@@ -93,12 +109,17 @@ module.exports = {
                 await user.send({ embeds: [privateEmbed] });
             } catch (error) {
                 console.error('Error sending DM to user:', error);
-                await message.channel.send('Warning sent, but failed to DM the user.');
             }
         } catch (error) {
             console.error('Error during command execution:', error.message);
             console.error('Error details:', error.stack);
-            await message.reply('An error occurred while processing the command.');
+            logEmbed.setColor(0xe35550);
+            logEmbed.setTitle(`<:Failure:${emoji.Failure}> An error occured while running this command!`);
+            logEmbed.setDescription(`Log Stack: ${error}`);
+            return message.reply({
+                embeds: [logEmbed],
+                flags: MessageFlags.Ephemeral
+            });
         }
     },
 };

@@ -5,6 +5,8 @@ const Client = require('../core/global/Client');
 
 module.name = "BirthdayHandler";
 
+//TODO: Resolve issues with pinging at 12.
+
 /**
  * Validates and formats the birthday input.
  * @param {string} dateStr - Expected format: "DD/MM"

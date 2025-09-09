@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
-const { setData, getData } = require('../../src/Database'); // Admin SDK functions
+const { createUserCase } = require('../../src/NovaCases'); // central case manager
+const cfg = require('../../settings.json')
 
 module.exports = {
     id: '6000023', // Unique 6-digit command ID
@@ -20,95 +21,81 @@ module.exports = {
                 .setRequired(false)),
     async execute(interaction) {
         try {
-            // Check for necessary permissions
+            // Permission check
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
-                await interaction.reply({ content: 'You do not have permission to use this command.', flags: MessageFlags.Ephemeral });
-                return;
+                return interaction.reply({ content: 'You do not have permission to use this command.', flags: MessageFlags.Ephemeral });
             }
-
             if (!interaction.guild) {
-                await interaction.reply({ content: 'This command cannot be used outside of servers.', flags: MessageFlags.Ephemeral });
-                return;
+                return interaction.reply({ content: 'This command cannot be used outside of servers.', flags: MessageFlags.Ephemeral });
             }
 
             const user = interaction.options.getUser('user');
             const reason = interaction.options.getString('reason');
             const expiresInput = interaction.options.getString('expires');
-            const userId = user.id;
             const guildId = interaction.guildId;
+            const issuerId = interaction.user.id;
+            const userId = user.id;
+            
 
-            // Default expiration and max expiration
+            if (user.id === interaction.user.id && !cfg.allow_users_selfwarn) {
+                return interaction.reply({ content: 'You cannot warn yourself.', flags: MessageFlags.Ephemeral });
+            }
+
+            // ---- Expiration Parsing ----
             const now = new Date();
             const maxExpiration = new Date();
             maxExpiration.setFullYear(now.getFullYear() + 1);
 
             let expirationDate;
-
             if (expiresInput) {
-                // Parse expiration input
-                const durationMatch = expiresInput.match(/^(\d+)([dmy])$/); // Matches "30d", "1y", etc.
+                const durationMatch = expiresInput.match(/^(\d+)([dmy])$/);
                 if (!durationMatch) {
-                    await interaction.reply({ content: 'Invalid expiration format. Use "Xd", "Xm", or "Xy" (e.g., "30d").', flags: MessageFlags.Ephemeral });
-                    return;
+                    return interaction.reply({ content: 'Invalid expiration format. Use "Xd", "Xm", or "Xy" (e.g., "30d").', flags: MessageFlags.Ephemeral });
                 }
-
                 const [_, amount, unit] = durationMatch;
                 const duration = parseInt(amount, 10);
-
                 expirationDate = new Date(now);
 
-                if (unit === 'd') {
-                    expirationDate.setDate(now.getDate() + duration);
-                } else if (unit === 'm') {
-                    expirationDate.setMonth(now.getMonth() + duration);
-                } else if (unit === 'y') {
-                    expirationDate.setFullYear(now.getFullYear() + duration);
-                }
+                if (unit === 'd') expirationDate.setDate(now.getDate() + duration);
+                else if (unit === 'm') expirationDate.setMonth(now.getMonth() + duration);
+                else if (unit === 'y') expirationDate.setFullYear(now.getFullYear() + duration);
 
-                // Cap the expiration to one year from now
-                if (expirationDate > maxExpiration) {
-                    expirationDate = maxExpiration;
-                }
+                if (expirationDate > maxExpiration) expirationDate = maxExpiration;
             } else {
-                // Default to 30 days if no expiration is provided
                 expirationDate = new Date(now);
                 expirationDate.setDate(now.getDate() + 30);
             }
 
             const expirationISO = expirationDate.toISOString();
 
-            // Path to warnings in the database
-            const userWarningsPath = `warnings/${guildId}/${userId}`;
+            // ---- Create Case in System ----
+            const caseData = await createUserCase(
+                guildId,
+                userId,
+                1, // type = Warning
+                issuerId,
+                `Warning issued`,
+                reason,
+                expirationISO
+            );
 
-            // Retrieve current warnings
-            const snapshot = await getData(userWarningsPath);
-            let warnings = snapshot || []; // Fallback to an empty array if no warnings exist
-
-            // Add the new warning
-            warnings.push({ reason, date: now.toISOString(), expires: expirationISO });
-
-            // Save the updated warnings to the database
-            await setData(userWarningsPath, warnings);
-
-            // Create a public embed
+            // ---- Public Embed ----
             const publicEmbed = new EmbedBuilder()
-                .setTitle('User Warned')
+                .setTitle(`Case #${caseData?.id || '?'} — User Warned`)
                 .setColor(0xff0000)
                 .setTimestamp()
                 .setFooter({ text: 'Warnings' })
                 .addFields(
-                    { name: 'User', value: `${user.tag}`, inline: true },
+                    { name: 'User', value: `${user.tag} (${userId})`, inline: true },
                     { name: 'Reason', value: reason, inline: true },
                     { name: 'Expires', value: `<t:${Math.floor(expirationDate.getTime() / 1000)}:F>`, inline: true }
                 );
 
-            await interaction.reply({ embeds: [publicEmbed], ephemeral: false });
-                
-            const guildname = interaction.guild.name
+            await interaction.reply({ embeds: [publicEmbed] });
 
-            // Create a private embed for the user
+            // ---- Private DM Embed ----
             const privateEmbed = new EmbedBuilder()
-                .setTitle(`You have been warned in [${guildname}]`)
+                .setTitle(`You have been warned in [${interaction.guild.name}]`)
                 .setColor(0xff0000)
                 .setTimestamp()
                 .setFooter({ text: 'Warning' })
@@ -117,16 +104,14 @@ module.exports = {
                     { name: 'Expires', value: `<t:${Math.floor(expirationDate.getTime() / 1000)}:F>`, inline: false }
                 );
 
-            // Notify the user via DM
             try {
                 await user.send({ embeds: [privateEmbed] });
             } catch (error) {
                 console.error('Error sending DM to user:', error);
-                await interaction.followUp({ content: 'Warning sent, but failed to DM the user.', flags: MessageFlags.Ephemeral });
+                await interaction.followUp({ content: 'Warning logged, but failed to DM the user.', flags: MessageFlags.Ephemeral });
             }
         } catch (error) {
-            console.error('Error during command execution:', error.message);
-            console.error('Error details:', error.stack);
+            console.error('Error during /warn execution:', error);
             await interaction.reply({ content: 'An error occurred while processing the command.', flags: MessageFlags.Ephemeral });
         }
     },

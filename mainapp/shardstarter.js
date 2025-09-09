@@ -46,7 +46,7 @@ async function waitForAllShardsReady(maxWait = 60000, interval = 2000) {
 
 console.log(`[Sharding]: Shard booting — waiting for DJS ready.`);
 
-client.on('ready', async () => {
+client.on('clientReady', async () => {
     const shardId = client.shard?.ids?.[0] ?? 0;
 
     console.log(`[Sharding]: Client ready on shard ${shardId}. Reporting to StatusAPI...`);

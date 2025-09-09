@@ -10,6 +10,12 @@
         "username": "west7014",
         "userId": "600464355917692952"
     },
+    "commands": {
+        "ignore_categories": true,
+        "override_enabled": true,
+        "override_set": true,
+        "log_executions": true
+    },
     "modules_have_priority": true,
     "check_latest_version": false,
     "watchdog_cfg":{
@@ -59,29 +65,35 @@
     ],
     "devcmdsenabled":true,
     "NovaAPI_Config":{
-        "APIPATH":"https://thatwest7014.pages.dev/API/Nova",
-        "allowdirectresponses":true
+        "APIPATH":"https://nirmini.dev/Nova",
+        "allowdirectresponses":true,
+        "Firebase_RTDB_Enabled": false,
+        "Workers_KV_Enabled": true,
+        "PerfStorage": "KV"
     },
     "push_2_topgg": true,
     "allowcompv2": true,
     "ports":{
         "DevDash":[
-            65525,
-            65524,
-            65523,
-            65522,
-            65521
+            null,
+            null,
+            null,
+            null,
+            null
         ],
-        "NovaAPI":28878,
-        "StatusAPI": 65505,
-        "ShardMngr": 65515,
+        "NovaAPI":null,
+        "StatusAPI": null,
+        "ShardMngr": null,
         "Shard":{
-            "min":30500,
-            "max":60500
-        }
+            "min":null,
+            "max":null
+        },
+        "LocalDash":null,
+        "Cloudflare":null
     },
     "execution_method":"strict",
     "appcfg": {
         "automaticupdates":true
-    }
+    },
+    "allow_users_selfwarn": true
 }

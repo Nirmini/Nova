@@ -18,4 +18,4 @@ For questions, comments, or concerns, please reach out @ [thatwest7014@gmail.com
 ### For a guide on contributing to Nova, please see [`CODE_OF_CONDUCT.md`](https://github.com/Nirmini/NovaBot-Dev/blob/master/CODE_OF_CONDUCT.md).
 ### For a guide on reporting vulnerabilities in Nova, please see [`SECURITY.md`](https://github.com/Nirmini/NovaBot-Dev/blob/master/SECURITY.md).
 ---
-#### Last Updated: `09/05/2025[US]`
+#### Last Updated: `September 9th, 2025`

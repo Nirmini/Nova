@@ -42,3 +42,5 @@ jobs:
           add: "node-version.json"
           new_branch: badges
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          push: "--force"
+

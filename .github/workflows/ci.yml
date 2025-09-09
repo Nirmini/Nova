@@ -30,10 +30,10 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
+        
       - name: Write Node.js version
         run: |
-          echo '{"node":"22.0.0"}' > node-version.json
+          echo '{"schemaVersion":1,"label":"node","message":"22.0.0","color":"blue"}' > node-version.json
 
       - name: Commit badge data
         uses: EndBug/add-and-commit@v9

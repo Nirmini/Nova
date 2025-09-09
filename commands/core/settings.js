@@ -6,7 +6,7 @@ const {
     PermissionFlagsBits
 } = require('discord.js');
 
-const { getData, updateData } = require('../../src/Database');
+const { getGuildConfig, setGuildConfig } = require('../../src/Database');
 const botemoji = require('../../emoji.json');
 const cfg = require('../../settings.json');
 const path = require('path');
@@ -64,12 +64,10 @@ module.exports = {
         try {
             const subcommand = interaction.options.getSubcommand();
             const guildId = interaction.guildId;
-            const basePath = `guildsettings/${guildId}/config`;
             const embed = new EmbedBuilder().setColor(0x2b2d31);
 
             if (subcommand === 'export') {
-                const configData = await getData(basePath);
-                console.log('Fetched configData:', configData);
+                const configData = await getGuildConfig(guildId);
                 if (!configData) {
                     return interaction.reply({
                         content: `<:Failure:${botemoji.Failure}> No configuration found for this guild.`,
@@ -82,24 +80,21 @@ module.exports = {
                     jsonString = JSON.stringify(configData, null, 4);
                     if (!jsonString || jsonString === 'null') throw new Error('Invalid config content.');
                 } catch (err) {
-                    console.error('Failed to stringify configData:', configData);
                     return interaction.reply({
                         content: `<:Failure:${botemoji.Failure}> Failed to export configuration: invalid data.`,
                         flags: MessageFlags.Ephemeral
                     });
                 }
 
-                // Overwrite ./settings.json as a temporary export file
-                const settingsPath = path.resolve(__dirname, './settings.json'); //Only write to the local temp and not the important one in root.
+                const settingsPath = path.resolve(__dirname, './settings.json');
                 fs.writeFileSync(settingsPath, jsonString);
 
-                // Use it as attachment
                 const fileBuffer = fs.readFileSync(settingsPath);
                 const file = new AttachmentBuilder(fileBuffer).setName(`${guildId}-NovaConfig.json`);
 
 
                 embed
-                    .setTitle(`<:Check:${botemoji.Check}> Configuration Export`)
+                    .setTitle(`<:NovaSuccess:${botemoji.NovaSuccess}> Configuration Export`)
                     .setDescription(`Here is your server's Nova configuration.`);
 
                 return interaction.reply({
@@ -110,59 +105,69 @@ module.exports = {
 
 
             } else if (subcommand === 'get') {
-                const keyPathRaw = interaction.options.getString('key');
-                const keyPath = keyPathRaw.replace(/\./g, '/');
-                const fullPath = `${basePath}/${keyPath}`;
-
-                const configData = await getData(basePath);
-                const value = keyPathRaw.split(/[./]/).reduce((acc, key) => acc?.[key], configData);
+                let keyPathRaw = interaction.options.getString('key');
+                let configData = await getGuildConfig(guildId);
+                let value;
+                if (configData) {
+                    let pathArr = keyPathRaw.split(/[./]/);
+                    value = pathArr.reduce((acc, key) => acc?.[key], configData);
+                    if (value === undefined && configData['%' + pathArr[0]]) {
+                        pathArr[0] = '%' + pathArr[0];
+                        value = pathArr.reduce((acc, key) => acc?.[key], configData);
+                    }
+                }
 
                 if (value === null || value === undefined) {
                     embed.setColor(0xffcc00).setTitle(`<:Failure:${botemoji.Failure}> Key Not Found`)
                         .setDescription(`No value found for \`${keyPathRaw}\`.`);
                 } else {
-                    embed.setTitle(`<:Success:${botemoji.Success}> Retrieved Value`)
+                    embed.setTitle(`<:NovaSuccess:${botemoji.NovaSuccess}> Retrieved Value`)
                         .addFields([
                             { name: 'Key', value: `\`${keyPathRaw}\`` },
                             { name: 'Value', value: `\`${JSON.stringify(value)}\`` }
                         ]);
                 }
-            
                 return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
-            } else if (subcommand === 'set') {
-                const keyPathRaw = interaction.options.getString('key');
-                const newValueRaw = interaction.options.getString('value');
-                const keyPath = keyPathRaw.replace(/\./g, '/');
-                const fullPath = `${basePath}/${keyPath}`;
 
-                const blockedKeys = ['guildid', 'nirminiid', 'nirminiID'];
-                if (blockedKeys.includes(keyPathRaw.toLowerCase().split(/[./]/).pop())) {
-                    embed.setColor(0xff0000).setTitle(`<:Failure:${botemoji.Failure}> Restricted Key`)
-                        .setDescription(`\`${keyPathRaw}\` is a protected key and cannot be edited.`);
+            } else if (subcommand === 'set') {
+                let keyPathRaw = interaction.options.getString('key');
+                let newValueRaw = interaction.options.getString('value');
+                let pathArr = keyPathRaw.split(/[./]/);
+                        
+                // Block writes to keys starting with a percent sign
+                if (pathArr[0].startsWith('%')) {
+                    embed.setColor(0xff0000).setTitle(`<:NovaFailure:${botemoji.NovaFailure}> Restricted Key`)
+                        .setDescription(`Keys starting with '%' are protected and cannot be edited.`);
                     return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
                 }
             
-                // Get entire config object
-                const configData = await getData(basePath);
-            
+                const configData = await getGuildConfig(guildId);
                 if (!configData) {
-                    embed.setColor(0xff0000).setTitle(`<:Failure:${botemoji.Failure}> No Configuration Found`)
+                    embed.setColor(0xff0000).setTitle(`<:NovaFailure:${botemoji.NovaFailure}> No Configuration Found`)
                         .setDescription(`This server doesn't have a configuration setup yet.`);
                     return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
                 }
             
-                const pathArray = keyPathRaw.split(/[./]/);
+                // --- NEW: Block writes if a %key exists ---
+                if (configData['%' + pathArr[0]] !== undefined) {
+                    embed.setColor(0xff0000).setTitle(`<:NovaFailure:${botemoji.NovaFailure}> Protected Key`)
+                        .setDescription(`A protected key "%${pathArr[0]}" exists. You cannot set "${pathArr[0]}".`);
+                    return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
+                }
             
-                // Verify the key exists inside config
-                const exists = checkNestedKeyExists(configData, pathArray);
+                // Only allow setting existing keys (do not allow creation of new keys)
+                let exists = checkNestedKeyExists(configData, pathArr);
+                if (!exists && configData['%' + pathArr[0]]) {
+                    pathArr[0] = '%' + pathArr[0];
+                    exists = checkNestedKeyExists(configData, pathArr);
+                }
                 if (!exists) {
-                    embed.setColor(0xffcc00).setTitle(`<:Failure:${botemoji.Failure}> Key Doesn't Exist`)
+                    embed.setColor(0xffcc00).setTitle(`<:NovaFailure:${botemoji.NovaFailure}> Key Doesn't Exist`)
                         .setDescription(`Only existing keys can be set.\nMissing: \`${keyPathRaw}\``);
                     return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
                 }
             
-                // Fetch current value
-                const existingValue = pathArray.reduce((acc, key) => acc?.[key], configData);
+                const existingValue = pathArr.reduce((acc, key) => acc?.[key], configData);
             
                 let parsed;
                 try {
@@ -171,9 +176,9 @@ module.exports = {
                     parsed = newValueRaw;
                 }
             
-                await updateData(fullPath, parsed);
+                await setGuildConfig(guildId, keyPathRaw, parsed);
             
-                embed.setTitle(`<:Success:${botemoji.Success}> Key Updated`)
+                embed.setTitle(`<:NovaSuccess:${botemoji.NovaSuccess}> Key Updated`)
                     .addFields([
                         { name: 'Key', value: `\`${keyPathRaw}\`` },
                         { name: 'Old Value', value: `\`${JSON.stringify(existingValue)}\`` },
@@ -189,7 +194,7 @@ module.exports = {
 
             } else {
                 embed.setColor(0xff0000)
-                    .setTitle(`<:Failure:${botemoji.Failure}> Unexpected Error`)
+                    .setTitle(`<:NovaFailure:${botemoji.NovaFailure}> Unexpected Error`)
                     .setDescription(`An unknown subcommand was triggered.`);
                 return interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
             }
@@ -197,7 +202,7 @@ module.exports = {
         } catch (error) {
             console.error('Settings command error:', error);
             return interaction.reply({
-                content: `<:Failure:${botemoji.Failure}> An unexpected error occurred.`,
+                content: `<:NovaFailure:${botemoji.NovaFailure}> An unexpected error occurred.`,
                 flags: MessageFlags.Ephemeral
             });
         }

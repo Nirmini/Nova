@@ -1,10 +1,12 @@
 const { SlashCommandBuilder, WebhookClient, MessageFlags } = require('discord.js');
+const cfg = require('../../settings.json');
+const { getGuildConfig, getGuildData} = require('../../src/Database');
 
 module.exports = {
     id: '2000016', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('report')
-        .setDescription('Send a report to the NDT.'),
+        .setDescription('Report content to server admins.'),
     async execute(interaction) {
         const webhookURL = 'YOUR_REPORTING_WEBHOOK_URL';
         const webhookClient = new WebhookClient({ url: webhookURL });

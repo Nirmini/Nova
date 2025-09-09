@@ -6,6 +6,7 @@ const path = require('path');
 const axios = require('axios');
 require('dotenv').config();
 const settings = require('../settings.json');
+const { getUserData, setUserData, getGuildConfig } = require('./Database');
 
 //Info
 const pkg = require('../package.json');
@@ -33,47 +34,103 @@ const TIME_WINDOW = 10 * 1000; // 10 seconds in milliseconds
 // Client Event Execution Handler
 client.on('interactionCreate', async (interaction) => {
     try {
+        const userId = interaction.user?.id || interaction.member?.id;
+        let userData = await getUserData(userId);
+        if (!userData) {
+            const userdataPath = path.join(__dirname, '../NovaAppData/userdata.json');
+            let userCount = 0;
+            try {
+                const rawUserdata = fs.readFileSync(userdataPath, 'utf8');
+                const allUserData = JSON.parse(rawUserdata);
+                userCount = Object.keys(allUserData).length;
+            } catch (err) {
+                console.warn(`[UserData] Could not read userdata.json: ${err.message}`);
+            }
+            const newNovaUID = userCount + 1;
+            userData = {
+                NovaUID: newNovaUID,
+                Roblox: {},
+                Discord: {},
+                Nirmini: {}
+            };
+            await setUserData(userId, userData);
+            if (settings.extendedlogs) console.log(`[UserData] Created new user entry for ${userId} with NovaUID ${newNovaUID}`);
+        }
+
         // Log the interaction type and IDs for debugging
-        if (settings.extendedlogs) console.log(`Interaction Type: ${interaction.type}`);
-        if (interaction.isCommand()) {
-            if (settings.extendedlogs) console.log(`Command Name: ${interaction.commandName}`);
-        } else if (interaction.isModalSubmit()) {
-            if (settings.extendedlogs) console.log(`Modal Custom ID: ${interaction.customId}`);
-        } else if (interaction.isButton()) {
-            if (settings.extendedlogs) console.log(`Button Custom ID: ${interaction.customId}`);
-        } else if (interaction.isStringSelectMenu()) {
-            if (settings.extendedlogs) console.log(`Select Menu Custom ID: ${interaction.customId}`);
+        if (settings.commands.log_executions) {
+            if (settings.extendedlogs) console.log(`Interaction Type: ${interaction.type}`);
+            if (interaction.isCommand()) {
+                if (settings.extendedlogs) console.log(`Command Name: ${interaction.commandName}`);
+            } else if (interaction.isModalSubmit()) {
+                if (settings.extendedlogs) console.log(`Modal Custom ID: ${interaction.customId}`);
+            } else if (interaction.isButton()) {
+                if (settings.extendedlogs) console.log(`Button Custom ID: ${interaction.customId}`);
+            } else if (interaction.isStringSelectMenu()) {
+                if (settings.extendedlogs) console.log(`Select Menu Custom ID: ${interaction.customId}`);
+            }
         }
 
         // Handle Slash Commands
         if (interaction.isCommand()) {
+            const commandName = interaction.commandName;
+            const guildId = interaction.guildId;
+            const guildConfig = await getGuildConfig(guildId);
+            const overrideEnabled = settings.commands?.override_enabled === true;
+            const overrideSet = settings.commands?.override_set === true;
+
+            let commandCategory = null;
+            let commandIsEnabled = false;
+
+            if (overrideEnabled) {
+                commandIsEnabled = overrideSet;
+                if (settings.extended_logs) console.log(`[Override] Command "${commandName}" enabled state set to ${commandIsEnabled} via override.`);
+            } else {
+                for (const cat of Object.keys(guildConfig.commands || {})) {
+                    const commandsArr = guildConfig.commands[cat]?.commands || [];
+                    if (commandsArr.some(cmd => cmd.CommandName === commandName && cmd.CommandEnabled)) {
+                        commandCategory = cat;
+                        commandIsEnabled = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!commandIsEnabled) {
+                await interaction.reply({
+                    content: `This command is not enabled or not found in any category.`,
+                    flags: MessageFlags.Ephemeral
+                });
+                if (settings.extended_logs) console.log(`[CommandCheck] Command "${commandName}" not enabled for user ${userId}`);
+                return;
+            }
+
             if (!settings.slash_commands_enabled) {
                 const cmddisabledembed = new EmbedBuilder()
                     .setColor(0xff0000)
                     .setTitle("Slash Commands Disabled by Bot Operator!")
                     .setDescription("BOT OPERATOR: Run `$remoteconfig root slashcommandsenabled false` to resume user's access to command execution.")
-                interaction.reply({ embeds: [cmddisabledembed]});
-            } else {
-                const command = client.commands.get(interaction.commandName);
+                interaction.reply({ embeds: [cmddisabledembed] });
+                return;
+            }
 
-                if (!command) {
-                    await interaction.reply({
-                        content: 'Command not found!',
-                        flags: MessageFlags.Ephemeral,
-                    });
-                    console.warn(`Command not found: ${interaction.commandName}`);
-                    return;
-                }
-
-                try {
-                    await command.execute(interaction);
-                } catch (error) {
-                    console.error(`Error executing command ${interaction.commandName}:`, error);
-                    await interaction.reply({
-                        content: 'There was an error executing this command!',
-                        flags: MessageFlags.Ephemeral,
-                    });
-                }
+            const command = client.commands.get(commandName);
+            if (!command) {
+                await interaction.reply({
+                    content: 'Command not found!',
+                    flags: MessageFlags.Ephemeral,
+                });
+                console.warn(`Command not found: ${commandName}`);
+                return;
+            }
+            try {
+                await command.execute(interaction);
+            } catch (error) {
+                console.error(`Error executing command ${commandName}:`, error);
+                await interaction.reply({
+                    content: 'There was an error executing this command!',
+                    flags: MessageFlags.Ephemeral,
+                });
             }
         }
 

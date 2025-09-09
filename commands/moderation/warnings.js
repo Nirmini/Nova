@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
-const { getData } = require('../../src/Database'); // Use Admin SDK
+const { getGuildData } = require('../../src/Database'); // GuildData accessor
+const { caseTypeToString } = require('../../src/NovaCases'); // helper if exported
 
 module.exports = {
     id: '6000024', // Unique 6-digit command ID
@@ -12,26 +13,28 @@ module.exports = {
                 .setRequired(true)),
     async execute(interaction) {
         try {
+            // Permission check
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
-                await interaction.reply({ content: 'You do not have permission to use this command.', flags: MessageFlags.Ephemeral });
-                return;
+                return interaction.reply({ content: 'You do not have permission to use this command.', flags: MessageFlags.Ephemeral });
             }
+
             const user = interaction.options.getUser('user');
             const userId = user.id;
             const guildId = interaction.guildId;
-            const path = `warnings/${guildId}/${userId}`;
-            const warnings = await getData(path);
 
-            if (!warnings || Object.keys(warnings).length === 0) {
-                await interaction.reply({ content: 'This user has no warnings.', flags: MessageFlags.Ephemeral });
-                return;
+            // Pull all cases from DB
+            let guildcases = await getGuildData(guildId, 'cases');
+            if (!Array.isArray(guildcases)) guildcases = [];
+
+            // Filter warnings only (type === 1, Warning)
+            const warnings = guildcases.filter(c => c.target === userId && c.type === 1);
+
+            if (warnings.length === 0) {
+                return interaction.reply({ content: 'This user has no warnings.', flags: MessageFlags.Ephemeral });
             }
 
-            const warningEntries = Object.entries(warnings);
-            const totalWarnings = warningEntries.length;
-
-            // Limit to latest 25 warnings
-            const limitedWarnings = warningEntries.slice(-25);
+            const totalWarnings = warnings.length;
+            const limitedWarnings = warnings.slice(-25); // last 25
 
             const embed = new EmbedBuilder()
                 .setTitle(`Warnings for ${user.tag}`)
@@ -39,15 +42,14 @@ module.exports = {
                 .setTimestamp()
                 .setFooter({ text: `Showing last ${limitedWarnings.length} out of ${totalWarnings} warnings.` });
 
-            limitedWarnings.forEach(([warningId, warning], index) => {
-                embed.addFields([
-                    { 
-                        name: `Warning #${totalWarnings - limitedWarnings.length + index + 1}`, 
-                        value: `**Reason:** ${warning.reason || 'No reason provided'}
-                        \n**Date:** ${warning.date || 'Unknown'}
-                        \n**Expiration:** ${warning.expires || 'Unknown'}`
-                    }
-                ]);
+            limitedWarnings.forEach((warning, index) => {
+                embed.addFields([{
+                    name: `Warning #${totalWarnings - limitedWarnings.length + index + 1} (Case #${warning.id})`,
+                    value: `**Reason:** ${warning.description || 'No reason provided'}
+\n**Date:** ${warning.timestamp ? `<t:${Math.floor(new Date(warning.timestamp).getTime() / 1000)}:F>` : 'Unknown'}
+\n**Expiration:** ${warning.expires ? `<t:${Math.floor(new Date(warning.expires).getTime() / 1000)}:F>` : 'Unknown'}
+\n**Issuer:** <@${warning.issuer}>`
+                }]);
             });
 
             await interaction.reply({ embeds: [embed] });

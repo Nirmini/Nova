@@ -97,7 +97,7 @@ app.get('/users', async (req, res) => {
 
 // Start the dashboard server ONLY after the client is ready
 if (!global.__DEVDASH_MNGR_STARTED) {
-    client.once('ready', () => {
+    client.once('clientReady', () => {
         const PORT = cfg.ports.DevDash[1];
         app.listen(PORT, () => {
             console.log(`DevDash manager running at http://localhost:${PORT}/`);

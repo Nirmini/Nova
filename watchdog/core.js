@@ -19,8 +19,10 @@ function sendToShardManager(type, data = {}) {
 
 process.send({ type: "wdg:pong" });
 
+// Export for use in modules
 module.exports = { sendToShardManager };
 
+// Watchdog Modules
 require('./netmonitor');
 require('./opsmonitor');
 require('./perfmonitor');
@@ -34,7 +36,7 @@ try {
             console.log("Suppressed 1 warning(s) from watchdog.");
         }
     } else {
-        //Why is there an else here, was I drunk?
+        //Continue as normal
     }
 } catch(error) {
     console.error('[WATCHDOG]: Stopping due to an error:', error);

@@ -100,7 +100,7 @@ if (STATUS_PORT > SHARD_PORT_MAX) {
 }
 
 // Main bot ready event
-client.once('ready', async () => {
+client.once('clientReady', async () => {
     console.log(`Shard ${client.shard.ids[0]} is ready!`);
 
     statusApp.get('/status', (req, res) => {
@@ -117,7 +117,7 @@ client.once('ready', async () => {
     });
 
     // Make the Discord API not ghost people
-    const userIDsToCache = ['600464355917692952', '830948578226339850', '1200168516154839133', '949096247883612231'];
+    const userIDsToCache = ['600464355917692952'];           
     
     for (const userId of userIDsToCache) {
         client.users.fetch(userId).then(async user => {

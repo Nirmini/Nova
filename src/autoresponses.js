@@ -136,7 +136,7 @@ client.on('messageCreate', async (message) => {
         } catch (error) {
             console.error(`Error executing command ${commandName}:`, error);
             await message.reply({
-                content: `An error occurred while executing \`${commandName}\`.`,
+                content: `An error occurred while executing \`?${commandName}\`.`,
                 flags: MessageFlags.Ephemeral
             });
         }

@@ -17,6 +17,6 @@ module.exports = {
     checkNetwork
 }
 
-setInterval(checkNetwork, 5 * 60 * 1000);
+setInterval(checkNetwork, 5 * 60 * 1000); // Run every 5m
 
-setInterval();
+setInterval(); //Init run

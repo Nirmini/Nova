@@ -1,10 +1,7 @@
 # Nova Setup Guide
 
 > [!NOTE] 
-> Nova is primarily designed to run in Windows Powershell, Azure VM, and Ubuntu instances. Running the bot outside of these environments may lead to unexpected results.
-
-> [!IMPORTANT]
-> To deploy changes to slash commands or context menu commands you must run `npm start` or `node src/deploy-cmds` outside the running bot process.
+> Nova is primarily designed to run in Windows Powershell or the Ubuntu terminal via Node.js v22 or above. Using Node.js 21 or older may cause unexpected compatibility issues.
 
 ---
 ## Prerequisits
@@ -50,7 +47,7 @@
 ### For Statuspage integration, you need an API key. You get this by clicking your account icon when logged in, then clicking API Keys. After this, just set up your page using the Page ID in page settings and the component IDs in the edit menu for the components.
 
 ## Additional setups
-### If you do not wish to use additional services, then simply either keep the API key blank in the `.env` file or remove it and the command/module that uses it.
+### If you do not wish to use additional services, then simply either keep the API key blank in the `.env` file and/or disable the module/command is the bot's operator settings.
 ---
 # 3. Running Nova
 ### So it's finally set up. What now?

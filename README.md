@@ -1,5 +1,7 @@
 # Nova
 ### Written by @thatWest7014
+![Tests](https://github.com/Nirmini/Nova/actions/workflows/ci.yml/badge.svg)
+![Node](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Nirmini/Nova/badges/node-version.json)
 ---
 > [!NOTE] 
 > This is Nova's development branch. Changes may be broken or conflict with existing systems. **YOU HAVE BEEN WARNED!!**

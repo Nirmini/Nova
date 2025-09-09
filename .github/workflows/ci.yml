@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    name: Run tests (Node 22.x)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+
+      - run: npm ci
+      - run: npm test
+
+  node-version-badge:
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Write Node.js version
+        run: |
+          echo '{"node":"22.0.0"}' > node-version.json
+
+      - name: Commit badge data
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: "Update Node.js version badge"
+          add: "node-version.json"
+          branch: badges

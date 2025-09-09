@@ -1,6 +1,6 @@
 # Nova
 ### Written by @thatWest7014
-![Tests](https://github.com/Nirmini/Nova/actions/workflows/ci.yml/badge.svg)
+![Tests](https://github.com/Nirmini/Nova/actions/workflows/ci.yml/badge.svg?event=push&dummy=1)
 ![Node](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Nirmini/Nova/badges/node-version.json)
 ---
 > [!NOTE] 

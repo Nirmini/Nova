@@ -1,0 +1,30 @@
+// cloudflared.js
+const { spawn } = require('child_process');
+const path = require('path');
+
+const exePath = path.join(__dirname, '../cloudflared.exe');
+
+// Use the tunnel ID from your config
+const tunnelId = 'YOUR_CF_TUNNEL_ID';
+
+const args = ['tunnel', 'run', tunnelId];
+
+function startCloudflared() {
+    console.log('[Cloudflared] Starting...');
+
+    const cloudflared = spawn(exePath, args, {
+        stdio: 'inherit'
+    });
+
+    cloudflared.on('spawn', () => console.log('[Cloudflared] Process started.'));
+    cloudflared.on('exit', (code, signal) =>
+        console.log(`[Cloudflared] Exited with code ${code}, signal ${signal}`)
+    );
+    cloudflared.on('error', (err) => console.error('[Cloudflared] Failed to start:', err));
+}
+
+// Start once
+startCloudflared();
+
+// Keep Node process alive
+setInterval(() => {}, 1 << 30);

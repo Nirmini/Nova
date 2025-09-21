@@ -65,11 +65,12 @@
     ],
     "devcmdsenabled":true,
     "NovaAPI_Config":{
-        "APIPATH":"https://nirmini.dev/Nova",
+        "APIPATH":"YOUR_API_URL",
         "allowdirectresponses":true,
         "Firebase_RTDB_Enabled": false,
         "Workers_KV_Enabled": true,
-        "PerfStorage": "KV"
+        "PerfStorage": "KV",
+        "oauth2_path": "YOUR_OAUTH2_URL"
     },
     "push_2_topgg": true,
     "allowcompv2": true,
@@ -95,5 +96,10 @@
     "appcfg": {
         "automaticupdates":true
     },
-    "allow_users_selfwarn": true
+    "allow_users_selfwarn": true,
+    "sysmsgs": {
+        "enabled": true,
+        "pformat": "embed",
+        "chkurl": "YOUR_SYSTEM_API_URL"
+    }
 }

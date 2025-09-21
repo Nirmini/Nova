@@ -14,6 +14,7 @@ const pkg = require('../package.json');
 const workspkg = require('../Novaworks/novaworks.json');
 
 //Op Modules
+require('./sysmsgmanager');
 require('../core/global/statuspage');
 require('../core/global/statusmngr');
 require('./autoresponses');
@@ -23,16 +24,10 @@ const {fetchAndPostStats} = require('../core/global/topgg');
 
 require('../modules/novamodules'); //Init modules in the shard process(es)
 
-//QoL Modules
+// Init pretty important modules.
 const NovaStatusMsgs = require('./statusmsgs');
-const {ndguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds');
-const {blacklistedusers, bannedusers} = require("../servicedata/bannedusers");
-const {
-    getGuildConfig, setGuildConfig, updateGuildConfig, removeGuildConfig,
-    getGuildData, setGuildData, updateGuildData, removeGuildData,
-    getBirthday, setBirthday, updBirthday, remBirthday,
-    getUserData, setUserData, updateUserData, removeUserData
-} = require('./Database');
+const { removeGuildConfig, removeGuildData } = require('./Database');
+const { initGuild } = require('./CreateNewGD');
 
 //Debugging
 const webhookClient= new WebhookClient({ url: process.env.LOG_S_WEBHOOK});
@@ -165,7 +160,7 @@ client.once('clientReady', async () => {
                               randomStatus.type === 2 ? ActivityType.Watching :
                               randomStatus.type === 3 ? ActivityType.Playing :
                               ActivityType.Streaming,
-                        url: randomStatus.type === 4 ? 'https://www.twitch.tv/notwest7014' : undefined
+                        url: randomStatus.type === 4 ? 'https://www.twitch.tv/CosmosRolling' : undefined
                     }],
                     status: 'online'
                 });
@@ -202,7 +197,7 @@ waitForShardsReady().then(() => {
         activities: [{
             name: `Starting..`,
             type: ActivityType.Streaming,
-            url: 'https://www.twitch.tv/notwest7014'
+            url: 'https://www.twitch.tv/CosmosRolling'
         }],
         status: 'online'
     });
@@ -281,58 +276,31 @@ client.on('guildCreate', async (guild) => {
     }
 
     try {
-        // Check if the guild already has a config in the database
-        const existingConfig = await getGuildConfig(guild.id, 'config');
+        await initGuild(guild);
 
-        if (!existingConfig) {
-            console.log(`No config found for ${guild.name}. Creating a new one...`);
-
-            // Get the current highest NirminiID from the database
-            const allGuilds = await getGuildConfig(); // Get all guild configs
-            let highestID = 0;
-
-            if (allGuilds) {
-                Object.values(allGuilds).forEach(g => {
-                    if (g.config && g.config.NirminiID) {
-                        const id = parseInt(Buffer.from(g.config.NirminiID, 'base64').toString());
-                        if (!isNaN(id) && id > highestID) {
-                            highestID = id;
-                        }
-                    }
-                });
-            }
-
-            // Increment NirminiID
-            const newNirminiID = highestID + 1;
-            const encodedID = Buffer.from(newNirminiID.toString()).toString('base64');
-
-            // Default GuildConfig structure
-            const newGuildConfig = {
-                "GroupName": guild.name, // Default to Guild Name
-                "NirminiID": encodedID,
-                "RBXBinds": {
-                    "1-1": "<RoleIdHere>",
-                    "2-2": "<RoleIdHere>"
-                },
-                "colours": {
-                    "custom": false
-                },
-                "commandconfigs": {
-                    "verifiedrole": "<VerifiedRoleId>"
-                },
-                "disabledcommands": [], // Initialize as an empty array
-                "rbxgroup": "<GID>",
-                "substat": "L0/L1/L2"
-            };
-
-            // Store the config in the database
-            await setGuildConfig(guild.id, 'config', newGuildConfig);
-            if (settings.extendedlogs) console.log(`New guild config created for ${guild.name} (${guild.id}) with NirminiID ${newNirminiID}.`);
-        } else {
-            console.log(`Config already exists for ${guild.name}, skipping creation.`);
+        if (settings.extendedlogs) {
+            console.log(`Initialized guild config for ${guild.name} (${guild.id}).`);
         }
     } catch (error) {
-        console.error(`Error creating guild config for ${guild.name} (${guild.id}):`, error);
+        console.error(`Error initializing guild config for ${guild.name} (${guild.id}):`, error);
+    }
+});
+
+client.on('guildDelete', async (guild) => {
+    if (settings.extendedlogs) {
+        console.log(`Removed from guild: ${guild.name} (${guild.id})`);
+        webhookClient.send(`Removed from guild: ${guild.name} (${guild.id})`);
+    }
+
+    try {
+        await removeGuildData(guild.id);
+        await removeGuildConfig(guild.id);
+
+        if (settings.extendedlogs) {
+            console.log(`Removed data + config for ${guild.name} (${guild.id}).`);
+        }
+    } catch (error) {
+        console.error(`Error removing guild data/config for ${guild.name} (${guild.id}):`, error);
     }
 });
 
@@ -352,7 +320,7 @@ const resolvedIntents = new IntentsBitField(client.options.intents).toArray();
 console.log('[DEBUG] Intents:', resolvedIntents);
 console.log('[DEBUG] Partials:', client.options.partials);
 
-client.login(process.env.DISCORD_TOKEN); //TODO: Make this only run if we're starting an older
+client.login(process.env.DISCORD_TOKEN);
 
 console.log(`
 ███████████████████████████████████████████████████████████████████████████████████████████████╗

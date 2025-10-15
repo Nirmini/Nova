@@ -1,10 +1,11 @@
+// DEPREACTION WARNING!! : This command is no longer needed due to automatic and manual systems being added.
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const { setData, getData } = require('../../src/Database'); // Admin SDK functions
 
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1000003', // Unique 6-digit command ID
+    id: '1000003',
     data: new SlashCommandBuilder()
         .setName('format')
         .setDescription('Format the blacklisted commands for a guild')

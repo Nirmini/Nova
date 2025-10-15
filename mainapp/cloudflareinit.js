@@ -5,7 +5,7 @@ const path = require('path');
 const exePath = path.join(__dirname, '../cloudflared.exe');
 
 // Use the tunnel ID from your config
-const tunnelId = 'YOUR_CF_TUNNEL_ID';
+const tunnelId = '66de4fdf-08ae-48a0-bac9-b6ee6d4d34e3';
 
 const args = ['tunnel', 'run', tunnelId];
 

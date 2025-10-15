@@ -1,3 +1,4 @@
+// DEPREACTION WARNING!! : This command will have it's function duplicated and/or replaced by DevDash soon!
 const {
     SlashCommandBuilder,
     ButtonBuilder,

@@ -1,3 +1,2 @@
 window.OPERATIONAL_INFO = {
-
 };

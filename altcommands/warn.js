@@ -3,7 +3,7 @@ const { setData, getData } = require('../src/Database'); // Admin SDK functions
 const emoji = require('../emoji.json');
 
 module.exports = {
-    id: '0000020', // Unique 6-digit command ID
+    id: '0000020',
     name: 'warn',
     description: 'Warn a user in the server',
     usage: '?warn <@user> <Reason>',

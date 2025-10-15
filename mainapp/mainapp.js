@@ -1,39 +1,96 @@
 const os = require("node:os");
 const path = require("path");
-const { spawn, execSync } = require("child_process");
+const { fork, spawn, execSync } = require("child_process");
 const cfg = require('../settings.json');
 require("dotenv").config();
-
+require('./sentry');
 const fs = require("fs");
 const axios = require("axios");
+const ipchelper = require('./ipchelper');
 
+// --- Service Definitions ---
+// Use "fork" for modules that need IPC / persistent communication
+// Use "spawn" for one-off or setup scripts
 const services = {
-    statusAPI: "./StatusAPI.js",
-    publishCmds: "./publish-cmds.js",
-    novaAPI: "./novaAPImngr.js",
-    initClasses: "./initclasses.js",
-    shardMngr: "./shardmngr.js",
-    cloudflareinit: "./cloudflareinit.js"
+    statusAPI: { path: "./StatusAPI.js", mode: "fork" },
+    publishCmds: { path: "./publish-cmds.js", mode: "spawn" },
+    novaAPI: { path: "./novaAPImngr.js", mode: "fork" },
+    initClasses: { path: "./initclasses.js", mode: "spawn" },
+    shardMngr: { path: "./shardmngr.js", mode: "fork" },
+    cloudflareinit: { path: "./cloudflareinit.js", mode: "spawn" }
 };
 
-function launch(name, filePath) {
-    const absPath = path.join(__dirname, filePath);
-    console.log(`[mainapp] Launching ${name} (${absPath})...`);
+// --- IPC Registry ---
+const processes = {}; // name → process ref
 
-    const proc = spawn("node", [absPath], {
-        stdio: "inherit",
-        env: { ...process.env, SERVICE_NAME: name }
-    });
+// --- Launch Function ---
+function launch(name, { path: filePath, mode }) {
+    const absPath = path.join(__dirname, filePath);
+    console.log(`[mainapp] Launching ${name} (${absPath}) [mode=${mode}]...`);
+
+    let proc;
+
+    if (mode === "fork") {
+        proc = fork(absPath, {
+            env: { ...process.env, SERVICE_NAME: name },
+            stdio: ['inherit', 'inherit', 'inherit', 'ipc'] // enable IPC
+        });
+
+        processes[name] = proc;
+
+        // Register with centralized ipchelper
+        try {
+            ipchelper.registerProcess(name, proc);
+            console.log(`[mainapp] Registered ${name} with ipchelper`);
+        } catch (err) {
+            console.warn(`[mainapp] Failed to register ${name} with ipchelper: ${err.message}`);
+        }
+    } else {
+        proc = spawn("node", [absPath], {
+            stdio: "inherit",
+            env: { ...process.env, SERVICE_NAME: name }
+        });
+        processes[name] = proc;
+    }
 
     proc.on("exit", code => {
         console.warn(`[mainapp] ${name} exited with code ${code}`);
-        if (name == "shardMngr" || name == "statusAPI" && false) {
+        delete processes[name];
+        // ensure ipchelper cleans up too
+        try { ipchelper.unregisterProcess(name); } catch {}
+        if (["shardMngr", "statusAPI"].includes(name)) {
+            console.warn(`[mainapp] Critical service ${name} exited. Shutting down...`);
             process.exit(1);
         }
     });
 
     return proc;
 }
+
+// Helper to send IPC to a process via ipchelper
+function send(to, key, value) {
+    try {
+        ipchelper.send(to, { key, value, from: 'mainapp' });
+    } catch (err) {
+        console.warn(`[mainapp:IPC] Failed to send to ${to}: ${err.message}`);
+    }
+}
+
+// Listen for routed messages targeted to mainapp
+// NOTE: mainapp should NOT attempt to aggregate/answer GuildCount/etc. ipchelper now routes those to shardmngr.
+// Keep mainapp handler minimal to avoid responding to aggregate requests.
+ipchelper.on('message', ({ from, msg }) => {
+    // simple logging and any mainapp-specific non-request handling
+    const { key, value, requestId } = msg;
+    if (requestId) {
+        // do not answer aggregate requests here; ipchelper routes them to shardmngr
+        console.log(`[mainapp:IPC] Request received from ${from} (requestId=${requestId}, key=${key}) - delegated to ipchelper/shardmngr.`);
+        return;
+    }
+
+    // handle non-request messages as needed
+    console.log(`[mainapp:IPC] Message routed to mainapp from ${from}:`, msg);
+});
 
 // --- Version Check ---
 async function checkLatestVersion() {
@@ -54,7 +111,7 @@ async function checkLatestVersion() {
     let remoteCommitMsg = "";
     try {
         console.log("[mainapp] Checking latest commit on remote (GitHub master branch)...");
-        const res = await axios.get("https://api.github.com/repos/Nirmini/Nova/commits?sha=master&per_page=1", {
+        const res = await axios.get("https://api.github.com/repos/Nirmini/NovaBot-Dev/commits?sha=master&per_page=1", {
             headers: { Authorization: `token ${process.env.GITHB_VERTKN || ""}` }
         });
         if (Array.isArray(res.data) && res.data.length > 0) {
@@ -91,14 +148,13 @@ async function checkLatestVersion() {
     if (localVersion && remoteVersion) {
         if (compareVersions(localVersion, remoteVersion) < 0) {
             process.emitWarning(
-              `[mainapp] Deprecation warning: Your local version (${localVersion}) is behind the latest remote version (${remoteVersion}). Please update your branch.`,
-              'DeprecationWarning'
+                `[mainapp] Deprecation warning: Your local version (${localVersion}) is behind the latest remote version (${remoteVersion}). Please update your branch.`,
+                'DeprecationWarning'
             );
         } else {
             console.log("[mainapp] Local version is up to date or ahead of remote. Version check passed.");
         }
     } else {
-        // Fallback to commit message string comparison if version extraction fails
         if (localCommitMsg !== remoteCommitMsg) {
             console.log("[mainapp] Commit messages differ, but version could not be compared.");
         } else {
@@ -107,12 +163,19 @@ async function checkLatestVersion() {
     }
 }
 
+// --- Main Runner ---
 (async () => {
     console.log(`[mainapp] Starting Nova on ${os.hostname()} | PID ${process.pid}`);
 
     await checkLatestVersion();
 
-    for (const [name, path] of Object.entries(services)) {
-        launch(name, path);
+    // Launch all defined services
+    for (const [name, config] of Object.entries(services)) {
+        launch(name, config);
     }
+
+    // Example: periodically send updates to novaAPI
+    setInterval(() => {
+        send("novaAPI", "Heartbeat", { time: Date.now() });
+    }, 2700000);
 })();

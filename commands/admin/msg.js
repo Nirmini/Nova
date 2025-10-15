@@ -1,9 +1,10 @@
+// DEPREACTION WARNING!! : This command will have it's function duplicated and/or replaced by DevDash soon!
 const { SlashCommandBuilder, MessageFlags, EmbedBuilder } = require('discord.js');
 
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1000007', // Unique 6-digit command ID
+    id: '1000007', 
     data: new SlashCommandBuilder()
         .setName('msg')
         .setDescription('[DEPRECATED] Allows a specific user to pass a string for the bot to say in the channel.')

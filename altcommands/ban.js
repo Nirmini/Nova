@@ -2,7 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const emoji = require('../emoji.json');
 
 module.exports = {
-    id: '0000001', // Unique 6-digit command ID
+    id: '0000001',
     /**
      * Executes the ban command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

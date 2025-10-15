@@ -2,10 +2,10 @@ const { EmbedBuilder } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
 
-const githubToken = process.env.GTHBTOKEN; // Ensure this is set in .env
+const githubToken = process.env.GTHBTOKEN;
 
 module.exports = {
-    id: '0000008', // Unique 6-digit command ID
+    id: '0000008',
     /**
      * Executes the github command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

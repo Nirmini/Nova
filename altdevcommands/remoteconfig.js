@@ -1,12 +1,12 @@
 const { EmbedBuilder } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
-const settings = require('../settings.json'); // Load the settings.json file
+const settings = require('../settings.json');
 
 const devPerms = require('../devperms.json');
 
 module.exports = {
-    id: '0000022', // Unique 6-digit command ID
+    id: '0000022',
     /**
      * Executes the remoteconfig command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

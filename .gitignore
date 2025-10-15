@@ -1,5 +1,17 @@
 node_modules
 /src/temp/
 /keys/
+/servicedata/
+/dataconnect/
+/dataconnect-generated/
+/dashboard/
+/.firebase/
+.firebaserc
+data.sql
+data.mwb
 firebase.json
+package-lock.json
+.env
 .vscode
+cloudflared.exe
+/NovaAPI

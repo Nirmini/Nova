@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    id: '0000015', // Unique 6-digit command ID
+    id: '0000015',
     /**
      * Executes the ?roll <die> command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

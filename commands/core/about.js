@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require('discord.js');
 
 module.exports = {
-    id: '2000001', // Unique 6-digit command ID
+    id: '2000001', 
     data: new SlashCommandBuilder()
         .setName('about')
         .setDescription('About NovaBot'),

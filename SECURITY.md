@@ -2,9 +2,6 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
 | Version | Supported          |
 | ------- | ------------------ |
 | 25.x.x   | :white_check_mark: |
@@ -14,4 +11,4 @@ currently being supported with security updates.
 
 ## Reporting a Vulnerability
 
-Please either submit a ticket in our community server or email [west701497@gmail.com](mailto:west701497@gmail.com) or [nirminidevelopment@gmail.com](mailto:nirminidevelopment@gmail.com).
+Please either submit a ticket in our community server or email [support@nirmini.dev](mailto:support@nirmini.dev).

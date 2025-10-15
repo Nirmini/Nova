@@ -1,9 +1,10 @@
+// DEPREACTION WARNING!! : This command will have it's function duplicated and/or replaced by DevDash soon!
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1000010', // Unique 6-digit command ID
+    id: '1000010',
     data: new SlashCommandBuilder()
         .setName('sysmsg')
         .setDescription('Send a system message as an embed.')

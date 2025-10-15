@@ -2,7 +2,7 @@ const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
 const path = require('path');
 
 module.exports = {
-    id: '0000003', // Unique 6-digit command ID
+    id: '0000003',
     /**
      * Executes the ?coin command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.
@@ -10,7 +10,7 @@ module.exports = {
     execute: async (message) => {
         // Randomly pick Heads or Tails
         const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
-        // Use local images or URLs for heads/tails
+        // Use local images or URLs for heads/tails (REDOING THE IMAGES SOON I SWEAR)
         const imageFile = result === 'Heads'
             ? new AttachmentBuilder('../Icos/cmds/coin_heads.png')
             : new AttachmentBuilder('../Icos/cmds/coin_tails.jpg');

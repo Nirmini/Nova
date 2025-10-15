@@ -14,7 +14,7 @@ try {
     console.error('Error loading settings.json:', error.message);
 }
 
-const ModuleEnabled = settings.modules?.statuspageupdates || false;
+const ModuleEnabled = settings.modules?.statuspage_updates || false;
 
 const STATUSPAGE_API_KEY = process.env.STATUSPAGEAPIKEY;
 const STATUSPAGE_PAGE_ID = process.env.PAGEID;

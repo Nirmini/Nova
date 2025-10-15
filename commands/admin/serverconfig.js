@@ -1,3 +1,4 @@
+// DEPREACTION WARNING!! : This command is no longer needed due to automatic and manual systems being added.
 const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
 const { getData, setData, updateData } = require('../../src/Database'); // Use Admin SDK
 const DB_PATH = 'guildsettings';

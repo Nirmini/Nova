@@ -38,6 +38,8 @@
     "@discordjs/rest": "^2.6.0",
     "@discordjs/voice": "^0.18.0",
     "@sagi.io/workers-kv": "^0.0.15",
+    "@sentry/node": "^10.15.0",
+    "@sentry/profiling-node": "^10.15.0",
     "axios": "^1.12.1",
     "body-parser": "^1.20.3",
     "brace-expansion": "^4.0.1",
@@ -57,7 +59,7 @@
     "noblox.js": "^6.2.0",
     "node-cron": "^3.0.3",
     "stripe": "^17.5.0",
-    "tar-fs": "^3.0.10",
+    "tar-fs": "^3.1.1",
     "ws": "^8.18.0"
   },
   "devDependencies": {

@@ -11,7 +11,7 @@ const { SlashCommandBuilder,
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1000011', // This is like, pretty important.
+    id: '1000011',
     data: new SlashCommandBuilder()
         .setName('test')
         .setDescription('A command for testing various features.')

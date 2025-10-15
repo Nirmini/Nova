@@ -8,7 +8,7 @@ const itemId = process.env.itemId;
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1000006', // Unique 6-digit command ID
+    id: '1000006', 
     data: new SlashCommandBuilder()
         .setName('maint')
         .setDescription('Remote Maintenance Mode [MultiTeam]'),

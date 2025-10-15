@@ -12,7 +12,7 @@ try {
     console.error('Error loading settings.json:', error.message);
 }
 
-const ModuleEnabled = settings.modules?.statuspageupdates || false;
+const ModuleEnabled = settings.modules?.statuspage_core || false;
 
 // Env Vars
 const statusPageApiKey = process.env.STATUSPAGEAPIKEY;
@@ -77,11 +77,24 @@ const startLatencyLoop = async () => {
 
     console.log('[Statuspage] Starting latency metric loop.');
 
-    while (true) {
-        const latency = await measureLatency();
-        if (latency !== null) await submitLatency(latency);
-        await new Promise(resolve => setTimeout(resolve, 90000));
-    }
+    const runLoop = async () => {
+        while (true) {
+            try {
+                const latency = await measureLatency();
+                if (latency !== null) {
+                    await submitLatency(latency);
+                }
+                await new Promise(resolve => setTimeout(resolve, 90000));
+            } catch (err) {
+                console.error('[Statuspage] Fatal error in loop:', err.message);
+                console.log('[Statuspage] Restarting loop in 30s...');
+                await new Promise(resolve => setTimeout(resolve, 30000));
+                return runLoop(); // restart fresh
+            }
+        }
+    };
+
+    runLoop();
 };
 
 // Update component status manually

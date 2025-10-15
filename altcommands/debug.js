@@ -1,10 +1,10 @@
 const { EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '0000006', // Unique 6-digit command ID
+    id: '0000006',
     data: {
         name: 'debug',
-        description: 'Checks if a command exists and displays its arguments.',
+        description: 'Checks if a command exists and displays its argument(s).',
         args: ['<commandName>'], // Documenting arguments for the debug command
     },
     /**

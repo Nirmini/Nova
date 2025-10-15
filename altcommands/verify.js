@@ -2,7 +2,7 @@ const { PermissionsBitField, MessageFlags, Message } = require('discord.js');
 const noblox = require('noblox.js');
 
 module.exports = {
-    id: '0000018', // Unique 6-digit command ID
+    id: '0000018',
 
     /**
      * Executes the ?verify command.

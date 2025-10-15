@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    id: '0000009', // Unique 6-digit command ID
+    id: '0000009',
     /**
      * Executes the kick command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.
@@ -38,7 +38,7 @@ module.exports = {
                     { name: 'Public Reason', value: publicReason, inline: true },
                     { name: 'Audit Log Reason', value: auditLogReason || 'None', inline: true },
                 )
-                .setColor('ORANGE')
+                .setColor(rgb(236,131,26))
                 .setTimestamp();
 
             await message.reply({ embeds: [embed] });

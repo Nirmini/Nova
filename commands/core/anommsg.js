@@ -4,11 +4,11 @@ const { setData, getData } = require('../../src/Database'); // Firebase Admin fu
 /**
  * TO BE REFACTORED
  * 
- * Cover user ident with Case IDs
+ * Cover user ident with ATicket IDs
  */
 
 module.exports = {
-    id: '2000002', // Unique 6-digit command ID
+    id: '2000002',
     data: new SlashCommandBuilder()
         .setName('anommsg')
         .setDescription('Send anonymous messages or manage the system.')

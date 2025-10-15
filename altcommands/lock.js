@@ -10,7 +10,7 @@ module.exports = {
     execute: async (message) => {
         const args = message.content.split(' ').slice(1);
         const emojis = {
-            check: '✅', // Replace with custom emoji IDs if needed
+            check: '✅',
             failure: '❌'
         };
 

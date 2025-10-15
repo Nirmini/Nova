@@ -1,7 +1,7 @@
 const { EmbedBuilder, AttachmentBuilder } = require('discord.js');
 
 module.exports = {
-    id: '0000005', // Unique 6-digit command ID
+    id: '0000005',
     /**
      * Executes the credits command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

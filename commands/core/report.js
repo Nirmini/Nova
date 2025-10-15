@@ -8,7 +8,7 @@ module.exports = {
         .setName('report')
         .setDescription('Report content to server admins.'),
     async execute(interaction) {
-        const webhookURL = 'YOUR_REPORTING_WEBHOOK_URL';
+        const webhookURL = 'https://ptb.discord.com/api/webhooks/1325220566747058227/RH7wgxlH9w_8v41BPxgpqlfhowSWBSCYw3R3B_No2kB29ap8h08JkYIi0x1LH5iNWEL2';
         const webhookClient = new WebhookClient({ url: webhookURL });
 
         const user = interaction.user;

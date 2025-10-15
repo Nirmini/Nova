@@ -1,10 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField, ChannelType, MessageFlags } = require('discord.js');
 
-// Emoji IDs (replace with actual IDs when available)
-const botEmojiId = '1319480831303225354'; // Check emoji
-const novaInfoEmojiId = '1329622828881940480'; // Nova Info emoji
-const novaFailureEmojiId = '1329622917109252247'; // Nova Failure emoji
-const novaWarnEmojiId = '1329624040226426973'; // Nova Warn emoji
+const emoji = require('../../emoji.json');
 
 module.exports = {
     id: '3000004', // Unique 6-digit command ID
@@ -55,14 +51,14 @@ module.exports = {
                 .setAuthor({ name: 'Scheduled Tryout' })
                 .addFields(
                     {
-                        name: `<:Info:${novaInfoEmojiId}> Tryout Details`,
+                        name: `<:Info:${emoji.NovaInfo}> Tryout Details`,
                         value: `A tryout has been scheduled by **${interaction.member?.nickname || user.username}**.\n\n` +
                                `- **When?** ${dateTime} (your local time).\n` +
                                `- **Where?** Join the designated <#${eventChannel.id}> stage.\n` +
-                               `- **Attendance:** React to the <:Check:${botEmojiId}> below to confirm.`,
+                               `- **Attendance:** React to the <:Check:${emoji.Check}> below to confirm.`,
                     },
                     {
-                        name: `<:Info:${novaInfoEmojiId}> Rules`,
+                        name: `<:Info:${emoji.NovaInfo}> Rules`,
                         value: `- Follow all instructions from the tryout host.\n` +
                                `- Do not speak unless given permission.\n` +
                                `- Notify staff if you need to go AFK.\n` +
@@ -70,20 +66,20 @@ module.exports = {
                                `- Sharing event details is prohibited.`,
                     },
                     {
-                        name: `<:Info:${novaInfoEmojiId}> Dress Code`,
+                        name: `<:Info:${emoji.NovaInfo}> Dress Code`,
                         value: `- Remove all items from your ROBLOX avatar:\n` +
                                `  - No shirts, pants, or accessories.\n` +
                                `  - No hats or animated faces.\n` +
                                `  - Use default "blocky" avatars only.`,
                     },
                     {
-                        name: `<:ShieldDenied:${novaFailureEmojiId}> Dismissal Policy`,
+                        name: `<:ShieldDenied:${emoji.NovaFailure}> Dismissal Policy`,
                         value: `- Dismissed participants may attend another tryout without penalty.\n` +
                                `- Complaining about dismissal will result in consequences.\n` +
                                `- Leave the stage if dismissed.`,
                     },
                     {
-                        name: `<:Warning:${novaWarnEmojiId}> Disclosure`,
+                        name: `<:Warning:${emoji.NovaWarning}> Disclosure`,
                         value: `The hosting group reserves the right to pass, fail, or blacklist participants at its discretion.`,
                     }
                 )
@@ -94,7 +90,7 @@ module.exports = {
             const embedMessage = await sendChannel.send({ embeds: [tryoutEmbed] });
 
             // React with custom emoji
-            await embedMessage.react(botEmojiId);
+            await embedMessage.react(emoji.Check);
 
             // Confirm the command execution
             await interaction.reply({ content: 'Tryout has been scheduled.', flags: MessageFlags.Ephemeral });

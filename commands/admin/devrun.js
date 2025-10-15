@@ -1,3 +1,4 @@
+// DEPREACTION WARNING!! : This command will have it's function duplicated and/or replaced by DevDash soon!
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const { setData, getData } = require('../../src/Database'); // Admin SDK functions
 const birthdayModule = require('../../core/modules/birthday');
@@ -7,7 +8,7 @@ const cfg = require('../../settings.json');
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1000001', // Unique 6-digit command ID
+    id: '1000001', 
     data: new SlashCommandBuilder()
         .setName('devrun')
         .setDescription('Run a specific module remotely. Intended for developers to use for debugging.'),

@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
 
-const botEmojiId = '1319480831303225354';
+const emoji = require('../../emoji.json');
 
 module.exports = {
     id: '3000002', // Unique 6-digit command ID

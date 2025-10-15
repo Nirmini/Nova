@@ -1,7 +1,7 @@
 const { setData, getData, updateData, removeData } = require('../../src/Database');
 const { EmbedBuilder } = require('discord.js');
 const cron = require('node-cron');
-const Client = require('../../core/global/Client');
+const Client = require('../global/Client');
 
 
 module.name = "BirthdayHandler";

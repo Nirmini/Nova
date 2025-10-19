@@ -1,16 +1,16 @@
 {
   "name": "novabot",
   "version": "25.0.0a",
-  "description": "",
-  "homepage": "https://thatwest7014.pages.dev/Nova",
+  "description": "Nova is a Discord bot project intended to include parts of Dyno and others for a more unified platform.",
+  "homepage": "https://nirmini.dev/Nova",
   "author": {
-    "name": "thatWest7014",
-    "email": "west701497@gmail.com",
+    "name": "_simplykatt",
+    "email": "support@nirmini.dev",
     "url": "https://github.com/thatWest7014"
   },
   "private": true,
   "bugs": {
-    "url": "https://github.com/Nirmini/NovaBot-Dev/issues",
+    "url": "https://github.com/Nirmini/Nova/issues",
     "email": "nirminidevelopment@gmail.com"
   },
   "main": "src/index.js",

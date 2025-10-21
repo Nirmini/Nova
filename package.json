@@ -5,13 +5,13 @@
   "homepage": "https://nirmini.dev/Nova",
   "author": {
     "name": "_simplykatt",
-    "email": "support@nirmini.dev",
+    "email": "simplykatt@nirmini.dev",
     "url": "https://github.com/thatWest7014"
   },
   "private": true,
   "bugs": {
     "url": "https://github.com/Nirmini/Nova/issues",
-    "email": "nirminidevelopment@gmail.com"
+    "email": "support@nirmini.dev"
   },
   "main": "src/index.js",
   "scripts": {

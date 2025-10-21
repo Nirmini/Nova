@@ -12,8 +12,8 @@
 
 For questions, comments, or concerns, please reach out @ [thatwest7014@gmail.com](mailto:thatwest7014@gmail.com), [support@nirmini.dev](mailto:support@nirmini.dev), or via our [Discord Community](https://example.com).
 ---
-### For a guide on setting up Nova, please see [`SETUP.md`](https://github.com/Nirmini/Nova/blob/master/SETUP.md).
-### For a guide on contributing to Nova, please see [`CODE_OF_CONDUCT.md`](https://github.com/Nirmini/Nova/blob/master/CODE_OF_CONDUCT.md).
-### For a guide on reporting vulnerabilities in Nova, please see [`SECURITY.md`](https://github.com/Nirmini/Nova/blob/master/SECURITY.md).
+### For a guide on setting up Nova, please see [`SETUP.md`](https://github.com/Nirmini/Nova/blob/main/SETUP.md).
+### For a guide on contributing to Nova, please see [`CODE_OF_CONDUCT.md`](https://github.com/Nirmini/Nova/blob/main/CODE_OF_CONDUCT.md).
+### For a guide on reporting vulnerabilities in Nova, please see [`SECURITY.md`](https://github.com/Nirmini/Nova/blob/main/SECURITY.md).
 ---
 #### Last Updated: `October 21th, 2025`

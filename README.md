@@ -10,10 +10,10 @@
 ### Website & Dashbrd: [https://nirmini.dev/Nova](https://nirmini.dev/Nova)
 ### Ban Appeals: [Appeals Portal](https://nirmini.dev/Forms/Appeal)
 
-For questions, comments, or concerns, please reach out @ [thatwest7014@gmail.com](mailto:thatwest7014@gmail.com), [support@nirmini.dev](mailto:support@nirmini.dev), or via our [Discord Community](https://example.com).
+For questions, comments, or concerns, please reach out @ [simplykatt@nirmini.dev](mailto:simplykatt@nirmini.dev), [support@nirmini.dev](mailto:support@nirmini.dev), or via our [Discord Community](https://nirmini.dev/Discord).
 ---
 ### For a guide on setting up Nova, please see [`SETUP.md`](https://github.com/Nirmini/Nova/blob/main/SETUP.md).
 ### For a guide on contributing to Nova, please see [`CODE_OF_CONDUCT.md`](https://github.com/Nirmini/Nova/blob/main/CODE_OF_CONDUCT.md).
 ### For a guide on reporting vulnerabilities in Nova, please see [`SECURITY.md`](https://github.com/Nirmini/Nova/blob/main/SECURITY.md).
 ---
-#### Last Updated: `October 21th, 2025`
+#### Last Updated: `October 25th, 2025`

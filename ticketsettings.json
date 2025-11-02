@@ -1,3 +1,17 @@
 {
-    
+    "ticketversion": "0.0.3a",
+    "ticketsysauthor": "Katt",
+    "guildoverrides": {
+        "override_guildconfig": false,
+        "logchannel": null,
+        "cooldown": null,
+        "preserve_all": false,
+        "blacklisted": [
+
+        ],
+        "ticket_config": {
+            
+        }
+    },
+    "forcetype": false
 }

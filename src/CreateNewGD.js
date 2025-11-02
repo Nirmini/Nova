@@ -1,8 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const { getGuildConfig, setGuildConfig, setGuildData } = require('./Database');
-
+const settings = require('../settings.json');
 const appDataPath = path.join(__dirname, '../appdata.json');
+require('../mainapp/sentry');
 
 function readAppData() {
   try {
@@ -21,16 +22,20 @@ function writeAppData(data) {
   }
 }
 
-async function initGuild(guild, settings) {
+async function initGuild(guild) {
+  // Lets not overwrite existing data
   const existingConfig = await getGuildConfig(guild.id);
-  if (existingConfig) {
-    if (settings.extendedlogs) console.log(`Config already exists for ${guild.name} (${guild.id}).`);
-    return;
+  if (existingConfig && Object.keys(existingConfig).length > 0) {
+  console.log(existingConfig);
+  if (settings.extended_logs) {
+    console.log(`Config already exists for ${guild.name} (${guild.id}).`);
   }
+  return;
+}
 
   console.log(`No config found for ${guild.name}. Creating new GS3 & GD3 entries...`);
 
-  // Sync w/ the appdata
+  // Parse then update the appdata scratch file.
   const appData = readAppData();
 
   if (
@@ -49,7 +54,7 @@ async function initGuild(guild, settings) {
   appData.guilddata.lastNovaworks = newNovaworksID;
   writeAppData(appData);
 
-  // Build GS3 config
+  // GS3 Config Build
   const newGuildConfig = {
     "%GroupName": guild.name,
     "%GuildName": guild.name,
@@ -129,23 +134,20 @@ async function initGuild(guild, settings) {
     }
   };
 
-  // Build GD3 data
-  const newGuildData = {
-    "cases": [],
-    "ticketdata": {
-      "tickets": [],
-      "ticket-archives": []
-    },
-    "ranks": [
-      { "rankid": 1, "connectedroleid": null, "hoistedpermsrole": false }
-    ]
-  };
-
-  // Save config & data
+  // Write GS3
   await setGuildConfig(guild.id, newGuildConfig);
-  await setGuildData(guild.id, newGuildData);
 
-  if (settings.extendedlogs) {
+  // Gradually fill GD3
+  await setGuildData(guild.id, "cases", []);
+  await setGuildData(guild.id, "ticketdata", {
+    "tickets": [],
+    "ticket-archives": []
+  });
+  await setGuildData(guild.id, "ranks", [
+    { "rankid": 1, "connectedroleid": null, "hoistedpermsrole": false }
+  ]);
+
+  if (settings.extended_logs) {
     console.log(
       `New GS3 & GD3 created for ${guild.name} (${guild.id}) with NirminiID ${newNirminiID} and NovaworksID ${newNovaworksID}.`
     );

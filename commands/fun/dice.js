@@ -7,7 +7,7 @@ module.exports = {
         .setDescription('Roll a dice with the specified number of sides.')
         .addStringOption(option =>
             option.setName('type')
-                .setDescription('The type of dice to roll (e.g., d4, d6, d8, d10, d12, d20).')
+                .setDescription('The type of dice to roll (e.g., d4, d6, d8, d10, d12, d20, d100).')
                 .setRequired(true)
                 .addChoices(
                     { name: 'd4', value: '4' },
@@ -15,7 +15,8 @@ module.exports = {
                     { name: 'd8', value: '8' },
                     { name: 'd10', value: '10' },
                     { name: 'd12', value: '12' },
-                    { name: 'd20', value: '20' }
+                    { name: 'd20', value: '20' },
+                    { name: 'd100', value: '100' }
                 )),
     async execute(interaction) {
         const type = interaction.options.getString('type');

@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
 const axios = require('axios');
-const { load } = require('cheerio'); 
+const { load } = require('cheerio'); // npm install cheerio
 
 module.exports = {
     id: '4000024',

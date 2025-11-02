@@ -10,6 +10,7 @@ const router = express.Router();
 const devPerms = require('../../devperms.json');
 
 // THIS IS FOR USE WITH DEVDASH TO SEND MESSAGES IN CHANNELS USING TXT, EMBEDS, AND COMPONENTS V2 AND SEND DMs
+// This is intended for use with the Sysmsgs within DevDash. The API may also be used by other parts of the bot assuming express.js and DevDash are enabled.
 
 // Helper: check if bot shares a guild with user
 async function hasMutualGuild(userId) {
@@ -21,6 +22,13 @@ async function hasMutualGuild(userId) {
     }
 
     return false;
+}
+
+function hexToDiscordInt(hex) {
+    if (!hex) return null;
+    const clean = hex.replace(/^#/, '');
+    if (!/^[0-9A-Fa-f]{6}$/.test(clean)) return null;
+    return parseInt(`0x${clean}`, 16);
 }
 
 router.use((req, res, next) => {
@@ -49,7 +57,13 @@ router.post('/api/sendmsg', async (req, res) => {
 
             const dmPayload = {};
             if (content) dmPayload.content = content;
-            if (embed) dmPayload.embeds = [new EmbedBuilder(embed)];
+            if (embed) {
+                if (embed.color) {
+                    const converted = hexToDiscordInt(embed.color);
+                    if (converted !== null) embed.color = converted;
+                }
+                dmPayload.embeds = [new EmbedBuilder(embed)];
+            }
 
             if (!dmPayload.content && !dmPayload.embeds) {
                 return res.status(400).json({ error: 'No content or embed provided for DM' });
@@ -69,12 +83,25 @@ router.post('/api/sendmsg', async (req, res) => {
                 if (!content) return res.status(400).json({ error: 'Content required for text message' });
                 await channel.send({ content });
             } else if (messageType === 'embed') {
+                if (embed && embed.color) {
+                    const converted = hexToDiscordInt(embed.color);
+                    if (converted !== null) embed.color = converted;
+                }
                 const embedPayload = { embeds: [new EmbedBuilder(embed || {})] };
                 if (content) embedPayload.content = content;
                 await channel.send(embedPayload);
             } else if (messageType === 'componentsv2') {
-                const compPayload = { ...components, flags: MessageFlags.IsComponentsV2 };
-                if (content) compPayload.content = content;
+                if (!components || !Array.isArray(components)) {
+                    return res.status(400).json({ error: 'ComponentsV2 payload required' });
+                }
+            
+                // ComponentsV2 requires the IS_COMPONENTS_V2 flag
+                const compPayload = {
+                    flags: MessageFlags.IsComponentsV2,
+                    components
+                };
+            
+                // Important: Do NOT attach embeds or legacy content here.
                 await channel.send(compPayload);
             } else {
                 return res.status(400).json({ error: 'Invalid messageType' });

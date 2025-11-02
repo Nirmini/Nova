@@ -112,10 +112,14 @@ const commands = [
     { id: "6000023", name: "/warn", category: "moderation", subcommands: null },
     { id: "6000024", name: "/warnings", category: "moderation", subcommands: null },
 
+    { id: "8000001", name: "/rbban", category: "roblox", subcommands: null },
+    { id: "8000002", name: "/rbkick", category: "roblox", subcommands: null },
+    { id: "8000003", name: "/rbrank", category: "roblox", subcommands: null },
+
     { id: "9000001", name: "/bind", category: "usermgmnt", subcommands:{1:"group",2:"gamepass",3:"badge",4:"verification"} },
     { id: "9000002", name: "/binds", category: "usermgmnt", subcommands: null },
     { id: "9000003", name: "/pinrole", category: "usermgmnt", subcommands: null },
-    { id: "9000004", name: "/rank", category: "usermgmnt", subcommands: { 1: "add", 2: "remove" } },
+    { id: "9000004", name: "/rank", category: "usermgmnt", subcommands: null },
     { id: "9000005", name: "/rankmanage", category: "usermgmnt", subcommands: { 1: "add", 2: "remove" } },
     { id: "9000006", name: "/ranks", category: "usermgmnt", subcommands: null },
     { id: "9000007", name: "/temprole", category: "usermgmnt", subcommands: null },

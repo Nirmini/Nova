@@ -7,6 +7,7 @@ const axios = require('axios');
 require('dotenv').config();
 const settings = require('../settings.json');
 const { getUserData, setUserData, getGuildConfig } = require('./Database');
+require('../mainapp/sentry');
 
 //Info
 const pkg = require('../package.json');

@@ -4,6 +4,7 @@ const settings = require('../settings.json');
 const { getGuildConfig, getGuildData, setGuildData, updateGuildData } = require('./Database');
 const { EmbedBuilder } = require('discord.js');
 const client = require('../core/global/Client');
+require('../mainapp/sentry');
 
 /**
  * CASE TYPES
@@ -35,6 +36,7 @@ Each case is stored as an object inside an array at <GuildId>.cases[]
 
 async function getNewCaseId(guildId) {
     const modenabled = await getGuildConfig(guildId, 'caseconfig.%enabled');
+    if (modenabled == undefined) modenabled = true;
     console.log(`[NovaCases] getNewCaseId: guildId=${guildId}, %caseconfig=${modenabled}`);
     if (modenabled !== true) {
         console.log(`[NovaCases] getNewCaseId: Moderation not enabled for guild ${guildId}`);

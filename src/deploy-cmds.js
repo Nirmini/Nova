@@ -4,11 +4,13 @@ const path = require('path');
 const { env } = require('process');
 require('dotenv').config();
 require('./portman');
+require('../mainapp/sentry');
 
 const botToken = process.env.DISCORD_TOKEN;
 const clientId = process.env.CLIENTID;
 
 if (!botToken || !clientId) {
+    //throw new error("Cannot deploy commands without proper ENV config.");
     console.error('Error: Missing DISCORD_TOKEN or CLIENTID in environment variables.');
     process.exit(1);
 }

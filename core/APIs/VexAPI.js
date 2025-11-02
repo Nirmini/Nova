@@ -6,8 +6,6 @@ const API_KEY = process.env.RBT_EVNTS;
 
 /**
  * TO DO
- * Add Team Number to ID
- * Add TeamId to Awards [VIQRC/VRC]
  * Add TeamId to TeamInfo [VIQRC/VRC]
  */
 
@@ -35,15 +33,17 @@ async function Number2ID(teamID) {
     return teamResponse.data.data[0]; // First team found
 }
 
-const awardsResponse = await axios.get(`https://www.robotevents.com/api/v2/teams/${team.id}/awards`, {
-    headers: { 'Authorization': `Bearer ${API_KEY}` }
-});
-const awards = awardsResponse.data.data;
-// If no awards found
-if (!awards || awards.length === 0) {
-    return null
-};
+async function GetAwards(teamID) {
+    const awardsResponse = await axios.get(`https://www.robotevents.com/api/v2/teams/${teamID}/awards`, {
+        headers: { 'Authorization': `Bearer ${API_KEY}` }
+    });
+
+    if (!awardsResponse.data.data || awardsResponse.data.data.length === 0) {
+        return null
+    };
+}
 
 module.exports = {
-
+    Number2ID,
+    GetAwards
 }

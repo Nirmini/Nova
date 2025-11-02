@@ -17,6 +17,7 @@ require('dotenv').config();
 const fs = require('fs');
 const settings = require('../settings.json');
 const webhookClient= new WebhookClient({ url: process.env.LOG_S_WEBHOOK});
+require('../mainapp/sentry');
 
 const guildResponses = {
     '1225142849922928661': {

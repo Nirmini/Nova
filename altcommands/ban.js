@@ -44,7 +44,16 @@ module.exports = {
             await message.reply({ embeds: [embed] });
         } catch (error) {
             console.error('Error executing ban command:', error);
-            message.reply('An error occurred while processing the ban command.');
+            let cuterror
+            if (error.length > 975) {
+                cuterror = error.Slice(0,972) + "..."
+            }
+            const embed = new EmbedBuilder()
+                .setTitle(`<:NovaFailure:${emoji.NovaFailure}> An error occured while running this command.`)
+                .setDescription(`Error (Send this to the NEDD as a bug report): \n${cuterror}`)
+                .setColor(0x0fff0f)
+                .setTimestamp();
+            return message.reply({ embeds: [embed] });
         }
     },
 };

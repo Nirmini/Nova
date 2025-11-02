@@ -6,6 +6,7 @@ require('dotenv').config();
 const NAPIToken = process.env.NovaAPI_Key;
 const { Client, EmbedBuilder } = require('discord.js');
 const client = require('../core/global/Client');
+require('../mainapp/sentry');
 
 const headers = {
     'x-api-key': NAPIToken,

@@ -2,8 +2,9 @@
   "messages": {
     "lastmid": null
   },
-  "guilddata":{
-    "lastNirmini": 0,
-    "lastNovaworks": 0
-  }
+  "guilddata": {
+    "lastNirmini": null,
+    "lastNovaworks": null
+  },
+  "servercount": null
 }

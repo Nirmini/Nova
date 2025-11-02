@@ -4,6 +4,7 @@ const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+require('../mainapp/sentry');
 
 // Load settings.json dynamically to avoid caching issues
 const settingsPath = path.join(__dirname, '..', 'settings.json');

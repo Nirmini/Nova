@@ -8,18 +8,17 @@ module.exports = {
      * @param {import('discord.js').Message} message - The message object from Discord.js.
      */
     execute: async (message) => {
-        // Randomly pick Heads or Tails
         const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
         // Use local images or URLs for heads/tails (REDOING THE IMAGES SOON I SWEAR)
         const imageFile = result === 'Heads'
             ? new AttachmentBuilder('../Icos/cmds/coin_heads.png')
-            : new AttachmentBuilder('../Icos/cmds/coin_tails.jpg');
+            : new AttachmentBuilder('../Icos/cmds/coin_tails.png');
 
         const embed = new EmbedBuilder()
-            .setTitle('🪙 Coin Flip')
+            .setTitle('Coin Flip')
             .setDescription(`The coin landed on **${result}**!`)
             .setColor(result === 'Heads' ? 0xFFD700 : 0xAAAAAA)
-            .setImage(`attachment://${result === 'Heads' ? 'coin_heads.png' : 'coin_tails.jpg'}`);
+            .setImage(`attachment://${result === 'Heads' ? 'coin_heads.png' : 'coin_tails.png'}`);
 
         await message.reply({ embeds: [embed], files: [imageFile] });
     },

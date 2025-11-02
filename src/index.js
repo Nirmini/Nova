@@ -8,12 +8,15 @@ require('dotenv').config();
 const settings = require('../settings.json');
 const express = require('express');
 const statusApp = express();
+require('../mainapp/sentry');
 
 //Info
+const { getServerCount } = require('../NovaAPI/common/APIApp');
 const pkg = require('../package.json');
 const workspkg = require('../Novaworks/novaworks.json');
 
 //Op Modules
+require('./ipcmodule');
 require('./sysmsgmanager');
 require('../core/global/statuspage');
 require('../core/global/statusmngr');
@@ -29,9 +32,13 @@ const NovaStatusMsgs = require('./statusmsgs');
 const { removeGuildConfig, removeGuildData } = require('./Database');
 const { initGuild } = require('./CreateNewGD');
 
-//Debugging
+// Debugging
 const webhookClient= new WebhookClient({ url: process.env.LOG_S_WEBHOOK});
 require('../DevDash/manager');
+
+// Counting
+// add near the top with other imports
+const appDataPath = path.join(__dirname, '../appdata.json');
 
 async function waitForShardsReady() {
     console.log("Waiting for all shards to be ready...");
@@ -93,6 +100,19 @@ const STATUS_PORT = SHARD_PORT_MIN + shardId;
 if (STATUS_PORT > SHARD_PORT_MAX) {
     throw new Error(`Shard port ${STATUS_PORT} exceeds configured maximum (${SHARD_PORT_MAX})`);
 }
+
+// Start bot only after all shards are ready
+waitForShardsReady().then(() => {    
+    client.user.setPresence({
+        activities: [{
+            name: `Starting..`,
+            type: ActivityType.Streaming,
+            url: 'https://www.twitch.tv/CosmosRolling'
+        }],
+        status: 'online'
+    });
+
+});
 
 // Main bot ready event
 client.once('clientReady', async () => {
@@ -187,21 +207,6 @@ client.on('shardReconnecting', () => {
     if (process.send) {
         process.send({ type: 'shardReconnecting', shardId: client.shard.ids[0] });
     }
-});
-
-// Start bot only after all shards are ready
-waitForShardsReady().then(() => {
-    console.log("Starting main bot process...");
-    
-    client.user.setPresence({
-        activities: [{
-            name: `Starting..`,
-            type: ActivityType.Streaming,
-            url: 'https://www.twitch.tv/CosmosRolling'
-        }],
-        status: 'online'
-    });
-
 });
 
 client.on('messageCreate', (message) => {
@@ -316,6 +321,22 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
+client.on('entitlementCreate', (entitlement) => {
+  const subs = require('./subscriptions');
+  subs.handleEntitlement(entitlement);
+});
+
+client.on('entitlementDelete', (entitlement) => {
+  const subs = require('./subscriptions');
+  subs.handleEntitlement(entitlement); // will mark as expired
+});
+
+// React to purchases
+const subs = require('./subscriptions');
+subs.onSubscriptionPurchase((data) => {
+  console.log(`[SUBSCRIPTION] ${data.type} ${data.id} purchased plan ${data.plan}`);
+});
+
 const resolvedIntents = new IntentsBitField(client.options.intents).toArray();
 console.log('[DEBUG] Intents:', resolvedIntents);
 console.log('[DEBUG] Partials:', client.options.partials);
@@ -326,28 +347,12 @@ console.log(`
 ███████████████████████████████████████████████████████████████████████████████████████████████╗
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 
-███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗  ██████╗ ████████╗    ██╗   ██╗██████╗ ██╗  ██╗██████╗ 
-████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██╔═══██╗╚══██╔══╝    ██║   ██║╚════██╗██║  ██║██╔══██╗
-██╔██╗ ██║██║   ██║██║   ██║███████║    ██████╔╝██║   ██║   ██║       ██║   ██║ █████╔╝███████║██║  ██║
-██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║    ██╔══██╗██║   ██║   ██║       ╚██╗ ██╔╝██╔═══╝ ╚════██║██║  ██║
-██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║    ██████╔╝╚██████╔╝   ██║        ╚████╔╝ ███████╗     ██║██████╔╝
-╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝         ╚═══╝  ╚══════╝     ╚═╝╚═════╝ 
-                                                                                                
-                                                                                                
-                                                                                                
-█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗
-╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝
-███████████████████████████████████████████████████████████████████████████████████████████████╗
-╚══════════════════════════════════════════════════════════════════════════════════════════════╝
-█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗█████╗
-╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝╚════╝
-                                                                                                
-██╗    ██╗██████╗ ██╗████████╗████████╗███████╗███╗   ██╗    ██╗███╗   ██╗         ██╗███████╗  
-██║    ██║██╔══██╗██║╚══██╔══╝╚══██╔══╝██╔════╝████╗  ██║    ██║████╗  ██║         ██║██╔════╝  
-██║ █╗ ██║██████╔╝██║   ██║      ██║   █████╗  ██╔██╗ ██║    ██║██╔██╗ ██║         ██║███████╗  
-██║███╗██║██╔══██╗██║   ██║      ██║   ██╔══╝  ██║╚██╗██║    ██║██║╚██╗██║    ██   ██║╚════██║  
-╚███╔███╔╝██║  ██║██║   ██║      ██║   ███████╗██║ ╚████║    ██║██║ ╚████║    ╚█████╔╝███████║  
- ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═══╝    ╚═╝╚═╝  ╚═══╝     ╚════╝ ╚══════╝       
+███╗   ██╗ ██████╗ ██╗   ██╗ █████╗     ██████╗  ██████╗ ████████╗
+████╗  ██║██╔═══██╗██║   ██║██╔══██╗    ██╔══██╗██╔═══██╗╚══██╔══╝
+██╔██╗ ██║██║   ██║██║   ██║███████║    ██████╔╝██║   ██║   ██║   
+██║╚██╗██║██║   ██║╚██╗ ██╔╝██╔══██║    ██╔══██╗██║   ██║   ██║   
+██║ ╚████║╚██████╔╝ ╚████╔╝ ██║  ██║    ██████╔╝╚██████╔╝   ██║   
+╚═╝  ╚═══╝ ╚═════╝   ╚═══╝  ╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝   
 
  ██╗ ██████╗██╗     ██╗    ██╗███████╗███████╗████████╗███████╗ ██████╗  ██╗██╗  ██╗     ██████╗  ██████╗ ██████╗ ███████╗ 
 ██╔╝██╔════╝╚██╗    ██║    ██║██╔════╝██╔════╝╚══██╔══╝╚════██║██╔═████╗███║██║  ██║     ╚════██╗██╔═████╗╚════██╗██╔════╝ 

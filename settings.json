@@ -1,13 +1,14 @@
 {
-    "currentreleasename":"nebula",
-    "local_database": true,
+    "currentreleasename":"cosmos",
+    "local_database": false,
+    "remote_provider": "WorkersKV",
     "use_remote_flag": false,
     "allow_remote_cfg": true,
     "enbable_debug": false,
     "slash_commands_enabled": true,
     "extended_logs": true,
     "operator": {
-        "username": "west7014",
+        "username": "_simplykatt",
         "userId": "600464355917692952"
     },
     "commands": {
@@ -101,5 +102,13 @@
         "enabled": true,
         "pformat": "embed",
         "chkurl": "YOUR_SYSTEM_API_URL"
+    },
+    "NCMS_config": {
+        "enabled": null,
+        "default_url": null,
+        "fallback_url": null,
+        "prefered_storage_type": null,
+        "remote_storage": null,
+        "remote_storage_sync": null
     }
 }

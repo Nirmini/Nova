@@ -8,6 +8,10 @@
     "email": "simplykatt@nirmini.dev",
     "url": "https://github.com/thatWest7014"
   },
+  "maintainers": [
+    "Nirmini Engieneering",
+    "JustaRandomPersonIGuess(Kit)"
+  ],
   "private": true,
   "bugs": {
     "url": "https://github.com/Nirmini/Nova/issues",

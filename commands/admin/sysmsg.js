@@ -4,7 +4,7 @@ const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js'
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1000010',
+    id: '1000009',
     data: new SlashCommandBuilder()
         .setName('sysmsg')
         .setDescription('Send a system message as an embed.')

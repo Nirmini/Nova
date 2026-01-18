@@ -13,7 +13,7 @@ const useRemoteDb = settings.useremotedb && !useLocalDb;
 const CF_ACCOUNT_ID = process.env.CF_ACCOUNT_ID;
 const CF_API_TOKEN = process.env.WKV_API_TKN;
 
-// Map each DB category → Cloudflare KV IDs and names
+// Map WorkersKV Instance IDs and Names
 const WKV_MAP = {
   guildsettings: { id: process.env.WKV_GCONFIG_ID, name: process.env.WKV_GCONFIG_NM },
   guilddata: { id: process.env.WKV_GDATA_ID, name: process.env.WKV_GDATA_NM },
@@ -65,6 +65,11 @@ setSubscriptionData | Params: Guild/User id(Required), Key(Required), Value(Requ
 addSubscriptionData | Params: Guild/User id(Required), Key(Required), Value(Required) | Returns: String/Bool/Int (Use setSubscriptionData instead)
 removeSubscriptionData | Params: Guild/User id(Required), Key(Required), Value(Required) | Returns: String/Bool/Int
 updateSubscriptionData | Params: Guild/User id(Required), Key(Required), Value(Required) | Returns: String/Bool/Int (Use setSubscriptionData instead)
+GLOBAL IDS:
+getCurrentNirminiId | Params: None | Returns: Int
+updateNirminiId | Params: None | Returns: Int (increments by 1)
+getCurrentNovaworksId | Params: None | Returns: Int
+updateNovaworksId | Params: None | Returns: Int (increments by 3)
 */
 
 // ============ HELPERS ============
@@ -245,6 +250,78 @@ const addSubscriptionData = (id, key, value) => setData('subscriptions', id, key
 const removeSubscriptionData = (id, key, value) => removeData('subscriptions', id, key, value);
 const updateSubscriptionData = (id, key, value) => updateData('subscriptions', id, key, value);
 
+// ============ GLOBAL ID FUNCTIONS ============
+// These use root-level keys directly in guildsettings KV for cross-instance sync
+async function getCurrentNirminiId() {
+  await mutex.lock();
+  try {
+    if (useRemoteDb) {
+      const value = await kvGet('guildsettings', 'currentNirminiId');
+      return value || 0;
+    } else {
+      const fileData = readJson(paths.guildsettings);
+      return fileData.currentNirminiId || 0;
+    }
+  } finally {
+    mutex.unlock();
+  }
+}
+
+async function updateNirminiId() {
+  await mutex.lock();
+  try {
+    if (useRemoteDb) {
+      const currentId = await kvGet('guildsettings', 'currentNirminiId') || 0;
+      const newId = currentId + 1;
+      await kvPut('guildsettings', 'currentNirminiId', newId);
+      return newId;
+    } else {
+      let fileData = readJson(paths.guildsettings);
+      const currentId = fileData.currentNirminiId || 0;
+      fileData.currentNirminiId = currentId + 1;
+      writeJson(paths.guildsettings, fileData);
+      return fileData.currentNirminiId;
+    }
+  } finally {
+    mutex.unlock();
+  }
+}
+
+async function getCurrentNovaworksId() {
+  await mutex.lock();
+  try {
+    if (useRemoteDb) {
+      const value = await kvGet('guildsettings', 'currentNovaworksId');
+      return value || 0;
+    } else {
+      const fileData = readJson(paths.guildsettings);
+      return fileData.currentNovaworksId || 0;
+    }
+  } finally {
+    mutex.unlock();
+  }
+}
+
+async function updateNovaworksId() {
+  await mutex.lock();
+  try {
+    if (useRemoteDb) {
+      const currentId = await kvGet('guildsettings', 'currentNovaworksId') || 0;
+      const newId = currentId + 3;
+      await kvPut('guildsettings', 'currentNovaworksId', newId);
+      return newId;
+    } else {
+      let fileData = readJson(paths.guildsettings);
+      const currentId = fileData.currentNovaworksId || 0;
+      fileData.currentNovaworksId = currentId + 3;
+      writeJson(paths.guildsettings, fileData);
+      return fileData.currentNovaworksId;
+    }
+  } finally {
+    mutex.unlock();
+  }
+}
+
 // ============ EXPORT ============
 module.exports = {
   getGuildConfig,
@@ -267,5 +344,9 @@ module.exports = {
   setSubscriptionData,
   addSubscriptionData,
   removeSubscriptionData,
-  updateSubscriptionData
+  updateSubscriptionData,
+  getCurrentNirminiId,
+  updateNirminiId,
+  getCurrentNovaworksId,
+  updateNovaworksId
 };

@@ -19,9 +19,6 @@ require('../src/autoresponses');
 const {fetchAndPostStats} = require('../core/global/topgg');
 
 //QoL Modules
-const NovaStatusMsgs = require('./statusmsgs');
-const {ndguilds, premiumguilds, partneredguilds } = require('../servicedata/premiumguilds');
-const {blacklistedusers, bannedusers} = require("../servicedata/bannedusers");
 const {getData, setData, updateData, removeData } = require('./Database');
 
 //Debugging

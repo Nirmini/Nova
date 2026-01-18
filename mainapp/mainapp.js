@@ -17,7 +17,8 @@ const services = {
     novaAPI: { path: "./novaAPImngr.js", mode: "fork" },
     initClasses: { path: "./initclasses.js", mode: "spawn" },
     shardMngr: { path: "./shardmngr.js", mode: "fork" },
-    cloudflareinit: { path: "./cloudflareinit.js", mode: "spawn" }
+    cloudflareinit: { path: "./cloudflareinit.js", mode: "spawn" },
+    argsmngr: { path: "./launchargs.js", mode: "fork" }
 };
 
 // --- IPC Registry ---

@@ -14,13 +14,35 @@ try {
     console.error('Error loading settings.json:', error.message);
 }
 
-const ModuleEnabled = settings.modules?.statuspage_updates || false;
+const ModuleEnabled = settings.modules?.statuspage_updates || true; // Fail Open
+
+// --- Coloured Logs!! :D ---
+const colors = {
+    gray: "\x1b[90m",
+    green: "\x1b[32m",
+    red: "\x1b[31m",
+    white: "\x1b[37m",
+    cyan: "\x1b[36m",
+    reset: "\x1b[0m",
+};
+
+function log(level, msg) {
+    const ts = new Date().toISOString();
+    let color = colors.green;
+    let tag = 'INF';
+    if (level === 'ERR') { color = colors.red; tag = 'ERR'; }
+    else if (level === 'DBG') { color = colors.cyan; tag = 'DBG'; }
+    else if (level === 'WRN') { color = colors.red; tag = 'WRN'; }
+    console.log(`${colors.gray}${ts}${colors.reset} ${color}${tag}${colors.reset} ${colors.white}${msg}${colors.reset}`);
+}
+
+const STATUSPAGE_BASE = `https://api.statuspage.io/v1`;
 
 const STATUSPAGE_API_KEY = process.env.STATUSPAGEAPIKEY;
 const STATUSPAGE_PAGE_ID = process.env.PAGEID;
 const NOVADROPDOWN_ID = process.env.NOVADROPDOWN_ID;
 const STATUSPAGE_API = `https://api.statuspage.io/v1/pages/${STATUSPAGE_PAGE_ID}/incidents`;
-const webhookURL = 'YOUR_STATUS_WEBHOOK';
+const webhookURL = 'https://ptb.discord.com/api/webhooks/1360039402780364910/vaMkfc75whljZZ8wQA61WuvebV-RslZmN1U38zSiowRbhNqRsNKYGzgXvOjgZd5Xa0E9';
 const webhookClient = new WebhookClient({ url: webhookURL });
 
 const lockFilePath = path.join(__dirname, 'incidentLock.json');
@@ -54,6 +76,37 @@ function saveLockFile() {
 let lock = loadLockFile();
 
 if (ModuleEnabled) {
+    // Validate required env values
+    if (!STATUSPAGE_API_KEY || !STATUSPAGE_PAGE_ID || !NOVADROPDOWN_ID) {
+        log('ERR', 'Missing Statuspage env vars. Set STATUSPAGEAPIKEY, PAGEID and NOVADROPDOWN_ID. Status Manager will not start.');
+        return;
+    }
+
+    // Utility: list all current incidents and log summary (even if none)
+    async function listIncidents() {
+        try {
+            const response = await axios.get(STATUSPAGE_API, {
+                headers: { 'Authorization': `OAuth ${STATUSPAGE_API_KEY}`, 'Content-Type': 'application/json' }
+            });
+            const incidents = response.data || [];
+            if (!incidents.length) {
+                log('INF', 'Statuspage: no incidents found.');
+                return;
+            }
+
+            log('INF', `Statuspage: found ${incidents.length} incident(s).`);
+            incidents.forEach(inc => {
+                const id = inc.id;
+                const name = inc.name || '<no-name>';
+                const status = inc.status || '<no-status>';
+                const impact = inc.impact || '<no-impact>';
+                const created = inc.created_at || '<no-created-at>';
+                log('INF', `Incident ${id} — ${name} — status=${status} impact=${impact} created=${created}`);
+            });
+        } catch (err) {
+            log('ERR', `Failed to list incidents: ${err.response?.data || err.message}`);
+        }
+    }
     /**
      * Clean up resolved incidents from the lock file during initialization.
      */
@@ -78,17 +131,17 @@ if (ModuleEnabled) {
             // Remove resolved incidents from the lock file
             for (const incidentId of resolvedIncidentIds) {
                 if (lock[incidentId]) {
-                    console.log(`Cleaning up resolved incident ${incidentId} from lock file.`);
-                    delete lock[incidentId];
-                    lockModified = true;
-                }
+                        log('INF', `Cleaning up resolved incident ${incidentId} from lock file.`);
+                        delete lock[incidentId];
+                        lockModified = true;
+                    }
             }
 
             if (lockModified) {
                 saveLockFile();
             }
         } catch (error) {
-            console.error('Error during cleanup of resolved incidents:', error.response?.data || error.message);
+            log('ERR', `Error during cleanup of resolved incidents: ${error.response?.data || error.message}`);
         }
     }
 
@@ -110,7 +163,7 @@ if (ModuleEnabled) {
 
             return filteredIncidents.length ? filteredIncidents[0] : null;
         } catch (error) {
-            console.error('Error fetching Statuspage data:', error.response?.data || error.message);
+            log('ERR', `Error fetching Statuspage data: ${error.response?.data || error.message}`);
             return null;
         }
     }
@@ -157,14 +210,14 @@ if (ModuleEnabled) {
             timestamp: new Date(incident.created_at).toISOString(),
         };
     
-        try {
+    try {
             // Send the embed to the webhook
             const webhookMessage = await webhookClient.send({
                 username: 'Nova://StatusUpdates',
                 avatarURL: 'https://i.imgur.com/32dvTiW.png',
                 embeds: [embed],
                 });
-            console.log('Sent new webhook message.');
+            log('INF', 'Sent new webhook message.');
     
             // Fetch the guild and channel using the bot client
             const guildId = '1225142849922928661';
@@ -174,7 +227,7 @@ if (ModuleEnabled) {
     
             // Check if the channel is an announcement channel
             if (!channel || channel.type !== ChannelType.GuildAnnouncement) {
-                console.error('The specified channel is not a valid announcement channel.');
+                log('ERR', 'The specified channel is not a valid announcement channel.');
                 return;
             }
     
@@ -185,12 +238,12 @@ if (ModuleEnabled) {
             if (webhookSentMessage) {
                 // Publish the message in the announcement channel
                 await webhookSentMessage.crosspost();
-                console.log('Published the message to the announcement channel.');
+                log('INF', 'Published the message to the announcement channel.');
             } else {
-                console.error('Could not find the webhook message to publish.');
+                log('ERR', 'Could not find the webhook message to publish.');
             }
         } catch (error) {
-            console.error('Error sending or publishing webhook:', error.response?.data || error.message);
+            log('ERR', `Error sending or publishing webhook: ${error.response?.data || error.message}`);
         }
     }
 
@@ -216,7 +269,7 @@ if (ModuleEnabled) {
             );
 
             if (!filteredIncidents.length) {
-                console.log('No new updates.');
+                log('INF', 'No new updates.');
                 return;
             }
 
@@ -229,7 +282,7 @@ if (ModuleEnabled) {
 
                 // Check if the incident has already been processed
                 if (lock[incidentId] === latestUpdateId) {
-                    console.log(`Incident ${incidentId} already processed for the latest update.`);
+                    log('DBG', `Incident ${incidentId} already processed for the latest update.`);
                     continue; // Skip this incident
                 }
 
@@ -246,13 +299,15 @@ if (ModuleEnabled) {
                 saveLockFile();
             }
         } catch (error) {
-            console.error('Error updating status embed:', error.response?.data || error.message);
+            log('ERR', `Error updating status embed: ${error.response?.data || error.message}`);
         }
     }
 
+    // Initial run: clean lock file, print current incidents summary, then start updates
     cleanUpResolvedIncidents();
+    listIncidents();
     setInterval(updateStatusEmbed, 15 * 60 * 1000);
     updateStatusEmbed();
 } else {
-    console.log('Status Manager is disabled. Status updates will not be displayed.');
+    log('INF', 'Status Manager is disabled. Status updates will not be displayed.');
 }

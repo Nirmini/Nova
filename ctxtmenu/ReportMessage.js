@@ -27,6 +27,7 @@ module.exports = {
                     embed.setTitle(`Message Report`);
                     embed.setDescription(`
                         Reporter: ${interaction.user.tag} (<@${interaction.user.id}>)
+                        Reportee: ${targetMessage.author.tag} (<@${targetMessage.author.id}>)
                         Channel: ${channel}
                         Message Link: ${targetMessage.url}
                         `)

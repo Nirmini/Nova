@@ -4,6 +4,7 @@ const fs = require('fs');
 const os = require('os');
 const app = express();
 const cfg = require('../settings.json');
+const { getPort } = require('../mainappmodules/ports.js');
 
 // CORS middleware to allow API calls to local backend ports
 app.use((req, res, next) => {
@@ -36,9 +37,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Always start the server (even if required)
-const PORT = cfg.ports.DevDash[0];
-if (!global.__DEVDASH_REMOTE_STARTED) {
+// Only shard 0 should spawn the Express server
+const portArray = getPort('devdash');
+const PORT = portArray[0];
+const shardId = process.env.SHARD_ID ? parseInt(process.env.SHARD_ID) : 0;
+if (!global.__DEVDASH_REMOTE_STARTED && shardId === 0) {
     app.listen(PORT, () => {
         console.log(`DevDash remote running at http://localhost:${PORT}/`);
     });

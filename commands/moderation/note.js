@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { setData, getData, updateData, removeData } = require('../../src/Database'); // Admin SDK functions
+const { setUserData, getUserData, updateUserData, removeUserData } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
   id: '6000013', // Unique 6-digit command ID
@@ -52,7 +52,7 @@ module.exports = {
       // Add note/tag
       if (interaction.options.getSubcommand() === 'add') {
         // Fetch current tags for the user
-        const currentTags = await getData(tagsPath) || [];
+        const currentTags = await getUserData(targetId, 'tags') || [];
 
         // Check if the user already has the maximum of 10 tags
         if (currentTags.length >= 10) {
@@ -65,7 +65,7 @@ module.exports = {
         // Add the new tag if it's not already present
         if (!currentTags.includes(note)) {
           currentTags.push(note);
-          await setData(tagsPath, currentTags); // Update tags in Firebase
+          await setUserData(targetId, 'tags', currentTags); // Update tags in Firebase
           interaction.reply({
             content: `Successfully added the tag "${note}" to <@${userId}>.`,
             flags: MessageFlags.Ephemeral,
@@ -81,7 +81,7 @@ module.exports = {
       // Remove note/tag
       if (interaction.options.getSubcommand() === 'remove') {
         // Fetch current tags for the user
-        const currentTags = await getData(tagsPath) || [];
+        const currentTags = await getUserData(targetId, 'tags') || [];
 
         // Check if the tag exists
         if (!currentTags.includes(note)) {
@@ -93,7 +93,7 @@ module.exports = {
 
         // Remove the tag from the list
         const updatedTags = currentTags.filter(tag => tag !== note);
-        await setData(tagsPath, updatedTags); // Update tags in Firebase
+        await setUserData(targetId, 'tags', updatedTags); // Update tags in Firebase
         interaction.reply({
           content: `Successfully removed the tag "${note}" from <@${userId}>.`,
           flags: MessageFlags.Ephemeral,

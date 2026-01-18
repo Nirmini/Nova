@@ -1,6 +1,5 @@
 // DEPREACTION WARNING!! : This command will have it's function duplicated and/or replaced by DevDash soon!
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { setData, getData } = require('../../src/Database'); // Admin SDK functions
 const birthdayModule = require('../../core/modules/birthday');
 const Client = require('../../core/global/Client');
 const cfg = require('../../settings.json');

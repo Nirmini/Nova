@@ -15,27 +15,61 @@ require('../mainapp/sentry');
 const perms = require('../devperms.json'); //TEMP!! : Override to allow developers access to tickets so QA doesn't break something badly again.
 const { ChannelType, PermissionsBitField, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 
+/**
+ * NOTE: ticket storage format (new format)
+ * {
+ *   ticketId: 1,
+ *   openedAt: ISOString,
+ *   openedBy: "userid",
+ *   lastInteraction: { timestamp, userId, userName },
+ *   ticketName: "...",
+ *   ticketDesc: "...",
+ *   usersInvolved: [{ uid, perms }],
+ *   ticketType: "legacy" | "nextgen",
+ *   formresponse: { ... } || null,
+ *   channelId: "0",
+ *   messageId: "0",
+ *   status: "open" | "closed",
+ *   createdAt: ISOString
+ * }
+ */
+
+/**
+ * Utility: Get all tickets for a guild
+ */
 async function getTickets(guildId) {
     const tickets = await getGuildData(guildId, 'ticketdata.tickets');
     return Array.isArray(tickets) ? tickets : [];
 }
 
+/**
+ * Utility: Save all tickets for a guild
+ */
 async function saveTickets(guildId, tickets) {
     await setGuildData(guildId, 'ticketdata.tickets', tickets);
 }
 
+/**
+ * Allocate next numeric ticketId for a guild (keeps numeric sequence)
+ */
 function nextNumericTicketId(tickets) {
     if (!Array.isArray(tickets) || tickets.length === 0) return 1;
     const max = tickets.reduce((m, t) => Math.max(m, Number(t.ticketId) || 0), 0);
     return max + 1;
 }
 
+/**
+ * Utility: Find a ticket config by name in the guild's ticket configs
+ */
 async function findTicketConfig(guildId, categoryName) {
     const tcfgs = await getGuildData(guildId, 'ticketdata.ticket_configs');
     if (!Array.isArray(tcfgs)) return null;
     return tcfgs.find(t => String(t.name) === String(categoryName)) || null;
 }
 
+/**
+ * Utility: Create a private channel for a ticket with specific permissions
+ */
 async function createPrivateChannelForTicket(guild, parentCategoryId, chName, openerId, includeRoleIds = []) {
     const overwrites = [];
 
@@ -85,6 +119,9 @@ async function createPrivateChannelForTicket(guild, parentCategoryId, chName, op
     return created;
 }
 
+/**
+ * Utility: Build an embed for a nextgen ticket based on its config and form responses
+ */
 async function buildTicketEmbedForNextgen(guildId, categoryName, formresponse, ticket) {
     const cfg = await findTicketConfig(guildId, categoryName);
     const usage = cfg?.ticket_usage ? String(cfg.ticket_usage) : null;
@@ -118,6 +155,11 @@ async function buildTicketEmbedForNextgen(guildId, categoryName, formresponse, t
     return embed;
 }
 
+/**
+ * Create a new Nova Ticket (Legacy or NextGen)
+ * Responses (formresponse) may be provided for nextgen but can also be added later via addResponses().
+ * Returns object { status, ticket } or { status: "error", message }
+ */
 async function newticket({
     guildId,
     openerId,
@@ -169,7 +211,10 @@ async function newticket({
     tickets.push(ticket);
     await saveTickets(guildId, tickets);
 
-    // Do we make a channel or a thread?
+    // Decide channel vs thread:
+    // - If guildConfig.ticketconfig.category_id is false -> do NOT create channel (caller should use threads or fallback)
+    // - If ticket-specific config forcechannel === false AND use_threads === true -> do NOT create channel (caller should create thread)
+    // otherwise create private channel under category_id
     try {
         const parentCategoryId = guildConfig.ticketconfig?.category_id || null;
         const useThreads = Boolean(guildConfig.ticketconfig?.use_threads);
@@ -254,7 +299,7 @@ Category: ${ticket_json?.category || 'General'}`)
 }
 
 /**
- * Add responses to a nextgen ticket. (This is mainly just for fixing it should things go wrong)
+ * Add responses to a nextgen ticket.
  * - Only allowed if ticket exists and ticket.formresponse is null (responses cannot be edited).
  * - responses must be an object (key -> answer)
  */
@@ -291,6 +336,9 @@ async function addResponses(guildId, ticketId, responses = {}) {
     return { status: "success", ticket };
 }
 
+/**
+ * Edit a ticket by ID (keeps compatibility). Avoid editing formresponse here.
+ */
 async function updticket(guildId, ticketId, updates) {
     let tickets = await getTickets(guildId);
     const idx = tickets.findIndex(t => Number(t.ticketId) === Number(ticketId));
@@ -302,12 +350,18 @@ async function updticket(guildId, ticketId, updates) {
     return { status: "success", ticket: tickets[idx] };
 }
 
+/**
+ * Fetch a ticket by ID
+ */
 async function getticket(guildId, ticketId) {
     const tickets = await getTickets(guildId);
     const ticket = tickets.find(t => Number(t.ticketId) === Number(ticketId));
     return ticket || null;
 }
 
+/**
+ * Delete a ticket by ID
+ */
 async function deleteticket(guildId, ticketId) {
     let tickets = await getTickets(guildId);
     tickets = tickets.filter(t => Number(t.ticketId) !== Number(ticketId));
@@ -315,6 +369,9 @@ async function deleteticket(guildId, ticketId) {
     return { status: "success" };
 }
 
+/**
+ * Mark ticket as closed and schedule deletion after 3 weeks
+ */
 async function closeticket(guildId, ticketId) {
     // mark closed
     const tup = await updticket(guildId, ticketId, { status: 'closed', closedAt: new Date().toISOString() });
@@ -357,6 +414,9 @@ async function closeticket(guildId, ticketId) {
     return tup;
 }
 
+/**
+ * Cleanup closed tickets older than 3 weeks
+ */
 async function cleanupClosedTickets(guildId) {
     let tickets = await getTickets(guildId);
     const now = Date.now();

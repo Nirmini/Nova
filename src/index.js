@@ -9,6 +9,7 @@ const settings = require('../settings.json');
 const express = require('express');
 const statusApp = express();
 require('../mainapp/sentry');
+const { getPort } = require('../mainappmodules/ports');
 
 //Info
 const { getServerCount } = require('../NovaAPI/common/APIApp');
@@ -78,6 +79,7 @@ const birthdayModule = require('../modules/birthday');
 birthdayModule.initializeCron(client);
 
 const dns = require('dns');
+const userVerification = require('./services/userverification');
 
 function getInitialPing() {
     return new Promise((resolve) => {
@@ -91,9 +93,9 @@ function getInitialPing() {
         });
     });
 }
-
-const SHARD_PORT_MIN = settings.ports.Shard.min;
-const SHARD_PORT_MAX = settings.ports.Shard.max;
+const shardPortDat = getPort('shard');
+const SHARD_PORT_MIN = shardPortDat.min;
+const SHARD_PORT_MAX = shardPortDat.max;
 const shardId = client.shard?.ids?.[0] ?? 0;
 const STATUS_PORT = SHARD_PORT_MIN + shardId;
 
@@ -306,6 +308,15 @@ client.on('guildDelete', async (guild) => {
         }
     } catch (error) {
         console.error(`Error removing guild data/config for ${guild.name} (${guild.id}):`, error);
+    }
+});
+
+// Automatic verification: when a member joins, run the user verification service
+client.on('guildMemberAdd', async (member) => {
+    try {
+        await userVerification.handleGuildMemberAdd(member);
+    } catch (err) {
+        console.error('Error in user verification service on guildMemberAdd:', err);
     }
 });
 

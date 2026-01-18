@@ -9,6 +9,7 @@ const client = require(path.join(__dirname, '../core/global/Client'));
 const os = require('os');
 const app = express();
 const cfg = require('../settings.json');
+const { getPort } = require('../mainappmodules/ports');
 
 const OPSINFO_PATH = path.join(__dirname, 'opsinfo.js');
 
@@ -95,10 +96,12 @@ app.get('/users', async (req, res) => {
     }
 });
 
-// Start the dashboard server ONLY after the client is ready
-if (!global.__DEVDASH_MNGR_STARTED) {
+// Start the dashboard server ONLY after the client is ready (shard 0 only)
+const shardId = process.env.SHARD_ID ? parseInt(process.env.SHARD_ID) : 0;
+if (!global.__DEVDASH_MNGR_STARTED && shardId === 0) {
     client.once('clientReady', () => {
-        const PORT = cfg.ports.DevDash[1];
+        const PortArray = getPort('devdash');
+        const PORT = PortArray[1];
         app.listen(PORT, () => {
             console.log(`DevDash manager running at http://localhost:${PORT}/`);
         });

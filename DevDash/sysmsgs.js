@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const cfg = require('../settings.json');
+const { getPort } = require('../mainappmodules/ports');
 
 app.use(express.json());
 
@@ -18,8 +19,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'settings.html'));
 });
 
-const PORT = cfg.ports.DevDash[3];
-if (!global.__DEVDASH_SYSMSGS_STARTED) {
+const portArray = getPort('devdash')
+const PORT = portArray[3];
+// Only shard 0 should spawn the Express server
+const shardId = process.env.SHARD_ID ? parseInt(process.env.SHARD_ID) : 0;
+if (!global.__DEVDASH_SYSMSGS_STARTED && shardId === 0) {
     app.listen(PORT, () => {
         console.log(`DevDash sysmssgs running at http://localhost:${PORT}/`);
     });

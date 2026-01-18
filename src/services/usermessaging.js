@@ -102,6 +102,7 @@ router.post('/api/sendmsg', async (req, res) => {
                 };
             
                 // Important: Do NOT attach embeds or legacy content here.
+                // If you need text, wrap it in a Text Display (type 10) component inside components[].
                 await channel.send(compPayload);
             } else {
                 return res.status(400).json({ error: 'Invalid messageType' });

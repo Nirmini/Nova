@@ -3,7 +3,7 @@ const axios = require('axios');
 const { load } = require('cheerio'); // npm install cheerio
 
 module.exports = {
-    id: '4000024',
+    id: '4000009',
     data: new SlashCommandBuilder()
         .setName('scp')
         .setDescription('Fetch an SCP entry from the SCP Wiki.')

@@ -1,7 +1,7 @@
 const { PermissionsBitField } = require('discord.js');
 
 module.exports = {
-    id: '0000011',
+    id: '0000012',
     /**
      * Executes the mute command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

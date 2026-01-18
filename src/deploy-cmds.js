@@ -1,3 +1,4 @@
+// THIS IS DEPRECATED AND WAS REPLACED WITH THE MAINAPP PUBLISHER!!!
 const { REST, Routes } = require('discord.js');
 const fs = require('fs');
 const path = require('path');

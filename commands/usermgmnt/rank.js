@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, MessageFlags, EmbedBuilder } = require('discord.js');
-const { setData, getData } = require('../../src/Database'); // Admin SDK functions
+const { setUserData, getUserData, setGuildConfig, getGuildConfig } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
-  id: '9000004', // Unique 6-digit command ID
+  id: '9000005', // Unique 6-digit command ID
   data: new SlashCommandBuilder()
     .setName('rank')
     .setDescription('Toggle a rank (role) on or off for your profile.')
@@ -18,47 +18,49 @@ module.exports = {
     const guildId = interaction.guild.id;
     const userId = interaction.user.id;
     const roleName = interaction.options.getString('rolename');
-    const ranksPath = `ranks/${guildId}`;
-    const userRolesPath = `userRoles/${guildId}/${userId}`; // Path for user's roles in Firebase
 
     try {
-      const currentRanks = await getData(ranksPath) || {};
-      const userRoles = await getData(userRolesPath) || [];
+      const currentRanks = await getGuildConfig(guildId, 'ranks') || {};
+      const userRoles = await getUserData(userId, `guild_roles/${guildId}`) || [];
 
-      const role = interaction.guild.roles.cache.find(
-        role => role.name.toLowerCase() === roleName.toLowerCase()
+      // Find the role by lowercase name match
+      const role = Object.entries(currentRanks).find(
+        ([roleId, rankName]) => rankName.toLowerCase() === roleName.toLowerCase()
       );
 
       if (!role) {
         return interaction.reply({
-          content: `No role found with the name "${roleName}". Please make sure you entered the correct role name.`,
+          content: `The rank "${roleName}" is not available in this guild. Ask an admin to add it using /rankmanage.`,
           flags: MessageFlags.Ephemeral,
         });
       }
 
-      if (!currentRanks[role.id]) {
+      const [roleId, rankName] = role;
+      const discordRole = interaction.guild.roles.cache.get(roleId);
+
+      if (!discordRole) {
         return interaction.reply({
-          content: `The role "${roleName}" is not available for users in this guild. Ask an admin to add it using /rankmanage.`,
+          content: `The role associated with rank "${roleName}" no longer exists.`,
           flags: MessageFlags.Ephemeral,
         });
       }
 
-      if (userRoles.includes(role.id)) {
-        const updatedUserRoles = userRoles.filter(roleId => roleId !== role.id);
-        await setData(userRolesPath, updatedUserRoles);
-        await interaction.member.roles.remove(role);
+      if (userRoles.includes(roleId)) {
+        const updatedUserRoles = userRoles.filter(id => id !== roleId);
+        await setUserData(userId, `guild_roles/${guildId}`, updatedUserRoles);
+        await interaction.member.roles.remove(discordRole);
 
         return interaction.reply({
-          content: `You have been removed from the "${roleName}" role.`,
+          content: `You have been removed from the "${rankName}" rank.`,
           flags: MessageFlags.Ephemeral,
         });
       } else {
-        userRoles.push(role.id);
-        await setData(userRolesPath, userRoles);
-        await interaction.member.roles.add(role);
+        userRoles.push(roleId);
+        await setUserData(userId, `guild_roles/${guildId}`, userRoles);
+        await interaction.member.roles.add(discordRole);
 
         return interaction.reply({
-          content: `You have been assigned the "${roleName}" role.`,
+          content: `You have been assigned the "${rankName}" rank.`,
           flags: MessageFlags.Ephemeral,
         });
       }

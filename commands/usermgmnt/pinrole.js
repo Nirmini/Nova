@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { setData, getData, updateData, removeData } = require('../../src/Database'); // Admin SDK functions
+const { setGuildConfig, getGuildConfig } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
-    id: '9000003', // Unique 6-digit command ID
+    id: '9000004', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('pinrole')
         .setDescription('Pin a role for users in the guild.')
@@ -23,11 +23,7 @@ module.exports = {
         const guildId = interaction.guild.id;
         
         // Fetch the existing pinned roles data for the guild
-        const pinnedRoles = await getData(`pinnedroles/${guildId}`);
-
-        if (!pinnedRoles) {
-            await setData(`pinnedroles/${guildId}`, {});
-        }
+        const pinnedRoles = await getGuildConfig(guildId, `pinnedroles`) || {};
 
         const roleData = pinnedRoles[role.id] || [];
         
@@ -45,7 +41,7 @@ module.exports = {
         roleData.push(user.id);
 
         // Update the pinned roles data in the database
-        await updateData(`pinnedroles/${guildId}/${role.id}`, roleData);
+        await setGuildConfig(guildId, `pinnedroles/${role.id}`, roleData);
 
         // Assign the role to the user in the guild (optional, if you want to add the role)
         const member = await interaction.guild.members.fetch(user.id);
@@ -58,3 +54,4 @@ module.exports = {
         });
     },
 };
+// TODO: REDO

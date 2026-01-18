@@ -1,9 +1,9 @@
 const { PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
-const { setData, getData } = require('../src/Database'); // Admin SDK functions
+const { setUserData, getUserData } = require('../src/Database'); // Admin SDK functions
 const emoji = require('../emoji.json');
 
 module.exports = {
-    id: '0000020',
+    id: '0000023',
     name: 'warn',
     description: 'Warn a user in the server',
     usage: '?warn <@user> <Reason>',
@@ -18,7 +18,7 @@ module.exports = {
             // Check if the user has the necessary permissions
             if (!message.member.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
                 logEmbed.setColor(0xe35550);
-                logEmbed.setsetDescriptionTitle(`<:ShieldDenied:${emoji.ShieldDenied}> You don't have permission to use this command!`)
+                logEmbed.setTitle(`<:ShieldDenied:${emoji.ShieldDenied}> You don't have permission to use this command!`)
                 return message.reply({
                     embeds: [logEmbed],
                     flags: MessageFlags.Ephemeral
@@ -70,14 +70,14 @@ module.exports = {
             const userWarningsPath = `warnings/${guildId}/${userId}`;
 
             // Retrieve current warnings
-            const snapshot = await getData(userWarningsPath);
+            const snapshot = await getUserData(targetId, 'warnings');
             let warnings = snapshot || []; // Fallback to an empty array if no warnings exist
 
             // Add the new warning
             warnings.push({ reason, date: now.toISOString(), expires: expirationISO });
 
             // Save the updated warnings to the database
-            await setData(userWarningsPath, warnings);
+            await setUserData(targetId, 'warnings', warnings);
 
             // Create a public embed
             const publicEmbed = new EmbedBuilder()

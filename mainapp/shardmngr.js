@@ -4,25 +4,54 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('node:path');
 const cfg = require('../settings.json');
+const net = require('net');
 dotenv.config();
+
+const { getPort } = require('../mainappmodules/ports');
 
 // Optional webhook logging
 const LOG_WEBHOOK_URL = process.env.SHARD_LOG_HOOK;
 const logHook = LOG_WEBHOOK_URL ? new WebhookClient({ url: LOG_WEBHOOK_URL }) : null;
 
+// Color codes for logging
+const colors = {
+    gray: '\x1b[90m',
+    green: '\x1b[32m',
+    red: '\x1b[31m',
+    white: '\x1b[37m',
+    cyan: '\x1b[36m',
+    yellow: '\x1b[33m',
+    reset: '\x1b[0m',
+};
+
 // Configuration
-const PORT = cfg.ports.ShardMngr || 3001;
+const PORT = getPort('shardmngr');
 const USE_AUTO_SHARDS = cfg.shardingcfg.userecomended;
 const SHARD_COUNT = cfg.shardingcfg.shardcount;
 const BATCH_SIZE = cfg.shardingcfg.batchsize || 1;
 const RESPAWN = cfg.shardingcfg.autorespawn;
-const SPAWN_DELAY = cfg.shardingcfg.spawndelay || 5000;
+const SPAWN_DELAY = (cfg.shardingcfg.spawndelay || 5) * 1000; // Convert seconds to milliseconds
 
-// Helper logger
-function log(message) {
-    const full = `[ShardManager] ${message}`;
+// Helper logger with colors
+function log(message, level = 'INF') {
+    const ts = new Date().toISOString();
+    let color = colors.green;
+    let tag = 'INF';
+
+    if (level === 'ERR') {
+        color = colors.red;
+        tag = 'ERR';
+    } else if (level === 'DBG') {
+        color = colors.cyan;
+        tag = 'DBG';
+    } else if (level === 'WARN') {
+        color = colors.yellow;
+        tag = 'WRN';
+    }
+
+    const full = `${colors.gray}${ts}${colors.reset} ${color}${tag}${colors.reset} ${colors.white}[ShardManager] ${message}${colors.reset}`;
     console.log(full);
-    if (logHook) logHook.send({ content: full }).catch(() => {});
+    if (logHook) logHook.send({ content: `[${tag}] ${message}` }).catch(() => {});
 }
 
 // Express server
@@ -42,6 +71,24 @@ const manager = new ShardingManager(shardScript, {
     shardArgs: ['--enable-source-maps'],
     delay: SPAWN_DELAY
 });
+
+// Check if port is free
+async function isPortAvailable(port) {
+    return new Promise((resolve) => {
+        const tester = net
+            .createServer()
+            .once('error', err => {
+                if (err.code === 'EADDRINUSE') resolve(false);
+                else resolve(false); // treat other errors as unavailable
+            })
+            .once('listening', () => {
+                tester
+                    .once('close', () => resolve(true))
+                    .close();
+            })
+            .listen(port);
+    });
+}
 
 // Track shard child senders and pending sub-requests
 const shardSenders = new Map(); // shardId -> sendFunction (child.send or shard.send)
@@ -92,7 +139,7 @@ manager.on('shardCreate', (shard) => {
             if (shard.process && typeof shard.process.send === 'function') return shard.process.send(payload);
             throw new Error('No send function on shard');
         } catch (err) {
-            console.warn(`[ShardManager] Failed to send to shard ${shard.id}: ${err.message}`);
+            log(`Failed to send to shard ${shard.id}: ${err.message}`, 'WARN');
         }
     };
 
@@ -139,7 +186,7 @@ process.on('message', async (msg) => {
             return;
         } catch (err) {
             // Primary shard failed — fall back to aggregate across all shards
-            log(`Primary shard ${preferredShard} failed to answer ${key}: ${err.message}. Falling back to aggregate across all shards.`);
+            log(`Primary shard ${preferredShard} failed to answer ${key}: ${err.message}. Falling back to aggregate across all shards.`, 'WARN');
             const promises = shardIds.map(id =>
                 sendRequestToShard(id, { key, requestId }, 3000).then(v => ({ ok: true, v })).catch(() => ({ ok: false }))
             );
@@ -155,7 +202,7 @@ process.on('message', async (msg) => {
             try {
                 process.send({ responseId: requestId, value: aggregated, from: 'shardmngr' });
             } catch (err2) {
-                console.warn('[ShardManager] Failed to send aggregated response to parent:', err2.message);
+                log(`Failed to send aggregated response to parent: ${err2.message}`, 'WARN');
             }
             return;
         }
@@ -176,21 +223,27 @@ process.on('message', async (msg) => {
 
         for (let i = 0; i < total; i += BATCH_SIZE) {
             const batch = [];
+            const batchIds = [];
             for (let j = 0; j < BATCH_SIZE && (i + j) < total; j++) {
                 const shardId = i + j;
+                batchIds.push(shardId);
                 try {
                     const shard = manager.createShard(shardId);
-                    batch.push(shard.spawn().catch(err => { log(`Shard ${shardId} spawn failed: ${err.message}`); }));
+                    batch.push(shard.spawn().catch(err => { log(`Shard ${shardId} spawn failed: ${err.message}`, 'ERR'); }));
                 } catch (err) {
-                    log(`createShard failed for ${shardId}: ${err.message}`);
+                    log(`createShard failed for ${shardId}: ${err.message}`, 'ERR');
                 }
             }
             await Promise.all(batch);
-            await new Promise(resolve => setTimeout(resolve, SPAWN_DELAY));
+            const batchStr = batchIds.length === 1 ? batchIds[0] : `${batchIds[0]}-${batchIds[batchIds.length - 1]}`;
+            log(`Spawned shard(s) ${batchStr}/${total - 1}`);
+            if (i + BATCH_SIZE < total) {
+                await new Promise(resolve => setTimeout(resolve, SPAWN_DELAY));
+            }
         }
         log('Shard spawning complete.');
     } catch (err) {
-        console.error('[ShardManager] Error during shard spawn:', err);
+        log(`Error during shard spawn: ${err.message}`, 'ERR');
     }
 })();
 
@@ -203,6 +256,7 @@ app.post('/shard/add', async (req, res) => {
         log(`Shard ${id} added manually.`);
         res.json({ success: true, id });
     } catch (err) {
+        log(`Failed to add shard ${id}: ${err.message}`, 'ERR');
         res.status(500).json({ error: err.message });
     }
 });
@@ -218,6 +272,7 @@ app.post('/shard/remove', async (req, res) => {
         log(`Shard ${id} removed manually.`);
         res.json({ success: true });
     } catch (err) {
+        log(`Failed to remove shard ${id}: ${err.message}`, 'ERR');
         res.status(500).json({ error: err.message });
     }
 });
@@ -245,6 +300,14 @@ app.post('/shard/restart', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    log(`ShardManager control API listening on port ${PORT}`);
-});
+(async () => {
+    const portFree = await isPortAvailable(PORT);
+    if (!portFree) {
+        log(`[ERROR] Port ${PORT} is already in use. Shard Manager will not start Express server.`);
+        throw new Error(`[Shard Manager]: The requested port for the SM(127.0.0.1:${port}) is already in use!`);
+    }
+
+    app.listen(PORT, () => {
+        log(`ShardManager control API listening on port ${PORT}`);
+    });
+})();

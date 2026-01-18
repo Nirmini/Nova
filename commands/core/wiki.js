@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
-    id: '2000022', // Unique 6-digit command ID
+    id: '2000021', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('wiki')
         .setDescription('See the Nova Wiki.'),

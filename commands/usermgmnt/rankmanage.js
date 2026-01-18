@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { setData, getData, updateData, removeData } = require('../../src/Database'); // Admin SDK functions
+const { setGuildConfig, getGuildConfig } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
-  id: '9000005', // Unique 6-digit command ID
+  id: '9000006', // Unique 6-digit command ID
   data: new SlashCommandBuilder()
     .setName('rankmanage')
     .setDescription('Add or remove ranks (roles) to be used with the /rank command.')
@@ -10,10 +10,10 @@ module.exports = {
       subcommand
         .setName('add')
         .setDescription('Add a rank (role) to the guild.')
-        .addStringOption(option =>
+        .addRoleOption(option =>
           option
-            .setName('rolename')
-            .setDescription('The name of the rank (role) to add.')
+            .setName('role')
+            .setDescription('The role to add as a rank.')
             .setRequired(true)
         )
     )
@@ -21,74 +21,66 @@ module.exports = {
       subcommand
         .setName('remove')
         .setDescription('Remove a rank (role) from the guild.')
-        .addStringOption(option =>
+        .addRoleOption(option =>
           option
-            .setName('rolename')
-            .setDescription('The name of the rank (role) to remove.')
+            .setName('role')
+            .setDescription('The role to remove from ranks.')
             .setRequired(true)
         )
     ),
 
   async execute(interaction) {
     const guildId = interaction.guild.id;
-    const roleName = interaction.options.getString('rolename');
-    const ranksPath = `ranks/${guildId}`;
-    const role = interaction.guild.roles.cache.find(role => role.name.toLowerCase() === roleName.toLowerCase());
-
-    if (!role) {
-      return interaction.reply({
-        content: `No role found with the name "${roleName}". Please make sure you entered the correct role name.`,
-        flags: MessageFlags.Ephemeral,
-      });
-    }
+    const role = interaction.options.getRole('role');
+    const rankName = role.name.toLowerCase();
 
     try {
       if (interaction.options.getSubcommand() === 'add') {
         // Get current ranks
-        const currentRanks = await getData(ranksPath) || {};
+        const currentRanks = await getGuildConfig(guildId, 'ranks') || {};
         
         // Check if the rank already exists
         if (currentRanks[role.id]) {
           return interaction.reply({
-            content: `The role "${roleName}" is already added.`,
+            content: `The role "${role.name}" is already added as a rank.`,
             flags: MessageFlags.Ephemeral,
           });
         }
 
         // Check if there are > 25 ranks in the guild
         const currentRankCount = Object.keys(currentRanks).length;
-        if (currentRankCount > 25) { //increased ranks cap so users can use the feature
+        if (currentRankCount >= 25) {
           return interaction.reply({
             content: `You can only have up to 25 ranks in the guild. Please remove one before adding a new rank.`,
             flags: MessageFlags.Ephemeral,
           });
         }
 
-        // Add the role to the guild's rank list
-        currentRanks[role.id] = roleName;
-        await setData(ranksPath, currentRanks);
+        // Add the role to the guild's rank list (stored as lowercase)
+        currentRanks[role.id] = rankName;
+        await setGuildConfig(guildId, 'ranks', currentRanks);
 
         interaction.reply({
-          content: `The role "${roleName}" has been added to the guild's ranks.`,
+          content: `The role "${role.name}" has been added to the guild's ranks as "${rankName}".`,
           flags: MessageFlags.Ephemeral,
         });
       }
 
       if (interaction.options.getSubcommand() === 'remove') {
-        const currentRanks = await getData(ranksPath) || {};
+        const currentRanks = await getGuildConfig(guildId, 'ranks') || {};
         if (!currentRanks[role.id]) {
           return interaction.reply({
-            content: `The role "${roleName}" was not found in the guild's ranks.`,
+            content: `The role "${role.name}" was not found in the guild's ranks.`,
             flags: MessageFlags.Ephemeral,
           });
         }
 
         // Remove the role from the guild's rank list
         delete currentRanks[role.id];
-        await setData(ranksPath, currentRanks);
+        await setGuildConfig(guildId, 'ranks', currentRanks);
 
         interaction.reply({
-          content: `The role "${roleName}" has been removed from the guild's ranks.`,
+          content: `The role "${role.name}" has been removed from the guild's ranks.`,
           flags: MessageFlags.Ephemeral,
         });
       }

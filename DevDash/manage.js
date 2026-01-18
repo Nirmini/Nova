@@ -13,6 +13,8 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 
+const { getPort } = require('../mainappmodules/ports.js');
+
 // Import your bot manager, shard manager, or relevant modules here
 //const botManager = require('../mainapp/shardmngr.js');
 const birthdayModule = require('../modules/birthday.js');
@@ -74,41 +76,11 @@ app.post('/manage/ping-util', async (req, res) => {
     });
 });
 
-// --- Watchdog Integration ---
-app.post('/manage/watchdog-status', async (req, res) => {
-    try {
-        // Check if watchdog process is running by checking for a PID file or process
-        // For demonstration, check if the core.js module is loaded and try to require it
-        const watchdogPath = path.join(__dirname, '../watchdog/core.js');
-        let status = 'Unknown';
-        try {
-            require.resolve(watchdogPath);
-            status = 'Watchdog module loaded';
-        } catch {
-            status = 'Watchdog module not found';
-        }
-
-        // Optionally, check if the process is running (advanced: use ps-list or pid file)
-        res.json({ message: `Watchdog status: ${status}` });
-    } catch (e) {
-        res.status(500).json({ message: 'Failed to check watchdog status.' });
-    }
-});
-app.post('/manage/watchdog-check', async (req, res) => {
-    try {
-        // Attempt to send a message to the watchdog process if IPC is set up
-        // For now, just simulate
-        res.json({ message: 'Watchdog check triggered (simulated).' });
-    } catch (e) {
-        res.status(500).json({ message: 'Failed to trigger watchdog check.' });
-    }
-});
-
 // --- NovaAPIs Integration ---
 app.post('/manage/novaapi-status', async (req, res) => {
     try {
         // Check if NovaAPI endpoint is available
-        https.get('https://thatwest7014.pages.dev/API/Nova', (apiRes) => {
+        https.get('https://api.nirmini.dev/API/Nova', (apiRes) => {
             let data = '';
             apiRes.on('data', chunk => data += chunk);
             apiRes.on('end', () => {
@@ -125,28 +97,18 @@ app.post('/manage/novaapi-status', async (req, res) => {
         res.status(500).json({ message: 'Failed to check NovaAPI status.' });
     }
 });
-app.post('/manage/novaapi-sync', async (req, res) => {
-    // Placeholder: Replace with actual NovaAPI sync logic if needed
-    res.json({ message: 'NovaAPI sync triggered (placeholder)' });
-});
 
-// --- Miscellaneous & Utilities ---
-app.post('/manage/clear-cache', async (req, res) => {
-    // Placeholder: Replace with actual cache clearing logic
-    res.json({ message: 'Cache cleared (placeholder)' });
-});
-app.post('/manage/restart-bot', async (req, res) => {
-    // Placeholder: Replace with actual restart logic
-    res.json({ message: 'Bot restart triggered (placeholder)' });
-});
 
 // Serve the manage.html dashboard
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'manage.html'));
 });
 
-if (require.main === module) {
-    const PORT = cfg.ports.DevDash[2];
+// Only shard 0 should spawn the Express server
+const shardId = process.env.SHARD_ID ? parseInt(process.env.SHARD_ID) : 0;
+if (require.main === module && shardId === 0) {
+    const portArray = getPort('devdash');
+    const PORT = portArray[2];
     app.listen(PORT, () => {
         console.log(`Manage dashboard running at http://localhost:${PORT}/`);
     });

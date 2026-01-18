@@ -1,5 +1,8 @@
 # Nova Setup Guide
 
+> [!WARNING]
+> Linux users may experience issues with the `node-canvas` package we use to create the verification images.
+
 > [!NOTE] 
 > Nova is primarily designed to run in Windows Powershell or the Ubuntu terminal via Node.js v22 or above. Using Node.js 21 or older may cause unexpected compatibility issues.
 
@@ -34,7 +37,7 @@
 ---
 
 # 2. Setting up Nova
-### Setup of Nova is rather simple. with most commands using standard assets except for emojis.
+### Setup of Nova is rather simple. with most commands using standard assets.
 
 ## Setting up core services
 ### The `.env` file is where most of the API keys you use live. This is done for security reasons and so they're all in one place.
@@ -47,7 +50,7 @@
 ### For Statuspage integration, you need an API key. You get this by clicking your account icon when logged in, then clicking API Keys. After this, just set up your page using the Page ID in page settings and the component IDs in the edit menu for the components.
 
 ## Additional setups
-### If you do not wish to use additional services, then simply either keep the API key blank in the `.env` file and/or disable the module/command is the bot's operator settings.
+### If you do not wish to use additional services, then simply either keep the API key blank in the `.env` file and/or disable the module/command in the bot's operator settings.
 ---
 # 3. Running Nova
 ### So it's finally set up. What now?
@@ -58,5 +61,5 @@
 ## Running the actual bot
 ### To start the bot simply run `npm start`. This will first publish all the commands in the `commands` and `ctxtmenu` folders. Then it will start sharding the bot and start it.
 ---
-##### Last updated: `April 19th, 2025`
-###### Written by `@thatWest7014`
+#### Last updated: `January 17th, 2026`
+### Written by [`@thatWest7014`](https://github.com/thatWest7014)

@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const settings = require('../settings.json');
 const { getGuildConfig, getGuildData, setGuildData, updateGuildData } = require('./Database');
 const { EmbedBuilder } = require('discord.js');
 const client = require('../core/global/Client');

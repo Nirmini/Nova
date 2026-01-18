@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { getData } = require('../../src/Database'); // Admin SDK functions
+const { getGuildConfig } = require('../../src/Database'); // Admin SDK functions
 
 module.exports = {
   id: '9000002', // Unique 6-digit command ID
@@ -12,8 +12,8 @@ module.exports = {
       const guildId = interaction.guild.id;
 
       // Retrieve RBXBinds from RTDB
-      const binds = (await getData(`/guildsettings/${guildId}/RBXBinds`)) || [];
-      const verifiedRoleId = await getData(`/guildsettings/${guildId}/config/verifiedroleid`);
+      const binds = (await getGuildConfig(guildId, `Binds`)) || [];
+      const verifiedRoleId = await getGuildConfig(guildId, `Binds.verifiedrole`);
 
       if (binds.length === 0 && !verifiedRoleId) {
         return interaction.reply({ content: 'No active binds or verified role found for this server.', flags: MessageFlags.Ephemeral });

@@ -3,7 +3,7 @@ const { MessageFlags } = require('discord.js');
 const activeReminders = new Map(); // Keeps track of reminders for each user
 
 module.exports = {
-    id: '0000014',
+    id: '0000017',
     /**
      * Executes the ?remind <time> <reminder> command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

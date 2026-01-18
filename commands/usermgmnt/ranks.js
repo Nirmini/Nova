@@ -1,19 +1,18 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { getData } = require('../../src/Database'); // Admin SDK function
+const { getGuildConfig } = require('../../src/Database'); // Admin SDK function
 
 module.exports = {
-  id: '9000006', // Unique 6-digit command ID
+  id: '9000007', // Unique 6-digit command ID
   data: new SlashCommandBuilder()
     .setName('ranks')
     .setDescription('View the list of ranks (roles) in the guild.'),
 
   async execute(interaction) {
     const guildId = interaction.guild.id;
-    const ranksPath = `ranks/${guildId}`;
 
     try {
       // Fetch the ranks from Firebase
-      const currentRanks = await getData(ranksPath);
+      const currentRanks = await getGuildConfig(guildId, 'ranks');
 
       // If no ranks are found, send an ephemeral message
       if (!currentRanks || Object.keys(currentRanks).length === 0) {
@@ -26,7 +25,7 @@ module.exports = {
       // Create an embed to show the list of ranks
       const rankEmbed = new EmbedBuilder()
         .setTitle('Guild Ranks')
-        .setColor('BLUE')
+        .setColor(0xa0a0ff)
         .setDescription('Here are the current ranks in this guild:')
         .setTimestamp();
 

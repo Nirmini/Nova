@@ -1,5 +1,5 @@
 module.exports = {
-    id: '0000012',
+    id: '0000013',
     /**
      * Executes the ping command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

@@ -1,7 +1,7 @@
 const { PermissionsBitField } = require('discord.js');
 
 module.exports = {
-    id: '0000013',
+    id: '0000014',
     /**
      * Executes the purge command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

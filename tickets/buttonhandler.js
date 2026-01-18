@@ -2,6 +2,10 @@ const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, Button
 const service = require('./service');
 const { getGuildConfig, getGuildData } = require('../src/Database');
 
+/**
+ * Helper: build modal for nextgen_form object (max 5 fields).
+ * Returns { modal, needsJsonFallback }
+ */
 function buildModalForForm(categoryName, ticketId, nextgenForm) {
     const modalId = `ticket:formmodal:${ticketId}:${encodeURIComponent(categoryName || '')}`;
     const modal = new ModalBuilder().setCustomId(modalId).setTitle(`Ticket Form — ${categoryName || 'Form'}`);

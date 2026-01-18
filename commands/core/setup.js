@@ -1,7 +1,5 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
-const fs = require('fs');
-const path = require('path');
-const { setData, getData } = require('../../src/Database'); // Use Admin SDK
+const { setGuildConfig, getGuildConfig } = require('../../src/Database'); // Use Admin SDK
 
 module.exports = {
     id: '2000018', // Unique 6-digit command ID
@@ -36,18 +34,10 @@ module.exports = {
             .setStyle(TextInputStyle.Short)
             .setRequired(true);
                     
-            // Add Roles/Channels Option (True/False)
-            const addRolesChannelsInput = new TextInputBuilder()
-            .setCustomId('addRolesChannels')
-            .setLabel('Add roles/channels? (true/false)') // Shortened label
-            .setStyle(TextInputStyle.Short)
-            .setRequired(true);
-                    
             // Assemble form
             modal.addComponents(
             new ActionRowBuilder().addComponents(groupNameInput),
-            new ActionRowBuilder().addComponents(groupIDInput),
-            new ActionRowBuilder().addComponents(addRolesChannelsInput)
+            new ActionRowBuilder().addComponents(groupIDInput)
             );
 
             // Show the modal
@@ -64,43 +54,36 @@ module.exports = {
         // Extract form inputs
         const groupName = interaction.fields.getTextInputValue('groupName');
         const robloxGroupID = interaction.fields.getTextInputValue('robloxGroupID');
-        const addRolesChannels = interaction.fields.getTextInputValue('addRolesChannels').toLowerCase() === 'true';
 
         const guildID = interaction.guild.id;
-        const configPath = path.join(__dirname, `../../guildsettings/${guildID}/config.json`);
 
         try {
-            // Fetch existing config or create new one
-            let config = await getData(`guildsettings/${guildID}/config`);
-            if (!config) {
-                config = {};
+            // Fetch existing config (should have been created by CreateNewGD.js on guild join)
+            let config = await getGuildConfig(guildID);
+            if (!config || Object.keys(config).length === 0) {
+                await interaction.reply({ 
+                    content: 'Guild configuration not found. Please ensure the bot has properly initialized the server.', 
+                    flags: MessageFlags.Ephemeral 
+                });
+                return;
             }
 
-            // Assign values
+            // Only update user-provided fields; DO NOT overwrite NirminiID, NovaworksId, or other system fields
+            // These are managed by CreateNewGD.js and should never be regenerated
             config.GroupName = groupName;
             config.rbxgroup = robloxGroupID;
-            config.substat = "free"; // Default to free
-            config.NirminiID = generateNirminiID();
-            config.colours = { custom: false };
 
-            // Store in Firebase
-            await setData(`guildsettings/${guildID}/config`, config);
-
-            // Handle roles and channels if requested
-            if (addRolesChannels) {
-                await setupRoles(interaction);
-                await setupChannels(interaction);
-            }
+            // Store updated config back (preserves all fields managed by CreateNewGD.js)
+            await setGuildConfig(guildID, config);
 
             // Respond with confirmation
             const embed = new EmbedBuilder()
                 .setTitle('Setup Complete')
                 .setColor(0x00ff00)
-                .setDescription('Your server setup has been successfully completed.')
+                .setDescription('Your server configuration has been updated.')
                 .addFields(
                     { name: 'Group Name', value: groupName, inline: true },
-                    { name: 'Roblox Group ID', value: robloxGroupID, inline: true },
-                    { name: 'Roles/Channels Added', value: addRolesChannels ? 'Yes' : 'No', inline: true }
+                    { name: 'Roblox Group ID', value: robloxGroupID, inline: true }
                 )
                 .setTimestamp();
 
@@ -112,53 +95,3 @@ module.exports = {
         }
     },
 };
-
-// Function to generate NirminiID (incrementing number)
-async function generateNirminiID() {
-    const lastID = await getData('guildsettings/lastNirminiID') || 0;
-    const newID = lastID + 1;
-    await setData('guildsettings/lastNirminiID', newID);
-    return newID.toString();
-}
-
-// Function to handle role setup
-async function setupRoles(interaction) {
-    const guild = interaction.guild;
-
-    const rolesToCreate = [
-        { name: 'Moderator', color: 0x0000FF, permissions: [PermissionsBitField.Flags.ModerateMembers] },
-        { name: 'Admin', color: 0xFF0000, permissions: [PermissionsBitField.Flags.Administrator] },
-        { name: 'Muted', color: 0x808080, permissions: [] }
-    ];
-
-    for (const roleData of rolesToCreate) {
-        if (!guild.roles.cache.find(r => r.name === roleData.name)) {
-            await guild.roles.create({
-                name: roleData.name,
-                color: roleData.color,
-                permissions: roleData.permissions,
-                reason: 'Setup command: creating necessary roles.',
-            });
-        }
-    }
-}
-
-// Function to handle channel setup
-async function setupChannels(interaction) {
-    const guild = interaction.guild;
-
-    const channelsToCreate = [
-        { name: 'mod-logs', type: 0, reason: 'Setup command: creating moderation log channel.' },
-        { name: 'general-chat', type: 0, reason: 'Setup command: creating general chat channel.' },
-    ];
-
-    for (const channelData of channelsToCreate) {
-        if (!guild.channels.cache.find(c => c.name === channelData.name)) {
-            await guild.channels.create({
-                name: channelData.name,
-                type: channelData.type,
-                reason: channelData.reason,
-            });
-        }
-    }
-}

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, PermissionsBitField, ChannelType, MessageFlags } = require('discord.js');
-const { setData, getData } = require('../../src/Database'); // Firebase Admin functions
+const { setUserData, getUserData, setGuildConfig, getGuildConfig } = require('../../src/Database'); // Firebase Admin functions
 
 /**
  * TO BE REFACTORED
@@ -63,7 +63,7 @@ module.exports = {
             const userId = interaction.user.id;
 
             // Check if the user is banned in Firebase
-            const bannedUsers = await getData(`${firebasePath}/banned`) || [];
+            const bannedUsers = await getGuildConfig(guildId, 'anonymous/banned') || [];
             if (bannedUsers.includes(userId)) {
                 const BannedMsg = new EmbedBuilder()
                     .setColor(0xff0000)
@@ -87,10 +87,9 @@ module.exports = {
             });
 
             // Log the message in Firebase
-            const userLogsPath = `${firebasePath}/logs/${userId}`;
-            const userLogs = (await getData(userLogsPath)) || [];
+            const userLogs = (await getUserData(userId, 'anon_logs')) || [];
             userLogs.push({ message: messageText, channel: ticketChannel.id, timestamp: new Date().toISOString() });
-            await setData(userLogsPath, userLogs);
+            await setUserData(interaction.user.id, 'anon_logs', userLogs);
 
             // Send the message in the ticket channel
             const ticketEmbed = new EmbedBuilder()
@@ -110,8 +109,7 @@ module.exports = {
             }
 
             const user = interaction.options.getUser('user');
-            const userLogsPath = `${firebasePath}/logs/${user.id}`;
-            const userLogs = (await getData(userLogsPath)) || [];
+            const userLogs = (await getUserData(user.id, 'anon_logs')) || [];
 
             if (userLogs.length === 0) {
                 await interaction.reply({ content: 'This user has not sent any anonymous messages.', flags: MessageFlags.Ephemeral });
@@ -129,7 +127,7 @@ module.exports = {
 
             const user = interaction.options.getUser('user');
             const bannedUsersPath = `${firebasePath}/banned`;
-            const bannedUsers = await getData(bannedUsersPath) || [];
+            const bannedUsers = await getGuildConfig(guildId, 'anon_logs/banned') || [];
 
             if (bannedUsers.includes(user.id)) {
                 await interaction.reply({ content: `${user.tag} is already banned from using anonymous messages.`, flags: MessageFlags.Ephemeral });
@@ -137,7 +135,7 @@ module.exports = {
             }
 
             bannedUsers.push(user.id);
-            await setData(bannedUsersPath, bannedUsers);
+            await setGuildConfig(guildId, 'anon_logs/banned', bannedUsers);
 
             await interaction.reply({ content: `${user.tag} has been banned from using anonymous messages.`, flags: MessageFlags.Ephemeral });
         }

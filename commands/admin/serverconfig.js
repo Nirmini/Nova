@@ -1,12 +1,12 @@
 // DEPREACTION WARNING!! : This command is no longer needed due to automatic and manual systems being added.
 const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
-const { getData, setData, updateData } = require('../../src/Database'); // Use Admin SDK
+const { getGuildConfig, setGuildConfig } = require('../../src/Database'); // Use Admin SDK
 const DB_PATH = 'guildsettings';
 
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1000009',
+    id: '1000008',
     data: new SlashCommandBuilder()
         .setName('serverconfig')
         .setDescription('Manage server settings for the bot.')
@@ -46,7 +46,6 @@ module.exports = {
         }
 
         const guildId = interaction.guild.id;
-        const guildConfigPath = `${DB_PATH}/${guildId}/config`;
 
         const action = interaction.options.getString('action');
         const key = interaction.options.getString('key');
@@ -54,27 +53,16 @@ module.exports = {
 
         if (action === 'setup') {
             try {
-                const existingConfig = await getData(guildConfigPath);
+                const existingConfig = await getGuildConfig(guildId, 'config');
                 if (existingConfig) {
                     return interaction.reply({ content: '⚠️ This guild is already set up.', flags: MessageFlags.Ephemeral });
                 }
 
-                // Fetch the highest NirminiID
-                const allGuilds = await getData(DB_PATH) || {};
-                let highestNirminiID = 0;
-
-                for (const guild in allGuilds) {
-                    const currentID = decodeBase64(allGuilds[guild].config?.NirminiID || 'MA=='); // Default "MA==" = 0
-                    highestNirminiID = Math.max(highestNirminiID, parseInt(currentID) || 0);
-                }
-
-                const newNirminiID = encodeBase64((highestNirminiID + 1).toString());
-
+                // For NirminiID generation, we'll use a simple counter approach
                 const defaultConfig = getDefaultConfig();
-                defaultConfig.NirminiID = newNirminiID;
 
-                await setData(guildConfigPath, defaultConfig);
-                return interaction.reply({ content: `✅ This server has been set up! NirminiID: \`${highestNirminiID + 1}\``, flags: MessageFlags.Ephemeral });
+                await setGuildConfig(guildId, 'config', defaultConfig);
+                return interaction.reply({ content: `✅ This server has been set up!`, flags: MessageFlags.Ephemeral });
             } catch (error) {
                 console.error('Error setting up guild:', error);
                 return interaction.reply({ content: '❌ Failed to set up the server configuration.', flags: MessageFlags.Ephemeral });
@@ -83,7 +71,7 @@ module.exports = {
 
         if (action === 'get') {
             try {
-                const config = await getData(guildConfigPath);
+                const config = await getGuildConfig(guildId, 'config');
                 if (!config) {
                     return interaction.reply({ content: '⚠️ No configuration found for this server.', flags: MessageFlags.Ephemeral });
                 }
@@ -100,8 +88,6 @@ module.exports = {
                 }
 
                 let responseValue = config[key];
-                if (key === 'NirminiID') responseValue = decodeBase64(responseValue); // Decode NirminiID properly
-
                 return interaction.reply({ content: `🔍 **${key}**: \`${responseValue}\``, flags: MessageFlags.Ephemeral });
             } catch (error) {
                 console.error('Error fetching config:', error);
@@ -115,7 +101,7 @@ module.exports = {
             }
 
             try {
-                const config = await getData(guildConfigPath) || getDefaultConfig();
+                const config = await getGuildConfig(guildId, 'config') || getDefaultConfig();
 
                 if (!(key in config)) {
                     return interaction.reply({ content: `⚠️ Key **${key}** does not exist in the config.`, flags: MessageFlags.Ephemeral });
@@ -126,11 +112,9 @@ module.exports = {
                     newValue = value.toLowerCase() === 'true';
                 } else if (!isNaN(value) && typeof config[key] === 'number') {
                     newValue = parseFloat(value);
-                } else if (key === 'NirminiID') {
-                    newValue = encodeBase64(value); // Ensure it's encoded
                 }
 
-                await updateData(guildConfigPath, { [key]: newValue });
+                await setGuildConfig(guildId, `config/${key}`, newValue);
 
                 return interaction.reply({ content: `✅ **${key}** has been updated to \`${newValue}\`!`, flags: MessageFlags.Ephemeral });
             } catch (error) {

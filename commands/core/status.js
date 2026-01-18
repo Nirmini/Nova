@@ -71,7 +71,7 @@ const getMemoryUsage = () => (process.memoryUsage().heapUsed / 1024 / 1024).toFi
 const gitCommit = getGitCommit();
 
 module.exports = {
-    id: '2000020',
+    id: '2000019',
     data: new SlashCommandBuilder()
         .setName('status')
         .setDescription('Get the status of Nirmini Nova'),

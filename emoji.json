@@ -19,5 +19,32 @@
     "NovaSuccess": "1406375565103075379",
     "NovaWarning": "1406375577778393180",
     "NovaDev": "1406376140049747969",
-    "NovaV2": "1406375942540230840"
+    "NovaV2": "1406375942540230840",
+    "NovaCheck2":"1439497085056454747",
+    "NovaCross2":"1439497100197892178",
+    "FormattedEmoji": {
+        "Contributor": "<:Contributor:1339733507718512651>",
+        "Roblox": "<:Roblox:1335069604032282655>",
+        "Warning": "<:Warning:1329624040226426973>",
+        "Protected": "<:Protected:1329623118733381695>",
+        "Developer": "<:Developer:1329623072138989650>",
+        "ShieldDenied": "<:ShieldDenied:1329622917109252247>",
+        "Failure": "<:Failure:1329622862742421594>",
+        "Info": "<:Info:1329622828881940480>",
+        "ShieldAccepted": "<:ShieldAccepted:1329622811588689920>",
+        "Cross": "<:Cross:1319480843546136646>",
+        "Check": "<:Check:1319480831303225354>",
+        "NovaAdd": "<:NovaAdd:1406375459788427395>",
+        "Novaclock": "<:Novaclock:1406375472551559198>",
+        "NovaFailure": "<:NovaFailure:1406375512565223464>",
+        "NovaInfo": "<:NovaInfo:1406375526725325040>",
+        "NovaModeration": "<:NovaModeration:1406375541229097080>",
+        "NovaSearch": "<:NovaSearch:1406375552742588516>",
+        "NovaSuccess": "<:NovaSuccess:1406375565103075379>",
+        "NovaWarning": "<:NovaWarning:1406375577778393180>",
+        "NovaDev": "<:NovaDev:1406376140049747969>",
+        "NovaV2": "<:NovaV2:1406375942540230840>",
+        "NovaCheck2":"<:NovaCheck2:1439497085056454747>",
+        "NovaCross2":"<:NovaCross2:1439497100197892178>"
+    }
 }

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { getData, updateData } = require('../../src/Database');
+const { getGuildConfig, setGuildConfig } = require('../../src/Database');
 const { convertCommandIdToName, convertCommandNameToId } = require('../../src/CommandIDs');
 
 module.exports = {
@@ -29,7 +29,7 @@ module.exports = {
 
         try {
             // Fetch the guild's command configuration
-            let guildConfig = await getData(`guildsettings/${guildId}/config`);
+            let guildConfig = await getGuildConfig(guildId, 'config');
             if (!guildConfig) {
                 guildConfig = { disabledcommands: [] }; // Fallback if guildConfig is null
             }
@@ -74,12 +74,12 @@ module.exports = {
                 if (disabledCommands.includes(commandId)) {
                     // Enable the command
                     guildConfig.disabledcommands = disabledCommands.filter(id => id !== commandId);
-                    await updateData(`guildsettings/${guildId}/config`, { disabledcommands: guildConfig.disabledcommands });
+                    await setGuildConfig(guildId, 'disabledcommands', guildConfig.disabledcommands);
                     await interaction.reply({ content: `✅ Command \`${commandName}\` has been enabled.`, flags: MessageFlags.Ephemeral });
                 } else {
                     // Disable the command
                     guildConfig.disabledcommands.push(commandId);
-                    await updateData(`guildsettings/${guildId}/config`, { disabledcommands: guildConfig.disabledcommands });
+                    await setGuildConfig(guildId, 'disabledcommands', guildConfig.disabledcommands);
                     await interaction.reply({ content: `❌ Command \`${commandName}\` has been disabled.`, flags: MessageFlags.Ephemeral });
                 }
             }

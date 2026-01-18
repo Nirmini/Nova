@@ -12,7 +12,7 @@ const {
 const devPerms = require('../../devperms.json');
 
 module.exports = {
-    id: '1000008',
+    id: '1000007',
     data: new SlashCommandBuilder()
         .setName('sc2msg')
         .setDescription('Send a system message using Components v2.')

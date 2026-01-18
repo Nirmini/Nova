@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, PermissionsBitField, EmbedBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
-    id: '9000007', // Unique 6-digit command ID
+    id: '9000008', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('temprole')
         .setDescription('Assign a role to a user temporarily.')

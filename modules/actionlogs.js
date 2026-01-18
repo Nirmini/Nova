@@ -8,7 +8,7 @@ const EVENT_KEY_MAP = {
     messageEdit: "message_edit",
     bulkMessageDelete: "message_bulkdel",
     messageInvite: "message_invites",
-    messageModCmd: "message_modcmds", // This is commands in /moderation. To be finished eventually.
+    messageModCmd: "message_modcmds", // This is commands in ./commands/moderation. To be finished eventually.
     memberJoin: "members_join",
     memberLeave: "members_leave",
     memberRoleAdd: "members_roleadd",

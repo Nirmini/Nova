@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, WebhookClient, MessageFlags, EmbedBuilder } = require('discord.js');
+const emoji = require('../../emoji.json');
 
 module.exports = {
     id: '2000004', // Unique 6-digit command ID
@@ -11,7 +12,7 @@ module.exports = {
                 .setDescription('Describe the bug here.')
                 .setRequired(true)),
     async execute(interaction) {
-        const webhookURL = 'YOUR_BUG_REPORT_WEBHOOK_URL';
+        const webhookURL = 'https://ptb.discord.com/api/webhooks/1325598669461913676/IMD_ky0KgTfx8-XQyP5301QN59VlMgaLMDIRkLl5myG6nrDI17_M-DQkZRNEty6oDg3m';
         const webhookClient = new WebhookClient({ url: webhookURL });
 
         const user = interaction.user;
@@ -35,10 +36,10 @@ module.exports = {
             await webhookClient.send({ embeds: [reportEmbed] });
 
             // Acknowledge the report
-            await interaction.reply({ content: '<:Check:1319480831303225354> Your bug report has been submitted.', flags: MessageFlags.Ephemeral });
+            await interaction.reply({ content: `Your bug report has been submitted! ${emoji.FormattedEmoji.NovaCheck2}`, flags: MessageFlags.Ephemeral });
         } catch (error) {
             console.error('Error sending report via webhook:', error);
-            await interaction.reply({ content: '<:Failure:1329622862742421594> Failed to submit your report. Please try again later.', flags: MessageFlags.Ephemeral });
+            await interaction.reply({ content: `${emoji.FormattedEmoji.NovaFailure} Failed to submit your report. Please try again later. `, flags: MessageFlags.Ephemeral });
         }
     },
 };

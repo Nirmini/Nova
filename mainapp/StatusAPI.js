@@ -5,9 +5,10 @@ const cfg = require('../settings.json');
 const express = require('express');
 const app = express();
 require('../core/global/statuspage'); // hypothetical module
+const { getPort } = require('../mainappmodules/ports');
 
 const shardTotal = cfg.shardingcfg.shardcount;
-const port = cfg.ports.StatusAPI;
+const port = getPort('statusapi');
 
 app.use(express.json());
 

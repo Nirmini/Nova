@@ -2,7 +2,7 @@ const packageJson = require('../package.json'); // Import the package.json file
 const version = packageJson.version; // Access the 'version' property
 
 module.exports = {
-    id: '0000019',
+    id: '0000022',
     /**
      * Executes the version command.
      * @param {import('discord.js').Message} message - The message object from Discord.js.

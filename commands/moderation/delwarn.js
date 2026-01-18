@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, PermissionsBitField, MessageFlags } = require('discord.js');
-const { getData, setData, removeData } = require('../../src/Database'); // Use Admin SDK
+const { getUserData, setUserData, removeUserData } = require('../../src/Database'); // Use Admin SDK
 
 module.exports = {
     id: '6000003', // Unique 6-digit command ID
@@ -31,7 +31,7 @@ module.exports = {
             console.log(`User: ${userId}, Guild: ${guildId}, WarnNumber: ${warnNumber}`);
             
             const userWarningsPath = `/warnings/${guildId}/${userId}`;
-            const warnings = await getData(userWarningsPath);
+            const warnings = await getUserData(targetId, 'warnings');
 
             if (!warnings) {
                 await interaction.reply({ content: 'This user has no warnings.', flags: MessageFlags.Ephemeral });
@@ -49,9 +49,9 @@ module.exports = {
 
             console.log('Updating database...');
             if (Object.keys(warnings).length > 0) {
-                await setData(userWarningsPath, warnings);
+                await setUserData(targetId, 'warnings', warnings);
             } else {
-                await removeData(userWarningsPath);
+                await removeUserData(targetId, 'warnings');
             }
 
             await interaction.reply({ content: `Warning #${warnNumber} for ${user.tag} has been deleted.`, flags: MessageFlags.Ephemeral });

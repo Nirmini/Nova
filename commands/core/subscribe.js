@@ -10,7 +10,7 @@ const apiSourceGuildId = '1281856503447425188'; // Source guild ID for api updat
 const apiSourceChannelId = '1361160513698009369'; // Source announcement channel ID for api updates
 
 module.exports = {
-    id: '2000021', // Unique 6-digit command ID
+    id: '2000020', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('subscribe')
         .setDescription('Subscribe a channel to updates or status notifications.')

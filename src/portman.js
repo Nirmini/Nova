@@ -1,32 +1,28 @@
 // Port Manager: Checks and kills any process using critical ports to avoid EADDRINUSE errors.
 
 const { execSync } = require('child_process');
-const path = require('path');
-const fs = require('fs');
 const os = require('os');
+const { getTruePort } = require('../mainappmodules/ports');
 require('../mainapp/sentry');
-
-// Load settings.json dynamically to avoid caching issues
-const settingsPath = path.join(__dirname, '..', 'settings.json');
-const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
 
 function getCriticalPorts() {
     const ports = [];
+    const identifiers = ['devdash', 'novaapi', 'statusapi', 'shardmngr', 'shard'];
 
-    // DevDash ports (array)
-    if (Array.isArray(settings.ports.DevDash)) {
-        ports.push(...settings.ports.DevDash);
-    }
-
-    // NovaAPI, StatusAPI, ShardMngr (single values)
-    ['NovaAPI', 'StatusAPI', 'ShardMngr'].forEach(key => {
-        if (settings.ports[key]) ports.push(settings.ports[key]);
-    });
-
-    // Shard min/max range (inclusive)
-    if (settings.ports.Shard && typeof settings.ports.Shard.min === 'number' && typeof settings.ports.Shard.max === 'number') {
-        for (let p = settings.ports.Shard.min; p <= settings.ports.Shard.max; p++) {
-            ports.push(p);
+    for (const ident of identifiers) {
+        const portValue = getTruePort(ident);
+        
+        if (Array.isArray(portValue)) {
+            // DevDash ports (array)
+            ports.push(...portValue);
+        } else if (typeof portValue === 'object' && portValue.min && portValue.max) {
+            // Shard min/max range (inclusive)
+            for (let p = portValue.min; p <= portValue.max; p++) {
+                ports.push(p);
+            }
+        } else if (portValue) {
+            // Single port values
+            ports.push(portValue);
         }
     }
 

@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
-const { setData, getData, updateData, removeData } = require('../../src/Database'); // Admin SDK functions\
+const { setGuildConfig, getGuildConfig } = require('../../src/Database'); // Admin SDK functions\
 
 module.exports = {
-    id: '9000008', // Unique 6-digit command ID
+    id: '9000009', // Unique 6-digit command ID
     data: new SlashCommandBuilder()
         .setName('unpinrole')
         .setDescription('Unpin a role from a user in the guild.')
@@ -23,7 +23,7 @@ module.exports = {
         const guildId = interaction.guild.id;
         
         // Fetch the existing pinned roles data for the guild
-        const pinnedRoles = await getData(`pinnedroles/${guildId}`);
+        const pinnedRoles = await getGuildConfig(guildId, `pinnedroles`) || {};
 
         if (!pinnedRoles || !pinnedRoles[role.id]) {
             return interaction.reply({ content: `No users are assigned the **${role.name}** role as part of the pinned roles.`, flags: MessageFlags.Ephemeral });
@@ -40,7 +40,7 @@ module.exports = {
         const updatedRoleData = roleData.filter(userId => userId !== user.id);
 
         // Update the pinned roles data in the database
-        await updateData(`pinnedroles/${guildId}/${role.id}`, updatedRoleData);
+        await setGuildConfig(guildId, `pinnedroles/${role.id}`, updatedRoleData);
 
         // Optionally remove the role from the user
         const member = await interaction.guild.members.fetch(user.id);

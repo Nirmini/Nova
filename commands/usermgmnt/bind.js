@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { setData, getData } = require('../../src/Database'); // Admin SDK functions
+const { setGuildConfig, getGuildConfig } = require('../../src/Database'); // Admin SDK functions
 const noblox = require('noblox.js');
 
 module.exports = {
@@ -112,7 +112,7 @@ module.exports = {
     try {
       const guildId = interaction.guild.id;
 
-      const currentBinds = (await getData(`/guildsettings/${guildId}/Binds`)) || [];
+      const currentBinds = await getGuildConfig(guildId, `Binds`) || [];
 
       const currentBindCount = Object.keys(currentBinds).length;
       if (currentBindCount > 50) {
@@ -138,7 +138,7 @@ module.exports = {
         // Save to RTDB in the RBXBinds format
         const bindData = `group:${groupId},${minRank},${maxRank},${roleId}`;
         currentBinds.push(bindData);
-        await setData(`/guildsettings/${guildId}/Binds`, currentBinds);
+        await setGuildConfig(guildId, `Binds`, currentBinds);
 
         // Send success embed
         const embed = new EmbedBuilder()
@@ -169,7 +169,7 @@ module.exports = {
         // Save to RTDB in the RBXBinds format
         const bindData = `pass:${gamepassId},${minRank},${maxRank},${roleId}`;
         currentBinds.push(bindData);
-        await setData(`/guildsettings/${guildId}/Binds`, currentBinds);
+        await setGuildConfig(guildId,` Binds`, currentBinds);
 
         // Send success embed
         const embed = new EmbedBuilder()
@@ -200,7 +200,7 @@ module.exports = {
         // Save to RTDB in the RBXBinds format
         const bindData = `badge:${badgeId},${minRank},${maxRank},${roleId}`;
         currentBinds.push(bindData);
-        await setData(`/guildsettings/${guildId}/Binds`, currentBinds);
+        await setGuildConfig(guildId,`Binds`, currentBinds);
 
         // Send success embed
         const embed = new EmbedBuilder()
@@ -220,7 +220,7 @@ module.exports = {
         const roleId = verifiedRole.id; // Automatically fetch role ID
 
         // Save to RTDB in the commandconfigs format
-        await setData(`/guildsettings/${guildId}/configs/verifiedrole`, roleId);
+        await setGuildConfig(guildId, `Binds.verifiedrole`, roleId);
 
         // Send success embed
         const embed = new EmbedBuilder()

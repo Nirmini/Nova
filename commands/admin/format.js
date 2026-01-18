@@ -1,6 +1,6 @@
 // DEPREACTION WARNING!! : This command is no longer needed due to automatic and manual systems being added.
 const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require('discord.js');
-const { setData, getData } = require('../../src/Database'); // Admin SDK functions
+const { setGuildConfig, getGuildConfig } = require('../../src/Database'); // Admin SDK functions
 
 const devPerms = require('../../devperms.json');
 
@@ -44,14 +44,13 @@ module.exports = {
 
                 // Fetch the Guild ID and create the path for Firebase
                 const guildId = interaction.guildId;
-                const configPath = `configs/${guildId}/Commands`;
 
                 // Check if a blacklist already exists for this guild and log the current state
-                const existingData = await getData(configPath);
+                const existingData = await getGuildConfig(guildId, 'disabledcommands');
                 console.log('Existing blacklist:', existingData);
 
                 // Set the new blacklist JSON data in Firebase
-                await setData(configPath, blacklist);
+                await setGuildConfig(guildId, 'disabledcommands', blacklist);
 
                 // Create a success embed for the reply
                 const successEmbed = new EmbedBuilder()

@@ -2,11 +2,11 @@
 ### Written by @thatWest7014
 ---
 > [!NOTE] 
-> This is Nova's Open-Source branch. Certain features may be removd/missing for security reasons.
+> This is Nova's Open-Source branch. Certain features may be removed/missing for security reasons.
 
 ## A (mostly) open-source multipurpose bot and moderation platform. Designed to just work as needed, when needed.
 
-### Upcoming Features: [Trello](https://trello.com/Nirmini)
+### Upcoming Features: [Trello](https://trello.com/b/XawAdPV7/novabot-development)
 ### Website & Dashbrd: [https://nirmini.dev/Nova](https://nirmini.dev/Nova)
 ### Ban Appeals: [Appeals Portal](https://nirmini.dev/Forms/Appeal)
 

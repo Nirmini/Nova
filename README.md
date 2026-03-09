@@ -57,7 +57,7 @@ For organizational reasons Nova's planned features are stored in three total pla
 
 - The first is the area where most concepts are, this is within the Nirmini Structural Engineering Team(NSET)'s Discord server in the "Nova" category.
 
-- The second place where future changes are placed is on [GitHub issues](https://github.com/Nirmini/NovaBot-Dev/issues). Every bug is assigned an issue and so are most tasks/planned features. This is slowly being migrated to be the primary platform internally for planning.
+- The second place where future changes are placed is on [GitHub issues](https://github.com/Nirmini/Nova/issues). Every bug is assigned an issue and so are most tasks/planned features. This is slowly being migrated to be the primary platform internally for planning.
 
 - The third place is within [Nova's Trello board](https://trello.com/b/XawAdPV7/novabot-development) which currently serves as the official repository of what is being added to Nova and sometimes, when we're adding it to the app. This is slowly being replaced by GitHub.
 
@@ -82,7 +82,7 @@ Nirmini does not moderate any users for servers. The only moderation that we wil
 ## Guides
 
 Nova's guides for various things can be found as other Markdown(`.md`) files.
-> [Setup](https://github.com/Nirmini/NovaBot-Dev/blob/master/SETUP.md) | [Contributing](https://github.com/Nirmini/NovaBot-Dev/blob/master/CONTRIBUTING.md) | [Code Of Conduct](https://github.com/Nirmini/NovaBot-Dev/blob/master/CODE_OF_CONDUCT.md) | [Security](https://github.com/Nirmini/NovaBot-Dev/blob/master/SECURITY.md)
+> [Setup](https://github.com/Nirmini/Nova/blob/master/SETUP.md) | [Contributing](https://github.com/Nirmini/Nova/blob/master/CONTRIBUTING.md) | [Code Of Conduct](https://github.com/Nirmini/Nova/blob/master/CODE_OF_CONDUCT.md) | [Security](https://github.com/Nirmini/Nova/blob/master/SECURITY.md)
 
 ## Notices
 

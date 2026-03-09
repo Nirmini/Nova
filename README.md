@@ -86,8 +86,6 @@ Nova's guides for various things can be found as other Markdown(`.md`) files.
 
 ## Notices
 
-Please be aware that this is a development branch so there is a potential for broken changes to exist on this branch of Nova at any given time. If you need to test new features this is the place to do just that. If you need to test stability, use the production/public branch of Nova. Breaking changes may not be marked as such unless it is a severe change that is likely to require a large amount of reworking old code to work.
-
 Nova is licensed under the Mozilla Public License Version 2.0. Please read the terms of the license for restrictions and other important information. Failure to abide by the license will result in action being taken including but not limited to DMCA takedown notices.
 
 ## Contact

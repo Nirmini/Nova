@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- @TO-DO
+    - Add integ w/ settings.json
+    - Add integ w/ devperms.json
+    - Add integ w/ ticketsettings.json
+    - Add integ w/ standards.json
+    - Add integ w/ .env.cfg or .env
+    -->
+<head>
+    <meta charset="UTF-8">
+    <title>NovaBot Settings Editor</title>
+    <link rel="icon" href="../Icos/Nova/Nova-DevIconT.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #181a1b; color: #f3f3f3; }
+        .main-content {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #23272a;
+            border-radius: 10px;
+            padding: 32px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+        }
+        h1 { margin-top: 0; }
+        label { display: block; margin: 18px 0 8px; }
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 8px; border-radius: 4px; border: none; background: #181a1b; color: #f3f3f3;
+        }
+        input[type="checkbox"] { margin-right: 8px; }
+        .navbar-button {
+            background: #2c2f33;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 18px;
+        }
+        .navbar-button:hover { background: #5865f2; }
+        #settingsStatus { margin-top: 16px; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <h1>Edit Bot Settings</h1>
+        <form id="settingsForm">
+            <label>
+                <input type="checkbox" id="slash_commands_enabled">
+                Slash Commands Enabled
+            </label>
+            <label>
+                Current Release Name:
+                <input type="text" id="currentreleasename">
+            </label>
+            <label>
+                <input type="checkbox" id="check_latest_version">
+                Check Latest Version
+            </label>
+            <label>
+                <input type="checkbox" id="extended_logs">
+                Extended Logs
+            </label>
+            <label>
+                <input type="checkbox" id="allow_users_selfwarn">
+                Allow Users to Self-Warn
+            </label>
+            <button type="submit" class="navbar-button">Save Settings</button>
+        </form>
+        <div id="settingsStatus"></div>
+    </div>
+    <script>
+        async function loadSettings() {
+            const res = await fetch('localhost:65521/api/settings');
+            const data = await res.json();
+            document.getElementById('slash_commands_enabled').checked = !!data.slash_commands_enabled;
+            document.getElementById('currentreleasename').value = data.currentreleasename || '';
+            document.getElementById('check_latest_version').checked = !!data.check_latest_version;
+            document.getElementById('extended_logs').checked = !!data.extended_logs;
+            document.getElementById('allow_users_selfwarn').checked = !!data.allow_users_selfwarn;
+        }
+        document.getElementById('settingsForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                slash_commands_enabled: document.getElementById('slash_commands_enabled').checked,
+                currentreleasename: document.getElementById('currentreleasename').value,
+                check_latest_version: document.getElementById('check_latest_version').checked,
+                extended_logs: document.getElementById('extended_logs').checked,
+                allow_users_selfwarn: document.getElementById('allow_users_selfwarn').checked
+            };
+            const res = await fetch('localhost:65521/api/settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            document.getElementById('settingsStatus').textContent = res.ok ? "Settings saved!" : "Failed to save.";
+            loadSettings();
+        };
+        loadSettings();
+    </script>
+    <script>
+        (function () {
+            const { hostname, port } = window.location;
+            if (hostname === 'localhost' || port === '25525') {
+                // Update favicon
+                const favicon = document.querySelector('link[rel="icon"]');
+                if (favicon) {
+                    favicon.href = 'https://nirmini.dev/imgs/Novaworks/Novaworks.png';
+                }
+            
+                // Update navbar logo
+                const navbarLogo = document.querySelector('.navbar-logo');
+                if (navbarLogo) {
+                    navbarLogo.src = 'https://nirmini.dev/imgs/Novaworks/Novaworks-Banner.png';
+                }
+            }
+        })();
+    </script>
+</body>
+</html>

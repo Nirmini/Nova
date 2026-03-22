@@ -1,0 +1,16 @@
+{
+    "GroupName": "Nirmini",
+    "NirminiID": "3",
+    "RBXBinds": {
+        "1-1": "<RoleIdHere>",
+        "2-2": "<RoleIdHere>"
+    },
+    "colours": {
+        "custom": false
+    },
+    "commandconfigs": {
+        "verifiedrole": "<VerifiedRoleId>"
+    },
+    "rbxgroup": "33610529",
+    "substat": "L0/L1/L2"
+}

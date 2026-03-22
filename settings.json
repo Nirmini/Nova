@@ -1,0 +1,114 @@
+{
+    "currentreleasename":"cosmos",
+    "local_database": false,
+    "remote_provider": "WorkersKV",
+    "use_remote_flag": false,
+    "allow_remote_cfg": true,
+    "enbable_debug": false,
+    "slash_commands_enabled": true,
+    "extended_logs": true,
+    "operator": {
+        "username": "_simplykatt",
+        "userId": "600464355917692952"
+    },
+    "commands": {
+        "ignore_categories": true,
+        "override_enabled": true,
+        "override_set": true,
+        "log_executions": true
+    },
+    "modules_have_priority": true,
+    "check_latest_version": false,
+    "watchdog_cfg":{
+        "enabled":true,
+        "alert_disabled":true,
+        "lv":5,
+        "modules":{
+            "netmonitor":true,
+            "perfmonitor":true,
+            "opsmonitor":true
+        }
+    },
+    "modules": {
+        "statuspage_updates": true,
+        "statuspage_core": true,
+        "spotify": true,
+        "vexrobotics": true,
+        "github": true,
+        "gitlab": true,
+        "youtube": true,
+        "roblox": true,
+        "minecraft": true
+    },
+    "apis": {
+        "roblox": true,
+        "github": true,
+        "gitlab": true,
+        "youtube": true,
+        "spotify": true,
+        "vexrobotics": true,
+        "minecraft": true
+    },
+    "msgwebhooks": {
+        "sharding": true,
+        "startmsg": true
+    },
+    "shardingcfg":{
+        "userecomended":false,
+        "shardcount": 1,
+        "spawndelay": false,
+        "autorespawn": true,
+        "batchsize": 1
+    },
+    "force_whitelist": false,
+    "slash_cmd_whitelist": [
+        "SLASH_COMMAND_ID_HERE"
+    ],
+    "devcmdsenabled":true,
+    "NovaAPI_Config":{
+        "APIPATH":"YOUR_API_URL",
+        "allowdirectresponses":true,
+        "Firebase_RTDB_Enabled": false,
+        "Workers_KV_Enabled": true,
+        "PerfStorage": "KV",
+        "oauth2_path": "YOUR_OAUTH2_URL"
+    },
+    "push_2_topgg": true,
+    "allowcompv2": true,
+    "ports":{
+        "DevDash":[
+            null,
+            null,
+            null,
+            null,
+            null
+        ],
+        "NovaAPI":null,
+        "StatusAPI": null,
+        "ShardMngr": null,
+        "Shard":{
+            "min":null,
+            "max":null
+        },
+        "LocalDash":null,
+        "Cloudflare":null
+    },
+    "execution_method":"strict",
+    "appcfg": {
+        "automaticupdates":true
+    },
+    "allow_users_selfwarn": true,
+    "sysmsgs": {
+        "enabled": true,
+        "pformat": "embed",
+        "chkurl": "YOUR_SYSTEM_API_URL"
+    },
+    "NCMS_config": {
+        "enabled": null,
+        "default_url": null,
+        "fallback_url": null,
+        "prefered_storage_type": null,
+        "remote_storage": null,
+        "remote_storage_sync": null
+    }
+}

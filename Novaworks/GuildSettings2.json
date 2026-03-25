@@ -1,0 +1,17 @@
+{
+    "GroupName": "guild.name", 
+    "NirminiID": "encodedID",
+    "RBXBinds": {
+        "1-1": "<RoleIdHere>",
+        "2-2": "<RoleIdHere>"
+    },
+    "colours": {
+        "custom": false
+    },
+    "commandconfigs": {
+        "verifiedrole": "<VerifiedRoleId>"
+    },
+    "disabledcommands": [], 
+    "rbxgroup": "<GID>",
+    "substat": "L0/L1/L2"
+}

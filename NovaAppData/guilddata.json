@@ -1,0 +1,354 @@
+{
+  "1281856503447425188": {
+    "cases": [
+      {
+        "id": 1,
+        "timestamp": "2025-08-24T19:08:01.932Z",
+        "target": "600464355917692952",
+        "issuer": "600464355917692952",
+        "type": 1,
+        "title": "Warning issued",
+        "description": "Test5",
+        "expires": "2025-09-23T19:08:01.930Z"
+      },
+      {
+        "id": 2,
+        "timestamp": "2025-10-06T13:10:20.270Z",
+        "target": "600464355917692952",
+        "issuer": "600464355917692952",
+        "type": 1,
+        "title": "Warning issued",
+        "description": "Test10",
+        "expires": "2025-11-05T14:10:20.268Z"
+      },
+      {
+        "id": 3,
+        "timestamp": "2025-10-07T02:50:24.376Z",
+        "target": "600464355917692952",
+        "issuer": "600464355917692952",
+        "type": 1,
+        "title": "Warning issued",
+        "description": "Test11",
+        "expires": "2025-11-06T03:50:24.373Z"
+      }
+    ],
+    "ticketdata": {
+      "tickets": [
+        {
+          "ticketId": 1,
+          "openedAt": "2025-10-17T03:24:08.596Z",
+          "openedBy": "600464355917692952",
+          "lastInteraction": {
+            "timestamp": "2025-10-21T03:38:29.994Z"
+          },
+          "ticketName": "_simplykatt's Ticket",
+          "ticketDesc": "Category: application",
+          "usersInvolved": [
+            {
+              "uid": "600464355917692952",
+              "perms": "owner"
+            }
+          ],
+          "ticketType": "nextgen",
+          "formresponse": {
+            "q1": "west7014",
+            "q2": "_simplykatt",
+            "q3": "Test",
+            "q4": "test",
+            "q5": "test"
+          },
+          "channelId": "1428584347488747663",
+          "messageId": "1428584349787226194",
+          "status": "closed",
+          "createdAt": "2025-10-17T03:24:08.596Z",
+          "closedAt": "2025-10-21T03:38:29.993Z"
+        },
+        {
+          "ticketId": 2,
+          "openedAt": "2025-10-21T23:03:52.219Z",
+          "openedBy": "1296245929292206135",
+          "lastInteraction": {
+            "timestamp": "2025-10-21T23:03:52.220Z",
+            "userId": "1296245929292206135",
+            "userName": "cosmosrolling"
+          },
+          "ticketName": "cosmosrolling's Ticket",
+          "ticketDesc": "Category: application",
+          "usersInvolved": [
+            {
+              "uid": "1296245929292206135",
+              "perms": "owner"
+            }
+          ],
+          "ticketType": "nextgen",
+          "formresponse": {
+            "q1": "test",
+            "q2": "test",
+            "q3": "test",
+            "q4": "test",
+            "q5": "test"
+          },
+          "channelId": "1430330789429645342",
+          "messageId": "1430330791061094470",
+          "status": "open",
+          "createdAt": "2025-10-21T23:03:52.220Z"
+        },
+        {
+          "ticketId": 3,
+          "openedAt": "2025-10-22T03:35:32.076Z",
+          "openedBy": "600464355917692952",
+          "lastInteraction": {
+            "timestamp": "2025-10-22T03:35:32.076Z",
+            "userId": "600464355917692952",
+            "userName": "_simplykatt"
+          },
+          "ticketName": "_simplykatt's Ticket",
+          "ticketDesc": "Category: staff_report",
+          "usersInvolved": [
+            {
+              "uid": "600464355917692952",
+              "perms": "owner"
+            }
+          ],
+          "ticketType": "legacy",
+          "formresponse": null,
+          "channelId": "1430399156480118794",
+          "messageId": "1430399157759119445",
+          "status": "open",
+          "createdAt": "2025-10-22T03:35:32.076Z"
+        },
+        {
+          "ticketId": 4,
+          "openedAt": "2025-10-22T03:46:29.185Z",
+          "openedBy": "600464355917692952",
+          "lastInteraction": {
+            "timestamp": "2025-10-22T03:46:29.185Z",
+            "userId": "600464355917692952",
+            "userName": "_simplykatt"
+          },
+          "ticketName": "_simplykatt's Ticket",
+          "ticketDesc": "Category: application",
+          "usersInvolved": [
+            {
+              "uid": "600464355917692952",
+              "perms": "owner"
+            }
+          ],
+          "ticketType": "nextgen",
+          "formresponse": {
+            "q1": "a",
+            "q2": "a",
+            "q3": "a",
+            "q4": "a",
+            "q5": "a"
+          },
+          "channelId": "1430401912892690473",
+          "messageId": "1430401914297647155",
+          "status": "open",
+          "createdAt": "2025-10-22T03:46:29.185Z"
+        },
+        {
+          "ticketId": 5,
+          "openedAt": "2025-10-22T03:55:11.832Z",
+          "openedBy": "600464355917692952",
+          "lastInteraction": {
+            "timestamp": "2025-10-22T03:55:11.832Z",
+            "userId": "600464355917692952",
+            "userName": "_simplykatt"
+          },
+          "ticketName": "_simplykatt's Ticket",
+          "ticketDesc": "Category: report",
+          "usersInvolved": [
+            {
+              "uid": "600464355917692952",
+              "perms": "owner"
+            }
+          ],
+          "ticketType": "nextgen",
+          "formresponse": {
+            "q1": "a",
+            "q2": "a",
+            "q3": "a"
+          },
+          "channelId": "1430404104756138015",
+          "messageId": "1430404106463346778",
+          "status": "open",
+          "createdAt": "2025-10-22T03:55:11.832Z"
+        },
+        {
+          "ticketId": 6,
+          "openedAt": "2025-10-22T03:57:56.668Z",
+          "openedBy": "600464355917692952",
+          "lastInteraction": {
+            "timestamp": "2025-10-22T03:57:56.668Z",
+            "userId": "600464355917692952",
+            "userName": "_simplykatt"
+          },
+          "ticketName": "_simplykatt's Ticket",
+          "ticketDesc": "Category: application",
+          "usersInvolved": [
+            {
+              "uid": "600464355917692952",
+              "perms": "owner"
+            }
+          ],
+          "ticketType": "nextgen",
+          "formresponse": {
+            "q1": "a",
+            "q2": "a",
+            "q3": "a",
+            "q4": "a",
+            "q5": "a"
+          },
+          "channelId": "1430404796938063914",
+          "messageId": "1430404798770974841",
+          "status": "open",
+          "createdAt": "2025-10-22T03:57:56.668Z"
+        }
+      ],
+      "ticket-archives": [],
+      "ticket_multipanels": [
+        {
+          "name": "Nirmini Support Centre",
+          "description": "This is where tickets can be opened for applications, reports, and more!\nContact staff if you need assistance. ",
+          "panels": [
+            {
+              "id": 1,
+              "button_emoji": "⚠",
+              "button_text": "File a report",
+              "connected_config": "report"
+            },
+            {
+              "id": 2,
+              "button_emoji": "⚒",
+              "button_text": "File a staff report",
+              "connected_config": "staff_report"
+            },
+            {
+              "id": 3,
+              "button_emoji": "📩",
+              "button_text": "Open an application",
+              "connected_config": "application"
+            }
+          ]
+        }
+      ],
+      "ticket_configs": [
+        {
+          "name": "report",
+          "forcechannel": true,
+          "type": "nextgen",
+          "nextgen_form": {
+            "q1": {
+              "question": "Username of who you're reporting?",
+              "placeholder": "Ex: _simplykatt",
+              "requried": true
+            },
+            "q2": {
+              "question": "What Platform did this occur on?",
+              "placeholder": "Ex: ROBLOX",
+              "requried": true
+            },
+            "q3": {
+              "question": "URL to evidence?",
+              "placeholder": "Ex: https://www.youtube.com/watch?v=1234567890",
+              "requried": true
+            }
+          },
+          "legacy_embed": null,
+          "welcome_message": {
+            "title": "Nirmini (TESTING) Reports",
+            "description": "Thank you for your report! A member of our moderation team will review it soon."
+          },
+          "ticket_usage": "report"
+        },
+        {
+          "name": "application",
+          "forcechannel": true,
+          "type": "nextgen",
+          "nextgen_form": {
+            "q1": {
+              "question": "What is your ROBLOX Username?",
+              "placeholder": "Ex: west7014",
+              "requried": true
+            },
+            "q2": {
+              "question": "What is your DISCORD Username?",
+              "placeholder": "Ex: _simplykatt",
+              "requried": true
+            },
+            "q3": {
+              "question": "What rank/role are you applying for?",
+              "placeholder": "Ex: Corporate, Supervisor, Developer",
+              "requried": true
+            },
+            "q4": {
+              "question": "Why do you want this rank/role?",
+              "placeholder": null,
+              "requried": true
+            },
+            "q5": {
+              "question": "How would recieving this rank help Nirmini?",
+              "placeholder": null,
+              "requried": true
+            }
+          },
+          "legacy_embed": null,
+          "welcome_message": {
+            "title": "Nirmini (TESTING) Applications",
+            "description": "Thank you for your application! A member of Nirmini's leadership will review your application soon."
+          },
+          "ticket_usage": "application"
+        },
+        {
+          "name": "staff_report",
+          "forcechannel": true,
+          "type": "legacy",
+          "nextgen_form": null,
+          "legacy_embed": {
+            "title": "Nirmini Staff Report (DEMO)",
+            "description": "This ticket is purely for testing and should not actually be used to report Nirmini staff. \nFor actual reports, please contact Nirmini's Director, `_simplykatt`.\nPlease respond to the prompt(s) given below and a staff member will assist from there!",
+            "field1": {
+              "key": "**1: What is the staff member's username?**",
+              "value": "This must be an exact or similar match and cannot be the nickname."
+            },
+            "field2": {
+              "key": "**2: What did the staff member do?**",
+              "value": "Please be as specific as possible with this."
+            },
+            "field3": {
+              "key": "**3: What evidence do you have for this?**",
+              "value": "This can be either attachments or Links."
+            }
+          },
+          "welcome_message": {
+            "title": "Nirmini (TESTING) Reports",
+            "description": "Thank you for your report! A member of our administration team will review it soon."
+          },
+          "ticket_usage": "report"
+        }
+      ]
+    },
+    "ranks": [
+      {
+        "rankid": 1,
+        "connectedroleid": null,
+        "hoistedpermsrole": false
+      }
+    ]
+  },
+  "951303334680231986": {
+    "cases": [],
+    "ticketdata": {
+      "tickets": [],
+      "ticket-archives": []
+    },
+    "ranks": [
+      {
+        "rankid": 1,
+        "connectedroleid": null,
+        "hoistedpermsrole": false
+      }
+    ]
+  }
+}

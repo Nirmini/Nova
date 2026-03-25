@@ -1,0 +1,25 @@
+{
+    "GroupName": "Nirmini Development",
+    "NirminiID": "1",
+    "RBXBinds": [
+        "bindid,min,max,roleid,group:groupid",
+        "bindid,min,max,roleid,badge:badgeid",
+        "bindid,min,max,roleid,pass:gamepassid"
+    ],
+    "colours": {
+        "custom": false
+    },
+    "commandconfigs": {
+        "verifiedrole": "<VerifiedRoleId>"
+    },
+    "disabledcommands": [
+
+    ],
+    "rbxgroup": null,
+    "substat": 0,
+    "Appeals": "FALSE(BOOL)||SubmissionCooldownDays(INT)",
+    "actionlog": false,
+    "cases": [
+        {"type":1, "id":0, "timestamp":"SmthUnixEncoded","authorID":"600...","targetID":"600...","reas":"example reason","isappealable":true,"appealed?":false}
+    ]
+}

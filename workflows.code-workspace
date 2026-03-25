@@ -1,0 +1,203 @@
+{
+	"folders": [
+		{
+			"path": ".github/workflows"
+		},
+		{
+			"path": ".firebase"
+		},
+		{
+			"path": ".gitlab"
+		},
+		{
+			"path": "admin"
+		},
+		{
+			"path": "altcommands"
+		},
+		{
+			"path": "archivedcmds"
+		},
+		{
+			"path": "commands"
+		},
+		{
+			"path": "commands/admin"
+		},
+		{
+			"path": "commands/core"
+		},
+		{
+			"path": "commands/event"
+		},
+		{
+			"path": "commands/fun"
+		},
+		{
+			"path": "commands/misc"
+		},
+		{
+			"path": "commands/moderation"
+		},
+		{
+			"path": "commands/premium"
+		},
+		{
+			"path": "commands/roblox"
+		},
+		{
+			"path": "commands/usermgmnt"
+		},
+		{
+			"path": "commands-backup"
+		},
+		{
+			"path": "config"
+		},
+		{
+			"path": "core"
+		},
+		{
+			"path": "core/data"
+		},
+		{
+			"path": "core/global"
+		},
+		{
+			"path": "core/modules"
+		},
+		{
+			"path": "core/modules/ActionLogs"
+		},
+		{
+			"path": "core/modules/DailyEvents"
+		},
+		{
+			"path": "core/modules/NirminiAtlas"
+		},
+		{
+			"path": "core/modules/NirminiAtlas/ASM"
+		},
+		{
+			"path": "core/modules/NirminiAtlas/C"
+		},
+		{
+			"path": "core/modules/NirminiAtlas/CS"
+		},
+		{
+			"path": "core/modules/NirminiAtlas/curl"
+		},
+		{
+			"path": "core/modules/NirminiAtlas/NDTApps"
+		},
+		{
+			"path": "core/modules/NirminiAtlas/Nexus"
+		},
+		{
+			"path": "core/modules/NirminiAtlas/NovaIntegrated"
+		},
+		{
+			"path": "core/modules/NirminiAtlas/SH"
+		},
+		{
+			"path": "core/modules/NirminiAtlas/Shorthands"
+		},
+		{
+			"path": "core/modules/TimedEvents"
+		},
+		{
+			"path": "core/plugins"
+		},
+		{
+			"path": "ctxtmenu"
+		},
+		{
+			"path": "Dashboard"
+		},
+		{
+			"path": "DashboardServices"
+		},
+		{
+			"path": "DatabaseFormats"
+		},
+		{
+			"path": "DatabaseFormats/Anonmsg"
+		},
+		{
+			"path": "DatabaseFormats/Birthdays"
+		},
+		{
+			"path": "DatabaseFormats/Cases"
+		},
+		{
+			"path": "DatabaseFormats/GuildSettings"
+		},
+		{
+			"path": "DatabaseFormats/Tickets"
+		},
+		{
+			"path": "DatabaseFormats/UserInfo"
+		},
+		{
+			"path": "DatabaseFormats/Warnings"
+		},
+		{
+			"path": "dataconnect"
+		},
+		{
+			"path": "dataconnect/.dataconnect"
+		},
+		{
+			"path": "dataconnect/connector"
+		},
+		{
+			"path": "dataconnect/schema"
+		},
+		{
+			"path": "dataconnect-generated"
+		},
+		{
+			"path": "Guilded"
+		},
+		{
+			"path": "Icos"
+		},
+		{
+			"path": "InHouse"
+		},
+		{
+			"path": "install-tools"
+		},
+		{
+			"path": "keys"
+		},
+		{
+			"path": "Nexus"
+		},
+		{
+			"path": "node_modules"
+		},
+		{
+			"path": "src"
+		},
+		{
+			"path": "servicedata"
+		},
+		{
+			"path": "src/sharding"
+		},
+		{
+			"path": "src/temp"
+		},
+		{
+			"path": "src/utils"
+		},
+		{
+			"path": "VEXELEngine"
+		},
+		{
+			"path": "zzChangelogs"
+		}
+	],
+	"settings": {}
+}

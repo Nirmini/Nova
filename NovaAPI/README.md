@@ -1,0 +1,2 @@
+> [!NOTE]
+> The NovaAPI is NOT open-sourced nor is the entire thing publicly available. You may create an API using this code based upon the NovaAPI but may not recreate nor attempt to recreate the NovaAPI.

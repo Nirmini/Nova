@@ -1,0 +1,3 @@
+export function build(form){ return { type:8, placeholder: form.placeholder || 'Select channel', custom_id: form.customId || 'channel_' + Date.now(), min_values: form.minValues||1, max_values: form.maxValues||1 }; }
+export function render(component){ return `<div class="discord-select-menu"><select ${component.disabled?'disabled':''}><option disabled selected>${component.placeholder||'Select channel'}</option></select></div>`; }
+// COMPONENT ID: 8

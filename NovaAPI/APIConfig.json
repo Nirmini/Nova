@@ -1,0 +1,13 @@
+{
+    "APIEnabled":true,
+    "APIRoute": "https://nirmini.dev/API/Nova",
+    "Trelloconfig" :{
+        "enabled": false
+    },
+    "DatabaseConfig": {
+        "enabled": true
+    },
+    "CFWorkersConfig": {
+        "enabled": true
+    }
+}

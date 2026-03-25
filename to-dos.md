@@ -1,0 +1,11 @@
+## Nova[DEV]: ToDo List
+- Update shorthand `?commands` to use the more sandboxed CommandIds.js instead of localfs.
+- Update the images for `?coin`
+- Migrate from Node.js default http-fetch to Axios for critical stuff.
+- Migrate commands over to replying with embeds
+- Migrate commands over to using Nova's Database Module V3 **[IN_PROGRESS]**
+- Tickets
+- Moderation Stuff
+- Modules
+- NovaAPI Stuff
+- A lot of QA Testing

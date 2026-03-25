@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Novaworks</title>
+  <link rel="icon" href="../Icos/Nova/Nova-DevIconT.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #181a1b;
+      --panel-bg: #23272a;
+      --text: #f3f3f3;
+      --border: #333;
+      --accent: #5865f2;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .navbar {
+      display: flex;
+      align-items: center;
+      background: #23272a;
+      padding: 10px 24px;
+      height: 60px;
+      box-sizing: border-box;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .navbar-logo { height: 40px; margin-right: 24px; }
+    .navbar-buttons { display: flex; gap: 12px; }
+    .navbar-button {
+      background: #2c2f33; color: #fff; border: none;
+      padding: 10px 18px; border-radius: 6px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .navbar-button:hover { background: var(--accent); }
+
+    /* Layout */
+    .workspace { flex: 1; display: flex; overflow: hidden; }
+    .editor-pane {
+      width: 400px; background: var(--panel-bg);
+      padding: 16px; border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+    .preview-pane { flex: 1; padding: 16px; background: var(--bg); overflow-y: auto; }
+
+    .section { margin-bottom: 20px; }
+    .section h3 { margin: 0; font-size: 1rem; color: var(--accent); }
+
+    input, select, textarea, button {
+      width: 100%; margin-top: 6px; padding: 8px;
+      border-radius: 6px; border: 1px solid var(--border);
+      background: var(--bg); color: var(--text);
+      box-sizing: border-box;
+    }
+    textarea { resize: vertical; max-width: 100%; }
+    button { background: var(--accent); color: #fff; border: none; cursor: pointer; }
+    button:hover { background: #4752c4; }
+
+    .radio-inline { display: inline-flex; align-items: center; gap: 8px; margin-right: 16px; }
+
+    /* Tab switcher */
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--border);
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      color: #aaa;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      border-radius: 0;
+      width: auto;
+      margin-top: 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: #fff; background: none; }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* JSON Import */
+    .json-import-area {
+      background: #1a1c1e;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .json-import-area textarea {
+      font-family: monospace;
+      font-size: 0.82rem;
+      min-height: 180px;
+      background: #111;
+      color: #7ec8a4;
+      border-color: #444;
+    }
+    .json-status {
+      font-size: 0.8rem;
+      margin-top: 6px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .json-status.ok { display: block; background: #1a3a2a; color: #5dbb87; border: 1px solid #2d6647; }
+    .json-status.err { display: block; background: #3a1a1a; color: #e06060; border: 1px solid #6e3030; }
+    .json-btn-row { display: flex; gap: 8px; margin-top: 8px; }
+    .json-btn-row button { width: auto; flex: 1; font-size: 0.85rem; padding: 7px 10px; }
+    .btn-secondary { background: #2c2f33 !important; }
+    .btn-secondary:hover { background: #3a3f44 !important; }
+    .btn-danger { background: #c04040 !important; }
+    .btn-danger:hover { background: #a03030 !important; }
+
+    /* Discord Preview */
+    .discord-message { display: flex; gap: 12px; margin-bottom: 16px; }
+    .discord-avatar { width: 40px; height: 40px; border-radius: 50%; }
+    .discord-content { flex: 1; }
+    .discord-header { font-weight: 600; color: #fff; }
+    .discord-header .app-tag {
+      background: #5865f2; color: #fff; font-size: 0.7rem;
+      padding: 1px 4px; border-radius: 5px; margin-left: 4px;
+    }
+    .discord-header .timestamp {
+      font-weight: normal; color: #aaa; font-size: 0.85rem; margin-left: 4px;
+    }
+    .preview-message { margin-top: 2px; }
+    .embed {
+      border-left: 4px solid var(--accent);
+      padding: 8px; margin-top: 8px;
+      background: rgba(88,101,242,0.1); border-radius: 4px;
+      max-width: 520px;
+    }
+    .embed-thumbnail { float: right; max-width: 80px; max-height: 80px; border-radius: 4px; margin-left: 8px; }
+    .embed-image { display: block; max-width: 100%; max-height: 200px; border-radius: 4px; margin-top: 8px; }
+    .embed-footer { font-size: 0.78rem; color: #aaa; margin-top: 6px; }
+    .embed-author { font-size: 0.85rem; color: #ccc; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .embed-author img { width: 20px; height: 20px; border-radius: 50%; }
+    .embed-fields { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .embed-field { flex: 1 1 45%; min-width: 120px; }
+    .embed-field.full { flex: 1 1 100%; }
+    .embed-field-name { font-size: 0.82rem; font-weight: 700; color: #ddd; }
+    .embed-field-value { font-size: 0.82rem; color: #bbb; }
+    .component-block {
+      border: 1px dashed var(--accent);
+      padding: 8px; margin-top: 8px; border-radius: 6px;
+    }
+    .discord-buttons { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .discord-button {
+      background: #2c2f33;
+      color: #fff;
+      border-radius: 4px;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .discord-button.link { background: transparent; border: 1px solid #444; color: #00aff4; }
+    .discord-button.primary { background: #5865f2; }
+    .discord-button.secondary { background: #4e5058; }
+    .discord-button.success { background: #248046; }
+    .discord-button.danger { background: #da373c; }
+    .discord-select {
+      display: inline-block;
+      background: #1e1f22;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 6px 12px;
+      color: #aaa;
+      font-size: 0.85rem;
+      min-width: 200px;
+      margin-top: 4px;
+    }
+    .preview-message h1, 
+    .preview-message h2, 
+    .preview-message h3 {
+      margin: 4px 0;
+      font-weight: 600;
+    }
+    .preview-message h1 { font-size: 1.1rem; }
+    .preview-message h2 { font-size: 1rem; }
+    .preview-message h3 { font-size: 0.95rem; }
+
+    .preview-message ul {
+      list-style-type: disc;
+      margin: 4px 0 4px 1.2em;
+      padding: 0;
+    }
+    .preview-message li {
+      margin: 2px 0;
+    }
+
+    .preview-message code {
+      background: #2f3136;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    .preview-message pre {
+      background: #2f3136;
+      padding: 8px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    .color-control {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      width: 33%;
+      min-width: 150px;
+    }
+    .color-square {
+      flex: 1;
+      aspect-ratio: 1 / 1;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid var(--border);
+    }
+    .color-control input[type="text"] {
+      flex: 2;
+    }
+
+    /* JSON mode badge on preview */
+    .json-mode-badge {
+      display: inline-block;
+      background: #2d4a2d;
+      color: #5dbb87;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <img src="../Icos/Nova/Novaworks-Banner.png" alt="NovaBot Logo" class="navbar-logo">
+    <div class="navbar-buttons">
+      <button class="navbar-button" onclick="location.href='index.html'">Operation Stats</button>
+      <button class="navbar-button" onclick="location.href='manage.html'">Operations Management</button>
+      <button class="navbar-button" onclick="location.href='sysmsgs.html'">SysMsgMngr</button>
+      <button class="navbar-button" onclick="location.href='settings.html'">Settings & Legal</button>
+    </div>
+  </nav>
+
+  <div class="workspace">
+    <div class="editor-pane">
+      <form id="composer">
+        <div class="section">
+          <h3>Target</h3>
+          <label class="radio-inline"><input type="radio" name="type" value="dm" checked> DM User</label>
+          <label class="radio-inline"><input type="radio" name="type" value="channel"> Channel</label>
+          <input type="text" name="userId" placeholder="User ID (for DM)">
+          <select name="guildId" style="display:none;"></select>
+          <select name="channelId" style="display:none;"></select>
+        </div>
+
+        <!-- Tab switcher: Builder vs JSON Import -->
+        <div class="tab-bar">
+          <button type="button" class="tab-btn active" data-tab="builder">Builder</button>
+          <button type="button" class="tab-btn" data-tab="json">JSON Import</button>
+        </div>
+
+        <!-- Builder tab -->
+        <div class="tab-panel active" id="tab-builder">
+          <div class="section">
+            <h3>Message</h3>
+            <textarea name="content" placeholder="Message content..."></textarea>
+            <button type="button" id="addEmbed">+ Add Embed</button>
+            <button type="button" id="addComponent">+ Add Component</button>
+          </div>
+          <div class="section" id="extraBlocks"></div>
+        </div>
+
+        <!-- JSON Import tab -->
+        <div class="tab-panel" id="tab-json">
+          <div class="section">
+            <h3>JSON Import</h3>
+            <p style="font-size:0.82rem; color:#aaa; margin:4px 0 8px;">
+              Paste JSON from 
+              <a href="https://discohook.app" target="_blank" style="color:var(--accent);">discohook.app</a>,
+              <a href="https://discord.builders" target="_blank" style="color:var(--accent);">discord.builders</a>,
+              or raw Discord API message JSON. Supports <code style="background:#222;padding:1px 4px;border-radius:3px;">content</code>, <code style="background:#222;padding:1px 4px;border-radius:3px;">embeds[]</code>, and <code style="background:#222;padding:1px 4px;border-radius:3px;">components[]</code>.
+            </p>
+            <div class="json-import-area">
+              <textarea id="jsonInput" placeholder='Paste JSON here...&#10;&#10;Discohook exports: {"messages":[{"data":{...}}]}&#10;Raw Discord API: {"content":"...","embeds":[...]}'></textarea>
+              <div class="json-btn-row">
+                <button type="button" id="parseJsonBtn">Preview JSON</button>
+                <button type="button" id="clearJsonBtn" class="btn-danger">Clear</button>
+              </div>
+              <div class="json-status" id="jsonStatus"></div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" style="margin-top:12px;">Send</button>
+      </form>
+    </div>
+
+    <div class="preview-pane">
+      <h2>Live Preview <span id="jsonModeBadge" class="json-mode-badge" style="display:none;">JSON Mode</span></h2>
+      <div id="preview"></div>
+      <h3 style="margin-top:24px; color: #fff;">DevDash2 Preview</h3>
+      <iframe src="../DevDash2/index.html" style="width:100%;height:420px;border:1px solid var(--border);border-radius:6px;background:#000;" title="DevDash2"></iframe>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('composer');
+    const preview = document.getElementById('preview');
+    const extraBlocks = document.getElementById('extraBlocks');
+
+    // ── Tab switching ────────────────────────────────────────────
+    let activeTab = 'builder';
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        activeTab = btn.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${activeTab}`));
+        document.getElementById('jsonModeBadge').style.display = activeTab === 'json' ? '' : 'none';
+        updatePreview();
+      });
+    });
+
+    // ── JSON state ───────────────────────────────────────────────
+    let parsedJson = null; // holds the parsed message object when in JSON mode
+
+    document.getElementById('parseJsonBtn').addEventListener('click', () => {
+      const raw = document.getElementById('jsonInput').value.trim();
+      const status = document.getElementById('jsonStatus');
+      if (!raw) {
+        status.textContent = 'Nothing to parse.';
+        status.className = 'json-status err';
+        return;
+      }
+      try {
+        let obj = JSON.parse(raw);
+
+        // Discohook format: { messages: [{ data: {...} }] }
+        if (obj.messages && Array.isArray(obj.messages) && obj.messages[0]?.data) {
+          obj = obj.messages[0].data;
+        }
+
+        // discord.builders wraps in { message: {...} }
+        if (obj.message && typeof obj.message === 'object') {
+          obj = obj.message;
+        }
+
+        // Validate it has at least one of the expected keys
+        if (!obj.content && !obj.embeds && !obj.components) {
+          throw new Error('No content, embeds, or components found in JSON.');
+        }
+
+        parsedJson = obj;
+        status.textContent = `✓ Parsed: ${obj.content ? 'content' : ''}${obj.embeds?.length ? ` + ${obj.embeds.length} embed(s)` : ''}${obj.components?.length ? ` + ${obj.components.length} component row(s)` : ''}`;
+        status.className = 'json-status ok';
+        updatePreview();
+      } catch (err) {
+        parsedJson = null;
+        status.textContent = `✗ ${err.message}`;
+        status.className = 'json-status err';
+        updatePreview();
+      }
+    });
+
+    document.getElementById('clearJsonBtn').addEventListener('click', () => {
+      document.getElementById('jsonInput').value = '';
+      document.getElementById('jsonStatus').className = 'json-status';
+      parsedJson = null;
+      updatePreview();
+    });
+
+    // ── DM/Channel toggle ────────────────────────────────────────
+    document.querySelectorAll('input[name="type"]').forEach(el => {
+      el.addEventListener('change', e => {
+        const isDM = e.target.value === 'dm';
+        form.userId.style.display = isDM ? '' : 'none';
+        form.guildId.style.display = isDM ? 'none' : '';
+        form.channelId.style.display = isDM ? 'none' : '';
+      });
+    });
+
+    // ── Populate guilds/channels ─────────────────────────────────
+    async function loadGuilds() {
+      const res = await fetch('http://localhost:65522/api/guilds');
+      const guilds = await res.json();
+      form.guildId.innerHTML = guilds.map(g => `<option value="${g.id}">${g.name}</option>`).join("");
+      if (guilds[0]) loadChannels(guilds[0].id);
+    }
+    async function loadChannels(guildId) {
+      const res = await fetch(`http://localhost:65522/api/guilds/${guildId}/channels`);
+      const chans = await res.json();
+      form.channelId.innerHTML = chans
+        .filter(c => c.type === 0)
+        .map(c => `<option value="${c.id}">#${c.name}</option>`).join("");
+    }
+    form.guildId?.addEventListener("change", e => loadChannels(e.target.value));
+    loadGuilds();
+
+    // ── Add Embed block ──────────────────────────────────────────
+    document.getElementById('addEmbed').addEventListener('click', () => {
+      const div = document.createElement('div');
+      div.className = "embed-block";
+      div.innerHTML = `
+        <h4>Embed <button type="button" style="background-color: #f25858;" class="delete-block">❌Delete</button></h4>
+        <input type="text" name="embedTitle" placeholder="Embed Title">
+        <textarea name="embedDesc" placeholder="Embed Description"></textarea>
+        <div class="color-control">
+          <div class="color-square" style="background:#5865f2;"></div>
+          <input type="text" name="embedColor" value="#5865f2">
+          <input type="color" class="color-picker" value="#5865f2" style="display:none;">
+        </div>
+      `;
+
+      div.querySelector('.delete-block').addEventListener('click', () => {
+        div.remove();
+        document.getElementById('addComponent').disabled = false;
+        updatePreview();
+      });
+
+      const square = div.querySelector('.color-square');
+      const textbox = div.querySelector('[name="embedColor"]');
+      const picker = div.querySelector('.color-picker');
+
+      square.addEventListener('click', () => picker.click());
+      picker.addEventListener('input', e => {
+        textbox.value = e.target.value;
+        square.style.background = e.target.value;
+        updatePreview();
+      });
+      textbox.addEventListener('input', e => {
+        const val = e.target.value;
+        if (/^#([0-9A-F]{3}){1,2}$/i.test(val)) {
+          square.style.background = val;
+          picker.value = val;
+          updatePreview();
+        }
+      });
+
+      extraBlocks.appendChild(div);
+      document.getElementById('addComponent').disabled = true;
+      updatePreview();
+    });
+
+    // ── Add Component block ──────────────────────────────────────
+    function createComponentBlock() {
+      const div = document.createElement('div');
+      div.className = "component-block";
+      div.innerHTML = `
+        <h4>Component <button type="button" style="background-color: #f25858;" class="delete-block">❌Delete</button></h4>
+        <select name="compType">
+          <option value="actionrow">Action Row</option>
+          <option value="button">Button</option>
+          <option value="stringselect">String Select</option>
+          <option value="textinput">Text Input</option>
+          <option value="userselect">User Select</option>
+          <option value="roleselect">Role Select</option>
+          <option value="mentionableselect">Mentionable Select</option>
+          <option value="channelselect">Channel Select</option>
+          <option value="section">Section</option>
+          <option value="textdisplay">Text Display</option>
+          <option value="thumbnail">Thumbnail</option>
+          <option value="mediagallery">Media Gallery</option>
+          <option value="file">File</option>
+          <option value="separator">Separator</option>
+          <option value="container">Container</option>
+          <option value="label">Label</option>
+          <option value="link">Link Button</option>
+        </select>
+        <div class="comp-fields"></div>
+        <button type="button" class="addChild">+ Add Child Component</button>
+      `;
+
+      div.querySelector('.delete-block').addEventListener('click', () => {
+        div.remove();
+        form.content.disabled = false;
+        document.getElementById('addEmbed').disabled = false;
+        updatePreview();
+      });
+
+      const sel = div.querySelector('[name="compType"]');
+      const fields = div.querySelector('.comp-fields');
+      const renderFields = () => {
+        fields.innerHTML = "";
+        switch (sel.value) {
+          case "button":
+            fields.innerHTML = `
+              <input type="text" name="compLabel" placeholder="Button Label">
+              <input type="text" name="compId" placeholder="Custom ID">
+            `;
+            break;
+          case "stringselect":
+            fields.innerHTML = `
+              <input type="text" name="compPlaceholder" placeholder="Placeholder">
+              <textarea name="compOptions" placeholder="Options (comma-separated)"></textarea>
+            `;
+            break;
+          case "link":
+            fields.innerHTML = `
+              <input type="text" name="compLabel" placeholder="Button Label">
+              <input type="url" name="compUrl" placeholder="https://example.com">
+            `;
+            break;
+          case "textdisplay":
+            fields.innerHTML = `<textarea name="compText" placeholder="Markdown text"></textarea>`;
+            break;
+          case "thumbnail":
+            fields.innerHTML = `<input type="url" name="compUrl" placeholder="Image URL">`;
+            break;
+          case "mediagallery":
+            fields.innerHTML = `<textarea name="compUrls" placeholder="Media URLs (comma-separated)"></textarea>`;
+            break;
+          case "file":
+            fields.innerHTML = `<input type="text" name="compFile" placeholder="File name">`;
+            break;
+          case "label":
+            fields.innerHTML = `
+              <input type="text" name="compLabel" placeholder="Label">
+              <textarea name="compDesc" placeholder="Description"></textarea>
+            `;
+            break;
+          default:
+            fields.innerHTML = `<em>No extra fields for this type</em>`;
+        }
+      };
+      sel.addEventListener('change', renderFields);
+      renderFields();
+
+      div.querySelector('.addChild').addEventListener('click', () => {
+        const child = createComponentBlock();
+        child.classList.add("nested");
+        div.appendChild(child);
+        updatePreview();
+      });
+
+      return div;
+    }
+
+    document.getElementById('addComponent').addEventListener('click', () => {
+      const block = createComponentBlock();
+      extraBlocks.appendChild(block);
+      form.content.disabled = true;
+      document.getElementById('addEmbed').disabled = true;
+      updatePreview();
+    });
+
+    // ── Recursive builder render ─────────────────────────────────
+    function renderComponent(block) {
+      const type = block.querySelector('[name="compType"]')?.value;
+      let html = "";
+      if (type === "button") {
+        const label = block.querySelector('[name="compLabel"]')?.value || "Button";
+        html = `<div class="discord-button">${label}</div>`;
+      } else if (type === "stringselect") {
+        html = `<div class="discord-button">▼ String Select</div>`;
+      } else if (type === "link") {
+        const label = block.querySelector('[name="compLabel"]')?.value || "Link";
+        html = `<div class="discord-button link">🔗 ${label}</div>`;
+      } else if (type === "textdisplay") {
+        const text = block.querySelector('[name="compText"]')?.value || "Text";
+        html = `<div>${text}</div>`;
+      } else if (type === "thumbnail") {
+        const url = block.querySelector('[name="compUrl"]')?.value || "";
+        if (url) html = `<img src="${url}" style="max-width:80px;max-height:80px;border-radius:4px;margin:4px;">`;
+      } else {
+        html = `<div>[${type}]</div>`;
+      }
+      block.querySelectorAll('.component-block.nested').forEach(child => {
+        html += renderComponent(child);
+      });
+      return html;
+    }
+
+    // ── JSON embed renderer ──────────────────────────────────────
+    function intToHex(n) {
+      return '#' + (n >>> 0).toString(16).padStart(6, '0');
+    }
+
+    function renderJsonEmbed(embed) {
+      const color = embed.color ? intToHex(embed.color) : '#5865f2';
+      const bg = color + '20';
+      let html = `<div class="embed" style="border-left-color:${color};background:${bg};">`;
+
+      // Author
+      if (embed.author) {
+        html += `<div class="embed-author">`;
+        if (embed.author.icon_url) html += `<img src="${embed.author.icon_url}" onerror="this.style.display='none'">`;
+        html += `${discordMarkdownToHtml(embed.author.name || '')}`;
+        html += `</div>`;
+      }
+
+      // Title
+      if (embed.title) {
+        const titleHtml = embed.url
+          ? `<a href="${embed.url}" target="_blank" style="color:#00aff4;">${discordMarkdownToHtml(embed.title)}</a>`
+          : `<strong>${discordMarkdownToHtml(embed.title)}</strong>`;
+        html += `<div style="margin-bottom:4px;">${titleHtml}</div>`;
+      }
+
+      // Thumbnail (right-float)
+      if (embed.thumbnail?.url) {
+        html += `<img class="embed-thumbnail" src="${embed.thumbnail.url}" onerror="this.style.display='none'">`;
+      }
+
+      // Description
+      if (embed.description) {
+        html += `<div style="font-size:0.9rem;color:#dcddde;">${discordMarkdownToHtml(embed.description)}</div>`;
+      }
+
+      // Fields
+      if (embed.fields?.length) {
+        html += `<div class="embed-fields">`;
+        embed.fields.forEach(f => {
+          const cls = f.inline ? 'embed-field' : 'embed-field full';
+          html += `<div class="${cls}">
+            <div class="embed-field-name">${discordMarkdownToHtml(f.name || '')}</div>
+            <div class="embed-field-value">${discordMarkdownToHtml(f.value || '')}</div>
+          </div>`;
+        });
+        html += `</div>`;
+      }
+
+      // Image
+      if (embed.image?.url) {
+        html += `<img class="embed-image" src="${embed.image.url}" onerror="this.style.display='none'">`;
+      }
+
+      // Footer
+      if (embed.footer) {
+        html += `<div class="embed-footer" style="clear:both;">`;
+        if (embed.footer.icon_url) html += `<img src="${embed.footer.icon_url}" style="width:16px;height:16px;border-radius:50%;vertical-align:middle;margin-right:4px;" onerror="this.style.display='none'">`;
+        html += `${discordMarkdownToHtml(embed.footer.text || '')}`;
+        html += `</div>`;
+      }
+
+      html += `<div style="clear:both;"></div></div>`;
+      return html;
+    }
+
+    // Button style map (Discord API style numbers)
+    const BUTTON_STYLES = { 1: 'primary', 2: 'secondary', 3: 'success', 4: 'danger', 5: 'link' };
+
+    function renderJsonComponent(comp) {
+      // type 1 = Action Row, 2 = Button, 3 = String Select, etc.
+      if (comp.type === 1) {
+        // Action Row — render children in a row
+        let html = `<div class="discord-buttons">`;
+        (comp.components || []).forEach(child => { html += renderJsonComponent(child); });
+        html += `</div>`;
+        return html;
+      }
+      if (comp.type === 2) {
+        // Button
+        const styleName = BUTTON_STYLES[comp.style] || 'secondary';
+        const label = comp.label || '';
+        const emoji = comp.emoji ? (comp.emoji.name || '') : '';
+        if (comp.style === 5) {
+          return `<a class="discord-button link" href="${comp.url || '#'}" target="_blank">${emoji} ${label} 🔗</a>`;
+        }
+        return `<div class="discord-button ${styleName}">${emoji} ${label}</div>`;
+      }
+      if (comp.type === 3) {
+        // String Select
+        return `<div class="discord-select">▼ ${comp.placeholder || 'Select an option...'}</div>`;
+      }
+      if ([5, 6, 7, 8].includes(comp.type)) {
+        // User/Role/Mentionable/Channel Select
+        const names = { 5: 'User', 6: 'Role', 7: 'Mentionable', 8: 'Channel' };
+        return `<div class="discord-select">▼ ${comp.placeholder || `Select a ${names[comp.type] || 'value'}...`}</div>`;
+      }
+      // Components v2
+      if (comp.type === 9) { // Section
+        let html = `<div style="display:flex;gap:8px;margin-top:4px;">`;
+        html += `<div style="flex:1;">`;
+        (comp.components || []).forEach(c => { html += renderJsonComponent(c); });
+        html += `</div>`;
+        if (comp.accessory) html += renderJsonComponent(comp.accessory);
+        html += `</div>`;
+        return html;
+      }
+      if (comp.type === 10) { // Text Display
+        return `<div style="font-size:0.9rem;color:#dcddde;margin-top:2px;">${discordMarkdownToHtml(comp.content || '')}</div>`;
+      }
+      if (comp.type === 11) { // Thumbnail
+        return comp.media?.url ? `<img src="${comp.media.url}" style="max-width:80px;max-height:80px;border-radius:4px;" onerror="this.style.display='none'">` : '';
+      }
+      if (comp.type === 12) { // Media Gallery
+        let html = `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">`;
+        (comp.items || []).forEach(item => {
+          if (item.media?.url) html += `<img src="${item.media.url}" style="max-width:160px;max-height:120px;border-radius:4px;" onerror="this.style.display='none'">`;
+        });
+        html += `</div>`;
+        return html;
+      }
+      if (comp.type === 14) { // Separator
+        return `<hr style="border:none;border-top:1px solid #333;margin:6px 0;">`;
+      }
+      if (comp.type === 17) { // Container
+        let html = `<div style="border:1px solid #333;border-radius:6px;padding:8px;margin-top:4px;background:#1e1f22;">`;
+        (comp.components || []).forEach(c => { html += renderJsonComponent(c); });
+        html += `</div>`;
+        return html;
+      }
+      return `<div style="color:#888;font-size:0.8rem;">[component type ${comp.type}]</div>`;
+    }
+
+    // ── Markdown → HTML ──────────────────────────────────────────
+    function discordMarkdownToHtml(text) {
+      if (!text) return "";
+      let html = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+      html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+      html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+      html = html.replace(/-# (.*)/g, '<span style="font-size:0.85em;color:#aaa;">$1</span>');
+      html = html.replace(/\*\*\*(.*?)\*\*\*/g, "<b><i>$1</i></b>");
+      html = html.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
+      html = html.replace(/\*(.*?)\*/g, "<i>$1</i>");
+      html = html.replace(/__(.*?)__/g, "<u>$1</u>");
+      html = html.replace(/_(.*?)_/g, "<i>$1</i>");
+      html = html.replace(/~~(.*?)~~/g, "<s>$1</s>");
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+      html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+      html = html.replace(/^( {0,2})- (.*)$/gim, '<ul><li>$2</li></ul>');
+      html = html.replace(/^( {2,4})- (.*)$/gim, '<ul style="margin-left:1em;"><li>$2</li></ul>');
+      html = html.replace(/^( {4,})- (.*)$/gim, '<ul style="margin-left:2em;"><li>$2</li></ul>');
+      html = html.replace(/\n/g, "<br>");
+      return html;
+    }
+
+    // ── Preview renderer ─────────────────────────────────────────
+    function updatePreview() {
+      const now = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      let html = `<div class="discord-message">
+        <img src="https://nirmini.dev/imgs/Nova/v4/Nightsmith-V3Logo-Dev.png" class="discord-avatar" onerror="this.style.display='none'">
+        <div class="discord-content">
+          <div class="discord-header">Nova <span class="app-tag">APP</span><span class="timestamp">Today at ${now}</span></div>
+          <div class="preview-message">`;
+
+      if (activeTab === 'json' && parsedJson) {
+        // ── JSON mode ──
+        if (parsedJson.content) {
+          html += discordMarkdownToHtml(parsedJson.content);
+        }
+        if (parsedJson.embeds?.length) {
+          parsedJson.embeds.forEach(e => { html += renderJsonEmbed(e); });
+        }
+        if (parsedJson.components?.length) {
+          parsedJson.components.forEach(c => { html += renderJsonComponent(c); });
+        }
+      } else if (activeTab === 'builder') {
+        // ── Builder mode ──
+        if (!form.content.disabled && form.content.value) {
+          html += discordMarkdownToHtml(form.content.value);
+        }
+        extraBlocks.querySelectorAll('.embed-block').forEach(block => {
+          const title = block.querySelector('[name="embedTitle"]')?.value || "";
+          const desc = block.querySelector('[name="embedDesc"]')?.value || "";
+          const color = block.querySelector('[name="embedColor"]')?.value || "#5865f2";
+          html += `<div class="embed" style="border-left:4px solid ${color}; background:${color}20;">
+            <strong>${discordMarkdownToHtml(title)}</strong><br>
+            ${discordMarkdownToHtml(desc)}
+          </div>`;
+        });
+        const compBlocks = extraBlocks.querySelectorAll('.component-block:not(.nested)');
+        if (compBlocks.length > 0) {
+          html += `<div class="discord-buttons">`;
+          compBlocks.forEach(block => { html += renderComponent(block); });
+          html += `</div>`;
+        }
+      }
+
+      html += `</div></div></div>`;
+      preview.innerHTML = html;
+    }
+
+    // ── Form submit ──────────────────────────────────────────────
+    form.addEventListener('input', updatePreview);
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const type = form.type.value;
+      const payload = {
+        type,
+        devUserId: "600464355917692952"
+      };
+
+      if (type === "dm") {
+        payload.userId = form.userId.value.trim();
+      } else {
+        payload.guildId = form.guildId.value;
+        payload.channelId = form.channelId.value;
+      }
+
+      if (activeTab === 'json' && parsedJson) {
+        // Send the raw parsed JSON as-is — backend handles it
+        payload.messageType = "raw";
+        payload.rawMessage = parsedJson;
+      } else {
+        // Builder mode (existing logic)
+        if (!form.content.disabled && form.content.value) {
+          payload.messageType = "text";
+          payload.content = form.content.value;
+        }
+
+        const embedBlocks = extraBlocks.querySelectorAll('.embed-block');
+        if (embedBlocks.length > 0) {
+          payload.messageType = "embed";
+          const first = embedBlocks[0];
+          payload.embed = {
+            title: first.querySelector('[name="embedTitle"]').value,
+            description: first.querySelector('[name="embedDesc"]').value,
+            color: first.querySelector('[name="embedColor"]').value
+          };
+          if (form.content.value) payload.content = form.content.value;
+        }
+
+        const compBlocks = extraBlocks.querySelectorAll('.component-block:not(.nested)');
+        if (compBlocks.length > 0) {
+          payload.messageType = "componentsv2";
+          if (typeof buildComponents === 'function') {
+            payload.components = buildComponents(compBlocks);
+          }
+        }
+      }
+
+      console.log("Sending payload:", payload);
+
+      const res = await fetch("http://localhost:65522/api/sendmsg", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      alert(JSON.stringify(data, null, 2));
+    });
+
+    updatePreview();
+  </script>
+  <script>
+      (function () {
+          const { hostname, port } = window.location;
+          if (hostname === 'localhost' || port === '25525') {
+              const favicon = document.querySelector('link[rel="icon"]');
+              if (favicon) {
+                  favicon.href = 'https://thatwest7014.pages.dev/imgs/Novaworks/Novaworks.png';
+              }
+              const navbarLogo = document.querySelector('.navbar-logo');
+              if (navbarLogo) {
+                  navbarLogo.src = 'https://thatwest7014.pages.dev/imgs/Novaworks/Novaworks-Banner.png';
+              }
+          }
+      })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+export function build(form){ return { type:5, placeholder: form.placeholder || 'Select user', custom_id: form.customId || 'user_' + Date.now(), min_values: form.minValues||1, max_values: form.maxValues||1 }; }
+export function render(component){ return `<div class="discord-select-menu"><select ${component.disabled?'disabled':''}><option disabled selected>${component.placeholder||'Select user'}</option></select></div>`; }
+// COMPONENT ID: 5

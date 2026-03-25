@@ -1,0 +1,1910 @@
+{
+  "1146596503075434638": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "1146596503075434638",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "1225142849922928661": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "1225142849922928661",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "1277002137330520094": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "1277002137330520094",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "1281856503447425188": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "1281856503447425188",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "1282837618933104726": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "1282837618933104726",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "1316446625387778078": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "1316446625387778078",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "1341153395414663249": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "1341153395414663249",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "1351270124879089794": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "1351270124879089794",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "1354436765989077123": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "1354436765989077123",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "1374578231889362975": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "1374578231889362975",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "333949691962195969": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "333949691962195969",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  },
+  "700701341105782850": {
+    "GroupName": "Unknown",
+    "GuildName": "Unknown",
+    "GuildId": "700701341105782850",
+    "NirminiID": "",
+    "NovaworksId": "",
+    "format": "NovaGS3",
+    "colours": {
+      "custom": false
+    },
+    "commandconfigs": {
+      "core": {
+        "verifiedrole": null
+      }
+    },
+    "disabledcommands": [],
+    "rbxgroup": "",
+    "substat": "L0",
+    "reports": {
+      "enabled": false,
+      "sendchannelid": "ChannelId",
+      "type": "primary"
+    },
+    "modules": {
+      "admin": {
+        "enabled": true,
+        "hidden": true,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "core": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "events": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "fun": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "misc": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "moderation": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "premium": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "roblox": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      },
+      "usermanagement": {
+        "enabled": true,
+        "hidden": false,
+        "commands": [
+          {
+            "CommandId": "CommandId",
+            "CommandName": "CommandName",
+            "CommandEnabled": true
+          }
+        ]
+      }
+    },
+    "customcmds": [
+      {
+        "name": "placeholder"
+      }
+    ],
+    "autoreplies": [
+      {
+        "trigger": "<trigger>",
+        "type": "percise/wild"
+      }
+    ],
+    "guildforms": [
+      {
+        "id": "formId",
+        "name": "formName"
+      }
+    ],
+    "featuremodules": {
+      "youtube": {
+        "enabled": false
+      },
+      "tiktok": {
+        "enabled": false
+      },
+      "github": {
+        "enabled": false
+      },
+      "twitch": {
+        "enabled": false
+      },
+      "steam": {
+        "enabled": false
+      }
+    }
+  }
+}

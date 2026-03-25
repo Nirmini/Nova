@@ -1,0 +1,115 @@
+{
+    "currentreleasename":"galaxy",
+    "novaBranchVersion":"dev",
+    "local_database": false,
+    "remote_provider": "WorkersKV",
+    "use_remote_flag": false,
+    "allow_remote_cfg": true,
+    "enbable_debug": false,
+    "slash_commands_enabled": true,
+    "extended_logs": true,
+    "mainapplibrary": {
+        "recover_on_crash": true,
+        "restartdelay": {
+            "days":0,
+            "hours":18,
+            "minutes":0,
+            "seconds":0
+        }
+    },
+    "operator": {
+        "username": "_simplykatt",
+        "userId": "600464355917692952"
+    },
+    "commands": {
+        "ignore_categories": true,
+        "override_enabled": true,
+        "override_set": true,
+        "log_executions": true
+    },
+    "modules_have_priority": true,
+    "check_latest_version": false,
+    "status_provider":"betterstack",
+    "modules": {
+        "status_updates": false,
+        "status_core": false,
+        "spotify": true,
+        "vexrobotics": true,
+        "github": true,
+        "gitlab": true,
+        "youtube": true,
+        "roblox": true,
+        "minecraft": true
+    },
+    "apis": {
+        "roblox": true,
+        "github": true,
+        "gitlab": true,
+        "youtube": true,
+        "spotify": true,
+        "vexrobotics": true,
+        "minecraft": true
+    },
+    "msgwebhooks": {
+        "sharding": true,
+        "startmsg": true
+    },
+    "shardingcfg":{
+        "userecomended":false,
+        "shardcount": 1,
+        "spawndelay": 6,
+        "autorespawn": true,
+        "batchsize": 1
+    },
+    "force_whitelist": false,
+    "slash_cmd_whitelist": [
+        "SLASH_COMMAND_ID_HERE"
+    ],
+    "devcmdsenabled":true,
+    "NovaAPI_Config":{
+        "APIPATH":"https://api.nirmini.dev/Nova",
+        "allowdirectresponses":true,
+        "Firebase_RTDB_Enabled": false,
+        "Workers_KV_Enabled": true,
+        "PerfStorage": "KV",
+        "oauth2_path": "https://nirmini.dev/Nova/invite"
+    },
+    "push_2_topgg": true,
+    "allowcompv2": true,
+    "ports":{
+        "DevDash":[
+            65525,
+            65524,
+            65523,
+            65522,
+            65521
+        ],
+        "NovaAPI":28878,
+        "StatusAPI": 65505,
+        "ShardMngr": 65515,
+        "Shard":{
+            "min":30500,
+            "max":60500
+        },
+        "LocalDash":65516,
+        "Cloudflare":29958
+    },
+    "execution_method":"strict",
+    "appcfg": {
+        "automaticupdates":true
+    },
+    "allow_users_selfwarn": true,
+    "sysmsgs": {
+        "enabled": true,
+        "pformat": "embed",
+        "chkurl": "https://api.nirmini.dev/Nova/Staff/SystemMessages"
+    },
+    "NCMS_config": {
+        "enabled": true,
+        "default_url":"https://api.nirmini.dev/cms",
+        "fallback_url":"https://api.nirmini.dev/devtools",
+        "prefered_storage_type": 3,
+        "remote_storage": true,
+        "remote_storage_sync": true
+    }
+}

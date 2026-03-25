@@ -1,0 +1,78 @@
+{
+  "name": "nova",
+  "version": "2.1.2.252a",
+  "description": "[DEV BRANCH!!] The Discord bot part of Nova that's responsible for all non-API operations.",
+  "homepage": "https://nirmini.dev/NovaBot-Dev",
+  "author": {
+    "name": "Katt",
+    "email": "simplykatt@nirmini.dev",
+    "url": "https://github.com/thatWest7014"
+  },
+  "maintainers": [
+    "Nirmini Engieneering",
+    "simplyKit"
+  ],
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/Nirmini/NovaBot-Dev/issues",
+    "email": "support@nirmini.dev"
+  },
+  "main": "mainapp/mainapp",
+  "scripts": {
+    "start": "set NODE_ENV=development && node mainapp/mainapp",
+    "application": "set NODE_ENV=production && node mainapp/mainapp",
+    "test": "node -e \"process.exit(0);\"",
+    "tbench": "node testbench.js"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "multi",
+    "nova",
+    "discordjs",
+    "eris",
+    "discord.js",
+    "discordbot"
+  ],
+  "license": "ISC",
+  "engineStrict": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "@discordjs/rest": "^2.6.0",
+    "@discordjs/voice": "^0.18.0",
+    "@discordjs/ws": "^2.0.4",
+    "@napi-rs/canvas": "^0.1.94",
+    "@sagi.io/workers-kv": "^0.0.15",
+    "@sentry/node": "^10.27.0",
+    "@sentry/profiling-node": "^10.27.0",
+    "axios": "^1.13.5",
+    "body-parser": "^2.2.2",
+    "brace-expansion": "^4.0.1",
+    "cheerio": "^1.0.0",
+    "cloudflare": "^3.5.0",
+    "cors": "^2.8.5",
+    "discord.js": "^14.25.1",
+    "dotenv": "^16.4.5",
+    "eris": "^0.18.0",
+    "express": "^4.21.2",
+    "js-yaml": "^4.1.1",
+    "ms": "^2.1.3",
+    "noblox.js": "^6.2.0",
+    "node-cron": "^3.0.3",
+    "stripe": "^17.5.0",
+    "tar-fs": "^3.1.1",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "electron": "^35.7.5",
+    "eslint": "^9.31.0"
+  },
+  "overrides": {
+    "form-data": "^4.0.4",
+    "@eslint/plugin-kit": "^0.3.4",
+    "node-forge": "^1.3.2",
+    "qs": "^6.14.2"
+  }
+}

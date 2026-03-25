@@ -1,0 +1,30 @@
+{
+  "600464355917692952": {
+    "NovaUID": 1,
+    "Roblox": {
+      "username": "west7014",
+      "nickname": "Katt",
+      "userId": 798440211,
+      "verifed": true,
+      "lastChange": null
+    },
+    "Discord": {
+      "username": "cosmosrolling",
+      "nickname": "Cosmo",
+      "verifiedAt": null,
+      "OAuthEmail": "West701497@gmail.com"
+    },
+    "Nirmini": {
+      "username": "wildkatt",
+      "nickname": "Cosmo",
+      "userid": 1,
+      "%MultiFacEnabled": false,
+      "novaModeration": null
+    },
+    "guild_roles": {
+      "1281856503447425188": [
+        "1281856503539568740"
+      ]
+    }
+  }
+}

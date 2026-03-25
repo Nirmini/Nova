@@ -57,7 +57,11 @@ For organizational reasons Nova's planned features are stored in three total pla
 
 - The first is the area where most concepts are, this is within the Nirmini Structural Engineering Team(NSET)'s Discord server in the "Nova" category.
 
+<<<<<<< HEAD
 - The second place where future changes are placed is on [GitHub issues](https://github.com/Nirmini/NovaBot-Dev/issues). Every bug is assigned an issue and so are most tasks/planned features. This is slowly being migrated to be the primary platform internally for planning.
+=======
+- The second place where future changes are placed is on [GitHub issues](https://github.com/Nirmini/Nova/issues). Every bug is assigned an issue and so are most tasks/planned features. This is slowly being migrated to be the primary platform internally for planning.
+>>>>>>> 197b6b1873e398e82eb7de001e75d449f21bef04
 
 - The third place is within [Nova's Trello board](https://trello.com/b/XawAdPV7/novabot-development) which currently serves as the official repository of what is being added to Nova and sometimes, when we're adding it to the app. This is slowly being replaced by GitHub.
 
@@ -82,12 +86,19 @@ Nirmini does not moderate any users for servers. The only moderation that we wil
 ## Guides
 
 Nova's guides for various things can be found as other Markdown(`.md`) files.
+<<<<<<< HEAD
 > [Setup](https://github.com/Nirmini/NovaBot-Dev/blob/master/SETUP.md) | [Contributing](https://github.com/Nirmini/NovaBot-Dev/blob/master/CONTRIBUTING.md) | [Code Of Conduct](https://github.com/Nirmini/NovaBot-Dev/blob/master/CODE_OF_CONDUCT.md) | [Security](https://github.com/Nirmini/NovaBot-Dev/blob/master/SECURITY.md)
 
 ## Notices
 
 Please be aware that this is a development branch so there is a potential for broken changes to exist on this branch of Nova at any given time. If you need to test new features this is the place to do just that. If you need to test stability, use the production/public branch of Nova. Breaking changes may not be marked as such unless it is a severe change that is likely to require a large amount of reworking old code to work.
 
+=======
+> [Setup](https://github.com/Nirmini/Nova/blob/master/SETUP.md) | [Contributing](https://github.com/Nirmini/Nova/blob/master/CONTRIBUTING.md) | [Code Of Conduct](https://github.com/Nirmini/Nova/blob/master/CODE_OF_CONDUCT.md) | [Security](https://github.com/Nirmini/Nova/blob/master/SECURITY.md)
+
+## Notices
+
+>>>>>>> 197b6b1873e398e82eb7de001e75d449f21bef04
 Nova is licensed under the Mozilla Public License Version 2.0. Please read the terms of the license for restrictions and other important information. Failure to abide by the license will result in action being taken including but not limited to DMCA takedown notices.
 
 ## Contact

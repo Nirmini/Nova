@@ -17,6 +17,5 @@ window.OPERATIONAL_INFO = {
     "guilds": 3,
     "users": 3,
     "guildIDs": [
-        
     ]
 };

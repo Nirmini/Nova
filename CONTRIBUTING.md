@@ -59,12 +59,20 @@ Keep commit messages short and to the point. A good commit message describes *wh
 
 #### Found something broken? Great, that's genuinely helpful.
 
+<<<<<<< HEAD
 - Check the [GitHub Issues](https://github.com/Nirmini/NovaBot-Dev/issues) page first to see if it's already been reported.
+=======
+- Check the [GitHub Issues](https://github.com/Nirmini/Nova/issues) page first to see if it's already been reported.
+>>>>>>> 197b6b1873e398e82eb7de001e75d449f21bef04
 - If it hasn't, open a new issue. Include:
   - A clear description of what is happening vs. what you expected to happen.
   - Steps to reproduce it if possible.
   - Any relevant error messages or logs.
+<<<<<<< HEAD
 - If it's a **security vulnerability**, do **not** open a public issue. Refer to the [Security Policy](https://github.com/Nirmini/NovaBot-Dev/blob/master/SECURITY.md) for how to report it privately.
+=======
+- If it's a **security vulnerability**, do **not** open a public issue. Refer to the [Security Policy](https://github.com/Nirmini/Nova/blob/master/SECURITY.md) for how to report it privately.
+>>>>>>> 197b6b1873e398e82eb7de001e75d449f21bef04
 
 ---
 
@@ -72,7 +80,11 @@ Keep commit messages short and to the point. A good commit message describes *wh
 
 #### Have an idea for something Nova should do?
 
+<<<<<<< HEAD
 - Open a [GitHub Issue](https://github.com/Nirmini/NovaBot-Dev/issues) with a clear description of what you want and why it would be useful.
+=======
+- Open a [GitHub Issue](https://github.com/Nirmini/Nova/issues) with a clear description of what you want and why it would be useful.
+>>>>>>> 197b6b1873e398e82eb7de001e75d449f21bef04
 - Keep in mind that Nova is designed to be a self-contained moderation and community bot. Feature requests that fall outside of that scope are less likely to be accepted.
 - Feature requests are not guaranteed to be implemented. If your idea is good, it will be considered.
 
@@ -84,5 +96,9 @@ Keep commit messages short and to the point. A good commit message describes *wh
 - Performance improvements — Welcome, but must come with context on what was improved and why.
 - New commands or modules — Accepted on a case-by-case basis. Check the existing issues and to-do list before building something from scratch, as it may already be planned.
 - Dependency updates — Only if there is a clear reason such as a security patch. Do not update packages speculatively.
+<<<<<<< HEAD
 - Documentation improvements — Always welcome as long as it improves on the existing content without removing content.
 
+=======
+- Documentation improvements — Always welcome as long as the writing style is consistent with what's already there.
+>>>>>>> 197b6b1873e398e82eb7de001e75d449f21bef04

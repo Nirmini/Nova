@@ -1,10 +1,10 @@
 {
   "messages": {
-    "lastmid": "System TitleSystem Description"
+    "lastmid": null
   },
   "guilddata": {
-    "lastNirmini": 3,
-    "lastNovaworks": 7
+    "lastNirmini": null,
+    "lastNovaworks": null
   },
-  "servercount": 4
+  "servercount": null
 }

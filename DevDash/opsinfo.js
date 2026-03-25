@@ -1,11 +1,11 @@
 window.OPERATIONAL_INFO = {
-    "uptime": "0h 28m 37s",
+    "uptime": "3h 51m 51s",
     "uptime_status": "ok",
     "cpu": "0.0%",
     "cpu_status": "ok",
-    "ram": "47430MB / 49077MB (96.6%)",
+    "ram": "44708MB / 49077MB (91.1%)",
     "ram_status": "ok",
-    "ping": 65,
+    "ping": 88,
     "ping_status": "ok",
     "shard": [
         0,
@@ -15,10 +15,8 @@ window.OPERATIONAL_INFO = {
     "status": "Online",
     "status_status": "ok",
     "guilds": 3,
-    "users": 2,
+    "users": 3,
     "guildIDs": [
-        "951303334680231986",
-        "1225142849922928661",
-        "1281856503447425188"
+        
     ]
 };
